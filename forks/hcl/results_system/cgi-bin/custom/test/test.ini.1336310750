@@ -1,0 +1,399 @@
+<xml>
+
+<calculations>
+<order_by>
+average
+</order_by>
+</calculations>
+
+<paths>
+  <root>
+   /home/duncan/results_system/forks/hcl/results_system
+  </root>
+ <cgi-dir>
+  /cgi-bin
+  </cgi-dir>
+ <csv_files>
+    /home/duncan/results_system/forks/hcl/results_system/fixtures/test
+  </csv_files>
+  <log_dir>
+    /home/duncan/results_system/forks/hcl/results_system/tmp
+  </log_dir>
+  <pwd_dir>
+     /home/duncan/results_system/forks/hcl/results_system/tmp
+  </pwd_dir>
+  <table_dir>
+    /custom/test/2012/tables
+  </table_dir>
+  <table_dir_full>
+    /home/duncan/results_system/forks/hcl/results_system/htdocs/custom/test/2012/tables
+  </table_dir_full>
+  <htdocs>
+    
+  </htdocs>
+  <htdocs_full>
+  <prefix>root</prefix>
+  <value>/htdocs</value>
+  </htdocs_full>
+  <results_dir>
+    /custom/test/2012/results
+  </results_dir>
+  <results_dir_full>
+    /home/duncan/results_system/forks/hcl/results_system/htdocs/custom/test/2012/results
+  </results_dir_full>
+</paths>
+
+<descriptors>
+  <title>
+    Hampshire Cricket League
+  </title>
+  <season>
+    2012
+  </season>  
+</descriptors>
+
+<return_to>
+  <menu>
+  <href>
+    /index.htm
+  </href>
+  <title>
+  Return To Index
+  </title>
+  </menu>
+  <results_index>
+  <href>
+    /index.htm
+  </href>
+  <title>
+  Return To Index
+  </title>
+  </results_index>
+</return_to>
+
+
+<stylesheets>
+  <sheet>
+    test/gen_styles.css
+  </sheet>
+</stylesheets>
+
+<divisions>
+
+  <division>
+  
+    <menu_position>
+      1
+    </menu_position>
+    <menu_name>
+      County Division One
+    </menu_name>
+    <csv_file>
+      2012CD1.csv
+    </csv_file>
+    
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      2
+    </menu_position>
+    <menu_name>
+      County Division Two
+    </menu_name>  
+    <csv_file>
+      2012CD2.csv
+    </csv_file>
+    
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      3
+    </menu_position>
+    <menu_name>
+      County Division Three
+    </menu_name>  
+    <csv_file>
+      2012CD3.csv
+    </csv_file>
+    
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      4
+    </menu_position>
+    <menu_name>
+      County Division Four North
+    </menu_name>
+    <csv_file>
+      2012CD4N.csv
+    </csv_file>
+  
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      5
+    </menu_position>
+    <menu_name>
+      County Division Four South
+    </menu_name>
+    <csv_file>
+      2012CD4S.csv
+    </csv_file>
+  
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      6
+    </menu_position>
+    <menu_name>
+      Regional Division One North
+    </menu_name>
+    <csv_file>
+      2012RD1N.csv
+    </csv_file>
+  
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      7
+    </menu_position>
+    <menu_name>
+      Regional Division One South
+    </menu_name>
+    <csv_file>
+      2012RD1S.csv
+    </csv_file>
+  
+  </division>
+  
+  <division>
+  
+    <menu_position>
+      8
+    </menu_position>
+    <menu_name>
+      Regional Division Two North East
+    </menu_name>
+    <csv_file>
+      2012RD2NE.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      9
+    </menu_position>
+    <menu_name>
+      Regional Division Two North West
+    </menu_name>
+    <csv_file>
+      2012RD2NW.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      10
+    </menu_position>
+    <menu_name>
+      Regional Division Two South East
+    </menu_name>
+    <csv_file>
+      2012RD2SE.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      11
+    </menu_position>
+    <menu_name>
+      Regional Division Two South West
+    </menu_name>
+    <csv_file>
+      2012RD2SW.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      12
+    </menu_position>
+    <menu_name>
+      Regional Division Three North East
+    </menu_name>
+    <csv_file>
+      2012RD3NE.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      13
+    </menu_position>
+    <menu_name>
+      Regional Division Three North West
+    </menu_name>
+    <csv_file>
+      2012RD3NW.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      14
+    </menu_position>
+    <menu_name>
+      Regional Division Three South East
+    </menu_name>
+    <csv_file>
+      2012RD3SE.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      15
+    </menu_position>
+    <menu_name>
+      Regional Division Three South West
+    </menu_name>
+    <csv_file>
+      2012RD3SW.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      16
+    </menu_position>
+    <menu_name>
+      Regional Division Four Central
+    </menu_name>
+    <csv_file>
+      2012RD4Ce.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      17
+    </menu_position>
+    <menu_name>
+      Regional Division Four North East
+    </menu_name>
+    <csv_file>
+      2012RD4NE.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      18
+    </menu_position>
+    <menu_name>
+      Regional Division Four North West
+    </menu_name>
+    <csv_file>
+      2012RD4NW.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      19
+    </menu_position>
+    <menu_name>
+      Regional Division Four South East
+    </menu_name>
+    <csv_file>
+      2012RD4SE.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      20
+    </menu_position>
+    <menu_name>
+      Regional Division Four South West
+    </menu_name>
+    <csv_file>
+      2012RD4SW.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      21
+    </menu_position>
+    <menu_name>
+      Womens Division 1
+    </menu_name>
+    <csv_file>
+      2012WOMEN1.csv
+    </csv_file>
+  
+  </division>
+
+  <division>
+  
+    <menu_position>
+      22
+    </menu_position>
+    <menu_name>
+      Womens Division 2
+    </menu_name>
+    <csv_file>
+      2012WOMEN2.csv
+    </csv_file>
+  
+  </division>
+
+</divisions>
+
+<users>
+  <user>HCL</user>
+  <name>HCL Results Secretary</name>
+  <code>hcl2009</code>
+</users>
+
+</xml>

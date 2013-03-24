@@ -1,0 +1,19 @@
+BODY 
+{background-image: url(/custom/test/bglogo.jpg); font-family: arial; font-size: 10pt }
+A:link {color: #0000FF}
+A:visited {color: #OO00FF}
+H1 {font-size: 24pt; font-family: arial}
+H2 {font-size: 18pt; font-family: arial}
+H3 {font size: 14pt; font-family: arial}
+
+TABLE.REP { background-color:white; border-collapse:collapse; border-spacing:0px; font-family: arial; font-size:10pt; }
+TABLE.REP TR { text-align: center; }
+TABLE.REP TH.teamcol { text-align:left; white-space: nowrap; background-color: #DFDFDF; }
+TABLE.REP TD.teamcol { text-align: left; white-space: nowrap; background-color: #DFDFDF; }
+
+TABLE.week_fixtures { background-color:white; border-collapse:collapse; border-spacing:0px; font-family: arial; font-size:10pt; }
+TABLE.week_fixtures TR { text-align: center; }
+TABLE.week_fixtures TH.teamcol { text-align: left; white-space: nowrap; background-color: #DFDFDF; }
+TABLE.week_fixtures TD.teamcol { text-align: left; white-space: nowrap; background-color: #DFDFDF; }
+TABLE.week_fixtures TH.performances { text-align: left; background-color: #DfDFDF; }
+TABLE.week_fixtures TD.performances { text-align: left; }
