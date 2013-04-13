@@ -15,7 +15,6 @@
   use Parent;
   use Slurp;
   use List::MoreUtils qw / any /;
-  use GroundMarkings;
   
   our @ISA;
   unshift @ISA, "Parent";
@@ -52,12 +51,8 @@ plus -division and -week.
       $self->set_week( $args{-week} );
     }
     
-    $self->{ground_markings} = GroundMarkings->new();
-
     return $self;
   }
-
-sub ground_markings { my $self = shift; return $self->{ground_markings}; }
 
 =head2 process_lines
 
@@ -174,8 +169,6 @@ Fields are : "team", "played", "result", "runs", "wickets",
       "penaltypts", "totalpts"
     );
     
-    push( @list, $self->ground_markings->labels );
-
     return @list;
   }
   
@@ -334,7 +327,7 @@ This writes the current contents of the data structure to the results file for t
     #my @labels = ( "team", "played", "result", "runs", "wickets",
     #  "performances", "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts" );
 
-    my @labels = $self->get_labels;
+    my @labels = get_labels;
     
     my $ff = $self->get_full_filename;
     if ( ! $ff ) {

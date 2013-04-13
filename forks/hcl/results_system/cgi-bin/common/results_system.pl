@@ -56,6 +56,9 @@ The HTML page which the script should output. This parameter is mandatory.
 
 =cut
 
+BEGIN { unshift @INC, '/home/hantscl/perl5/lib/perl5/x86_64-linux-thread-multi','/home/hantscl/perl5/lib/perl5' };
+
+use local::lib;
 use strict;
 use CGI;
 use Slurp;
@@ -67,7 +70,6 @@ use WeekFixtures;
 use LeagueTable;
 use ResultsIndex;
 use TablesIndex;
-use Data::Dumper;
 
 =head1 Functions
 
@@ -243,7 +245,7 @@ sub main {
   my $err = 0;
   my $LOG;
   my $log_file = "results_system";
-  my $log_path = "/tmp";
+  my $log_path = "/usr/home/sehca/public_html/sehca_logs";
   my $c;
   # my $line;
   
@@ -254,7 +256,6 @@ sub main {
 
   eval {
     my $f = "../custom/$system/$system.ini" if $system;
-    print STDERR "Configuration file <$f> for system <$system>.\n";
     $u->eAdd( "Configuration file <$f> for system <$system>.", 1 );
     $c = ResultsConfiguration->new( -full_filename => $f );
     if ( ! $c ) {

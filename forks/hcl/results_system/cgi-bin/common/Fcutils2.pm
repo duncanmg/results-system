@@ -59,10 +59,10 @@ Utilities.
   # *****************************************************************************
 
   $Fcutils::g_NumLockFiles=0;  # The number of lock files in existence.
-  @Fcutils::g_LockFileNames = ();   # The filenames and full paths.
+  @Fcutils::g_LockFileNames;   # The filenames and full paths.
 
   $Fcutils::g_NumUtilsObjects=0;
-  @Fcutils::g_UtilsObjects=();    # The error objects. NB Potential memory leak here!
+  @Fcutils::g_UtilsObjects;    # The error objects. NB Potential memory leak here!
 
   #******************************************************************************
   # Function which returns GMT in format DD/Mon/YYYY:HH24:MI:SS
@@ -71,8 +71,8 @@ Utilities.
   #******************************************************************************
   {
     my $t;
-    if (!$_[0]) { $t = time(); }
-    else { $t = $_[0]; }
+    if (!@_[0]) { $t = time(); }
+    else { $t = @_[0]; }
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = gmtime($t);
     my $monname = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$mon];
     my $wdname = (qw(Sun Mon Tue Wed Thu Fri Sat))[$wday];
@@ -398,7 +398,7 @@ error.
         print $LOGFILE "file open. " . $self->{LOCKFILETRIES} . "\n";
         $self->eAdd("Logfile open. $logfile.", 0);
         print $LOGFILE $logfile . " open at " . &ApacheTime() . ".\n";
-        if ($self->{LOCKFILETRIES} >= $Fcutils::TIMEOUT) { print $LOGFILE "Lock file was over-written. " . $self->{LOCKFILETRIES} . "\n"; }
+        if ($self->{LOCKFILETRIES} >= $Fcutils::TIMEOUT) { print LOGFILE "Lock file was over-written. " . $self->{LOCKFILETRIES} . "\n"; }
         $self->{LOGFILENAME} = $logfile;
         $self->{LOGFILEREDIRECT} = 0;
       }
@@ -689,9 +689,9 @@ it issue a "Too Many Tries" message.
   #*****************************************************************************
   {
     my $self = shift;
-    my $real_pwd = $_[0]; # The correct password.
-    my $user_pwd = $_[1]; # The password entered by the user.
-    my $teamfile = $_[2]; # A string which identifies the user.
+    my $real_pwd = @_[0]; # The correct password.
+    my $user_pwd = @_[1]; # The password entered by the user.
+    my $teamfile = @_[2]; # A string which identifies the user.
     my $vwrong = 0;
     my $err = 0;
     my $x = 0;
@@ -841,9 +841,9 @@ it issue a "Too Many Tries" message. No further attempts will be validated that 
   {
     my $self=shift;
     my $err=0; my $msg; my $pwdfile;
-    my $real_pwd=$_[0];
-    my $user_pwd=$_[1];
-    my $teamfile=$_[2];
+    my $real_pwd=@_[0];
+    my $user_pwd=@_[1];
+    my $teamfile=@_[2];
 
     $real_pwd =~ s/\W//g;
     $user_pwd =~ s/\W//g;

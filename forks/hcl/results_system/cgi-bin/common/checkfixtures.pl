@@ -19,7 +19,7 @@ use Regexp::Common qw /whitespace/;
 print $ARGV[0] . "\n";
 
 $week_separator_pattern = "^={10,}[,\\s\\n]*\$";
-$date_pattern = "[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
+$date_pattern = "[0-9]{1,2}-[A-Z][a-z]{2}[\\n\\s]*\$";
 
 =head1 checkfixtures.pl
 
@@ -116,12 +116,12 @@ sub check_match_lines {
   my @match_lines = grep( ! /($week_separator_pattern)|($date_pattern)/, @lines );
   
   my @num_commas = grep( /\s*,\s*$/, @match_lines );
-  #if ( scalar( @num_commas ) > 0 ) {
-  #  print "Match lines must not end in commas.\n";
-  #  foreach my $c ( @num_commas ) {
-  #    print "$c";
-  #  }  
-  #}
+  if ( scalar( @num_commas ) > 0 ) {
+    print "Match lines must not end in commas.\n";
+    foreach my $c ( @num_commas ) {
+      print "$c";
+    }  
+  }
   
   foreach my $t ( @match_lines ) {
     my @bits = split( /,/, $t );
@@ -145,7 +145,7 @@ sub check_match_lines {
 
     foreach my $m ( @match_lines ) {
 
-      if ( $m =~ m/(^$t\s*,)|(,\s*$t[,\s]*$)/ ) {
+      if ( $m =~ m/(^$t\s*,)|(,\s*$t\s*$)/ ) {
         $team_count++;
       }
 

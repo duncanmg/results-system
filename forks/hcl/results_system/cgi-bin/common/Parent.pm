@@ -273,7 +273,7 @@ print $o->return_to_link( "identifier" );
     my $line;
     my ( $l, $t ) = $self->get_configuration->get_return_page( $identifier => "Y" );
     
-    $l = "$l";
+    my $l = "$l";
     if ( $l && $t ) {
       $line = $q->a( { -href => $l }, $t );
       $line = $q->p( $line );

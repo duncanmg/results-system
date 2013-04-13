@@ -1,0 +1,264 @@
+/*************************************************************************************
+*
+* Name: gen_styles.css
+*
+* Function: CSS Document
+*
+* NB Class names appear to be case sensitive on Netscape.
+*
+* 0.1  - 23 Jun 08 - Validated using w3c CSS validator.
+*
+*************************************************************************************/
+
+/************************************************************/
+/* This section contains the defaults for the various tags. */
+/************************************************************/
+
+h1, h2, h3, h4, h5, p, ul, ol, div, tr, td, th {
+      margin-top: 15px;
+      margin-bottom: 15px;
+      margin-left: 15px;
+      margin-right: 15px;
+}
+
+h1, h2, h3, h4, h5, p, ul, ol, div, select, input, a:link, a:visited, a:hover {
+      background-color: #D2FFD5;
+      color: #006600;
+}
+
+body {
+	background-color: #D2FFD5;
+	color: #006600;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+      line-height: 20px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      margin-left: 15px;
+      margin-right: 15px;
+}
+
+h1 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+        line-height:20px;
+}
+
+h2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+h3 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+h4 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+a:link, a:visited, a:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	border-bottom-color: #006600;
+	border-bottom-width: 1px;
+	text-decoration: none;
+}
+
+a:link, a:visited {
+	font-size: 12px;
+	border-bottom-style: dotted;
+}
+
+a:hover {
+	font-size: 14px;
+	border-bottom-style: groove;
+}
+
+a:active {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	text-decoration: none;
+}
+
+ol {
+  font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif;
+  margin-left:15px;
+  list-style-position:outside;
+  padding-left:15px;
+}
+
+ol li { margin-left:15px; }
+
+ul 
+{
+  font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif;
+  list-style-position:inside;
+  list-style-type: disc;
+  padding-left:15px;
+}
+
+ul li {
+       background-color: #D2FFD5;
+	color: #006600;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	/* font-size: 14px; */
+	font-size: 12px;
+      line-height: 20px;
+      padding-left:15px;
+}
+
+select, input {
+      margin-top: 1px;
+      margin-bottom: 1px;
+      margin-left: 5px;
+      margin-right: 5px;
+      /* height:1px; */
+}
+
+select {
+        font-size:12px; font-family:'Courier New', sans-serif;
+	font-size: 12px;
+        line-height: 12px;
+}
+
+input {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	/* font-size: 14px; */
+	font-size: 12px;
+        line-height:12px;
+        height:25px;
+}
+
+table
+{
+  border-collapse: collapse;
+  border: 2px solid #006600; 
+  border-spacing: 0;
+  font-size: 12px; color: #FFFFFF; font-family: Verdana, Arial, Helvetica, sans-serif;
+  line-height:20px;
+  padding:0;
+}
+
+tr, th, td {
+  background-color:#006600;
+  color: #D2FFD5; 
+  padding:0;
+  line-height:20px;
+}
+
+th, td { 
+  border:1px solid #D2FFD5;
+  padding-left:2px;
+  padding-right:2px;
+} 
+img { border:0; }
+
+/* div { background-color:red; } */ 
+
+/************************************************************
+* This section assumes that the element has been assigned a 
+* particular class.
+* The definitions for a table of class rep are declared before those
+* of a table of type plain. This means that a plain table declared
+* in a rep table will display as expected, but a rep table in a plain
+* table won't.
+************************************************************/
+
+.Body_Text {
+        background-color:#D2FFD5;
+	color: #006600;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+a.linkintable:active
+{ font-size: 12px; color: #FFFFFF; font-family: Verdana, Arial, Helvetica, sans-serif; }
+a.linkintable:link
+{ font-size: 12px; color: #FFFFFF; font-family: Verdana, Arial, Helvetica, sans-serif; }
+a.linkintable:visited
+{ font-size: 12px; color: #FFFFFF; font-family: Verdana, Arial, Helvetica, sans-serif; }
+ 
+table.rep, table.rep th, table.rep td  
+{
+  background-color:#006600; 
+  color:#FFFFFF;
+  margin-right:auto;
+  margin-left:auto;
+  font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.Table_Heading {font-size: 12px; color: #FFFFFF; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold; }
+
+.playeroption, .reserve { 
+  background-color:#D2FFD5;
+  font-size:12px; font-family:'Courier New', sans-serif; color:#006600; 
+  padding-left:2px;
+  padding-right:2px;
+  margin-left:1px;
+  margin-right:1px;
+  line-height:12px;
+  height:15px;
+}
+.changedoption { 
+  font-size:12px; font-family:'Courier New', sans-serif; color:red; 
+  padding-left:2px;
+  padding-right:2px;
+  margin-left:1px;
+  margin-right:1px;
+  line-height:12px;
+  height:15px;
+}
+
+input.playeroption { width:50px; }
+input.teamname { width:355px;  font-size:12px; font-family:'Courier New', sans-serif; }
+input.reserve { width:300px; font-size:12px; font-family:'Courier New', sans-serif; }
+select.playeroption { width:300px; height: 20px; }
+select.changedoption { width:300px; height: 20px; }
+
+.type_span { font-size:6pt; }
+
+.newplayer { color:red; background-color:white }
+
+table.plain
+{
+  	background-color: #D2FFD5;
+	color: #006600;
+      border:0;
+}
+
+table.plain  td, table.plain th { 
+    background-color: #D2FFD5;
+    border:0;
+    color: #006600;
+}
+
+table.prizes 
+{
+  	background-color: #D2FFD5;
+	color: #006600;
+      border:0;
+}
+
+table.prizes td {
+  width:350px;
+  text-align: center; 
+  background-color: #D2FFD5;
+  color: #006600;
+  border:0;
+}
+
+/* Styles used by the PrintLabel elements. */
+
+input.pl_teamno {
+  width: 50px;
+}  
+
+input.pl_teamname, input.pl_manager {
+  width: 200px;
+}

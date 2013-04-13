@@ -19,7 +19,6 @@
   use FileRenderer;
   use WeekData;
   use Fixtures;
-  use GroundMarkings;
   use Pwd;
   use Data::Dumper;
   
@@ -60,12 +59,8 @@ Constructor for the WeekFixtures object. Inherits from Parent.
     $self->initialise( \%args );
     $self->eAdd( "WeekFixtures object created.", 1 );
     
-    $self->{ground_ratings} = GroundMarkings->new();
-
     return $self;
   }
-
-sub ground_ratings { my $self = shift; return $self->{ground_ratings}; }
 
 =head2 _blank_line
 
@@ -219,10 +214,6 @@ Returns an HTML string containing a table row.
         -readonly => $e->{readonly}, -type => $args{-type}, -name => $e->{name} );
 
     }
-
-    print STDERR "QQQQQQQQQQQQQQQQQQQ " . $self->ground_ratings->cells( $args{-type} ) . "\n";
-    $line .= $self->ground_ratings->cells( $args{-type} )  if $self->ground_ratings;
-
     $line = $q->Tr( $line ) . "\n";
     
     return $line;
@@ -465,9 +456,6 @@ If the -form parameter is set then text input elements are displayed so that the
     $l = $l . $q->th( "Penalty Pts" );
     $l = $l . $q->th( "Total Pts" );
     
-    # print STDERR "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " . $self->ground_ratings->headings . "\n";
-    $l .= $self->ground_ratings->headings if $self->ground_ratings;
-
     $line = $line . $q->Tr( $l ) . "\n";
     
     for ( my $x = 0; $x < 10; $x++ ) {
@@ -562,6 +550,7 @@ Check the password and save the results if the password is correct.
   #***************************************
     my $self = shift; my %args = ( @_ );
     my $q = $self->get_query;
+    my $line;
     my $type = "home";
 
     my $p = Pwd->new( -query => $q, -config => $self->get_configuration );
