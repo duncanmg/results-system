@@ -49,7 +49,9 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
 
 =cut
 
-{ package Fixtures;
+{
+
+  package Fixtures;
 
   use XML::Simple;
   use Sort::Maker;
@@ -58,9 +60,9 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
   use Slurp;
   use Regexp::Common qw/ whitespace /;
   use Data::Dumper;
-  
+
   use Parent;
-  
+
   our @ISA;
   unshift @ISA, "Parent";
 
@@ -80,18 +82,19 @@ error returned if the processing fails. This must be inferred from the messages 
 
   #***************************************
   sub new {
-  #***************************************
+
+    #***************************************
     my $self = {};
     bless $self;
     shift;
-    my %args = ( @_ );
-    my $err = 0;
+    my %args = (@_);
+    my $err  = 0;
     $Fixtures::create_errmsg = "";
     if ( $args{-full_filename} ) {
       $self->set_full_filename( $args{-full_filename} );
       $err = $self->_read_file();
     }
-    $self->eAdd( "Fixtures object created.", 1 ) if ! $err;
+    $self->logger->debug("Fixtures object created.") if !$err;
     return $self if $err == 0;
     $Fixtures::create_errmsg = $self->eDump;
     return undef;
@@ -99,10 +102,11 @@ error returned if the processing fails. This must be inferred from the messages 
 
   #***************************************
   sub get_full_filename {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     return $self->{FULLFILENAME};
-  }  
+  }
 
 =head2 set_full_filename
 
@@ -112,7 +116,8 @@ Sets the full_filename. No validation or return code.
 
   #***************************************
   sub set_full_filename {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     $self->{FULLFILENAME} = shift;
   }
@@ -132,12 +137,14 @@ The three letters must match a date eg Jan, Feb, Mar, but not Fre.
 
   #***************************************
   sub _is_date {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $d = shift;
-    my $ret = 0;
+    my $d    = shift;
+    my $ret  = 0;
     if ( $d =~ m/^[0-9]{1,2}[ -][A-Z][a-z]{2}/ ) {
-      if ( $d =~ m/
+      if (
+        $d =~ m/
          (Jan)
         |(Feb)
         |(Mar)
@@ -150,9 +157,11 @@ The three letters must match a date eg Jan, Feb, Mar, but not Fre.
         |(Oct)
         |(Nov)
         |(Dec)
-      /x ) {
+      /x
+        )
+      {
         $ret = 1;
-      }  
+      }
     }
     return $ret;
   }
@@ -176,16 +185,17 @@ Must also cope with abbreviations:
 
   #***************************************
   sub _is_fixture {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $f = shift;
-    my $ret = 0;
-    if ( ! ( $self->_is_date( $f ) ) ) {
-    
+    my $f    = shift;
+    my $ret  = 0;
+    if ( !( $self->_is_date($f) ) ) {
+
       if ( $f =~ m/[\w.]\s*,\s*\w/ ) {
         $ret = 1;
       }
-      
+
     }
     return $ret;
   }
@@ -200,12 +210,13 @@ Dates are stored without a leading 0. So 09-May becomes 9-May.
 
   #***************************************
   sub _add_date {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $d = shift;
-    $d = $self->_trim( $d );
-    $d =~ s/^0//; # Remove leading zero.
-    $d =~ s/^(\d{1,2}-[A-Z][A-Za-z]{2}).*$/$1/; # Remove trailing commas etc. 
+    my $d    = shift;
+    $d = $self->_trim($d);
+    $d =~ s/^0//;                                  # Remove leading zero.
+    $d =~ s/^(\d{1,2}-[A-Z][A-Za-z]{2}).*$/$1/;    # Remove trailing commas etc.
     push @{ $self->{DATES} }, $d;
     return 0;
   }
@@ -218,15 +229,16 @@ Internal method which returns the last element in the list of dates. Returns und
 
   #***************************************
   sub _get_last_date {
-  #***************************************
-    my $self = shift;    
+
+    #***************************************
+    my $self  = shift;
     my $d_ref = $self->{DATES};
-    if ( ! $d_ref ) {
-      $self->eAdd( "_get_last_date() No dates defined.", 5 );
+    if ( !$d_ref ) {
+      $self->logger->debug("_get_last_date() No dates defined.");
       return undef;
-    }  
+    }
     my @d_array = @$d_ref;
-    my $d = $d_array[scalar( @d_array ) - 1];
+    my $d       = $d_array[ scalar(@d_array) - 1 ];
     return $d;
   }
 
@@ -243,29 +255,34 @@ Returns 0 on success.
 
   #***************************************
   sub _add_fixture {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $d = shift; my $f = shift;
-    my $err = 0;
-    $f = $self->_trim( $f );
-    if ( ! $d ) {
-      $self->eAdd( "_add_fixture() Undefined date parameter." , 5 ); $err = 1;
+    my $d    = shift;
+    my $f    = shift;
+    my $err  = 0;
+    $f = $self->_trim($f);
+    if ( !$d ) {
+      $self->logger->debug("_add_fixture() Undefined date parameter.");
+      $err = 1;
     }
-    if ( ! $f ) { 
-      $self->eAdd( "_add_fixture() Undefined fixture parameter.", 5 ); $err = 1;
+    if ( !$f ) {
+      $self->logger->debug("_add_fixture() Undefined fixture parameter.");
+      $err = 1;
     }
     return 1 if $err;
-    
+
     if ( $self->{FIXTURES}{$d} ) {
       push @{ $self->{FIXTURES}{$d} }, $f;
-    } 
-    else {
-      my @a = ( $f );
-      @{ $self->{FIXTURES}{$d} } =  @a;
     }
+    else {
+      my @a = ($f);
+      @{ $self->{FIXTURES}{$d} } = @a;
+    }
+
     # print $self->{FIXTURES}{"20-Apr"}[0] . "\n";
     return $err;
-    
+
   }
 
 =head2 _validate_file
@@ -281,44 +298,45 @@ It is passed a list of fixtures as an argument.
 
   #***************************************
   sub _validate_file {
-  #***************************************
-    my $self = shift;
-    my $err = 0;
-    my @lines = ( @_ );
+
+    #***************************************
+    my $self  = shift;
+    my $err   = 0;
+    my @lines = (@_);
     my ( %teams, $games );
-    my @fixtures = grep $self->_is_fixture( $_ ), @lines;
-    
-    foreach my $f ( @fixtures ) {
-      
+    my @fixtures = grep $self->_is_fixture($_), @lines;
+
+    foreach my $f (@fixtures) {
+
       my @bits = split /,/, $f;
-      
+
       $bits[0] = $self->_trim( $bits[0] );
-      if ( ! $teams{$bits[0]} ) {
-        $teams{$bits[0]} = 0;
+      if ( !$teams{ $bits[0] } ) {
+        $teams{ $bits[0] } = 0;
       }
-      $teams{$bits[0]}++;
-      
+      $teams{ $bits[0] }++;
+
       $bits[1] = $self->_trim( $bits[1] );
-      if ( ! $teams{$bits[1]} ) {
-        $teams{$bits[1]} = 0;
+      if ( !$teams{ $bits[1] } ) {
+        $teams{ $bits[1] } = 0;
       }
-      $teams{$bits[1]}++;
-      
+      $teams{ $bits[1] }++;
+
     }
-    
-    foreach my $t ( keys( %teams ) ) {
-    
-      if ( ! defined $games ) {
+
+    foreach my $t ( keys(%teams) ) {
+
+      if ( !defined $games ) {
         $games = $teams{$t};
       }
       else {
         if ( $teams{$t} != $games ) {
-          $self->eAdd( "$t should have played $games games. Played " . $teams{$t}, 5 );
+          $self->logger->debug( "$t should have played $games games. Played " . $teams{$t} );
           $err = 1;
         }
       }
     }
-    
+
     return $err;
   }
 
@@ -332,35 +350,37 @@ Returns 0 if the file is successfully loaded and validated.
 
   #***************************************
   sub _read_file {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     my @lines;
     my $err = 0;
-    
+
     if ( -f $self->get_full_filename ) {
       @lines = slurp( $self->get_full_filename );
-      $self->eAdd( scalar( @lines ) . " lines read from fixtures file " . $self->get_full_filename, 1 );
+      $self->logger->debug(
+        scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
     }
     else {
-      $self->eAdd( "Fixtures file " . $self->get_full_filename . " does not exist.", 1 );
+      $self->logger->debug( "Fixtures file " . $self->get_full_filename . " does not exist." );
       $err = 1;
     }
-    
+
     if ( $err == 0 ) {
-      $err = $self->_validate_file( @lines );
-      $self->eAdd( "After _validate_file() err=$err", 2 );
+      $err = $self->_validate_file(@lines);
+      $self->logger->debug("After _validate_file() err=$err");
     }
-        
-    foreach my $l ( @lines ) {
-    
+
+    foreach my $l (@lines) {
+
       last if $err;
-      
-      $l = $self->_trim( $l );
-      if ( $self->_is_date( $l ) ) {
-        $err = $self->_add_date( $l );
+
+      $l = $self->_trim($l);
+      if ( $self->_is_date($l) ) {
+        $err = $self->_add_date($l);
       }
 
-      elsif ( $self->_is_fixture( $l ) && $err == 0 ) {
+      elsif ( $self->_is_fixture($l) && $err == 0 ) {
         if ( $self->_get_last_date ) {
           $self->_add_fixture( $self->_get_last_date, $l );
         }
@@ -369,9 +389,9 @@ Returns 0 if the file is successfully loaded and validated.
         }
       }
       else {
-        $self->eAdd( "_read_file <$l> is not a date or a fixture.", 2 );
+        $self->logger->debug("_read_file <$l> is not a date or a fixture.");
       }
-      $self->eAdd( "_read_file One line processed. err=$err", 2 );
+      $self->logger->debug("_read_file One line processed. err=$err");
     }
     return $err;
   }
@@ -387,8 +407,10 @@ print $dates_ref->[0];
 
   #***************************************
   sub get_date_list {
-  #***************************************
+
+    #***************************************
     my $self = shift;
+
     # Returns an array reference.
     return $self->{DATES};
   }
@@ -405,28 +427,33 @@ print $fh{home} . $fh{away} . "\n";
 
   #***************************************
   sub _get_fixture_hash {
-  #***************************************
-    my $self = shift; my %args = ( @_ );
-    my %h = ();
-    
-    $self->eAdd( "_get_fixtures_hash() " . Dumper( %args ), 2 );
-    my $l = $self->{FIXTURES}{$args{-date}}[$args{-index}];
 
-    if ( $l ) { 
-      $self->eAdd( "_get_fixtures_hash() " . Dumper( $self->{FIXTURES} ), 2 );
-      $self->eAdd( "_get_fixture_hash() " . $l, 2 );   
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
+    my %h    = ();
+
+    $self->logger->debug( "_get_fixtures_hash() " . Dumper(%args) );
+    my $l = $self->{FIXTURES}{ $args{-date} }[ $args{-index} ];
+
+    if ($l) {
+      $self->logger->debug( "_get_fixtures_hash() " . Dumper( $self->{FIXTURES} ) );
+      $self->logger->debug( "_get_fixture_hash() " . $l );
       my @bits = split /,/, $l;
       $h{home} = $self->_trim( $bits[0] );
       $h{away} = $self->_trim( $bits[1] );
+
       # print "line=$l. " . Dumper( @bits ) . "\n" . Dumper( %h ) . "\n";
       # print '$h{home}=' . $h{home} . "\n";
-      if ( ! defined( $h{home} ) || ! defined( $h{away} ) ) {
-        $self->eAdd( "_get_fixture_hash() Invalid line: $l", 5 );
+      if ( !defined( $h{home} ) || !defined( $h{away} ) ) {
+        $self->logger->debug("_get_fixture_hash() Invalid line: $l");
       }
+
       # print "return hash.\n";
       return %h;
-    
+
     }
+
     # print "return empty hash\n";
     return %h;
   }
@@ -443,20 +470,22 @@ hash element.
 
   #***************************************
   sub get_week_fixtures {
-  #***************************************
-    my $self = shift; my %args = ( @_ );
+
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
     my %h;
     my @fixtures;
-    
-    my $i = 0;
+
+    my $i    = 0;
     my $more = 1;
-    while ( $more ) {
+    while ($more) {
       %h = $self->_get_fixture_hash( -date => $args{-date}, -index => $i );
-      if ( ( ! $h{home} ) || $i > 1000 ) {
-        $self->eAdd( "No more elements for date " . $args{-date} . ": i=" . $i, 1 ); 
+      if ( ( !$h{home} ) || $i > 1000 ) {
+        $self->logger->debug( "No more elements for date " . $args{-date} . ": i=" . $i );
         last;
       }
-      push @fixtures, { %h }; 
+      push @fixtures, {%h};
       $i++;
     }
     return \@fixtures;
@@ -473,18 +502,20 @@ Returns a hash reference. Each key in the hash is the date of the week's fixture
 
   #***************************************
   sub get_all_fixtures {
-  #***************************************
-    my $self = shift; my %args = ( @_ );
+
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
     my ( %h, @dates );
-    
+
     if ( $self->{DATES} ) {
       @dates = @{ $self->{DATES} };
-    }  
-    foreach my $d ( @dates ) {
-    
+    }
+    foreach my $d (@dates) {
+
       my $ref = $self->get_week_fixtures( -date => $d );
       $h{$d} = $ref;
-      
+
     }
     return \%h;
   }
@@ -501,37 +532,38 @@ Returns an array reference containing a sorted hash list of teams in the divisio
 
   # **************************************
   sub get_all_teams {
-  # **************************************
-    my ( $self, %args ) = ( @_ );
+
+    # **************************************
+    my ( $self, %args ) = (@_);
     my ( @teams, @allteams, %h );
-    
+
     # Get hash_ref containing all fixtures.
     my $all_fixtures = $self->get_all_fixtures;
-    
+
     # Each key is a week which contains a list of fixtures.
-    foreach my $d ( keys( %$all_fixtures ) ) {
-    
+    foreach my $d ( keys(%$all_fixtures) ) {
+
       # Loop through the fixtures and add the teams to the list.
       my $matches = $all_fixtures->{$d};
-      foreach my $m ( @$matches ) {
-      
+      foreach my $m (@$matches) {
+
         push @allteams, $m->{home};
         push @allteams, $m->{away};
-        
+
       }
-      
+
     }
-    
+
     # From: http://www.antipope.org/Charlie/attic/perl/one-liner.html
     # Sort and eliminate duplicates.
-    @teams = sort grep( ( ($h{$_}++ == 1) || 0 ), @allteams ); 
-    
+    @teams = sort grep( ( ( $h{$_}++ == 1 ) || 0 ), @allteams );
+
     @teams = map( { { team => $_ } } @teams );
-    
+
     return \@teams;
-    
+
   }
-  
+
   1;
-  
+
 }

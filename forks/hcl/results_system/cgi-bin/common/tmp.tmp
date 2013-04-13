@@ -1,2 +1,11 @@
-XX
-
+perl -wc    Fcutils2.pm
+perl -wc    FileRenderer.pm
+perl -wc    Fixtures.pm
+perl -wc    LeagueTable.pm
+perl -wc    Menu.pm
+perl -wc    Parent.pm
+perl -wc    Pwd.pm
+perl -wc    ResultsConfiguration.pm
+perl -wc    ResultsIndex.pm
+perl -wc    TablesIndex.pm
+perl -wc    WeekData.pm
