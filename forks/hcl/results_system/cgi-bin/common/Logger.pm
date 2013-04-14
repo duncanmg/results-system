@@ -27,11 +27,11 @@ if you want to use them together.
 
   use strict;
   use warnings;
-  use Carp::Assert;
   use Log::Log4perl;
   use Log::Log4perl::Level;
   use Exporter;
   use Data::Dumper;
+  use Params::Validate qw/ :all /;
 
   our @ISA = qw/ Exporter /;
 
@@ -48,10 +48,21 @@ if you want to use them together.
   };
 
   sub get_logger {
-    my ($category) = (@_);
+    my ( $category, $file ) = validate_pos( @_, 1, 0 );
 
-    assert( @_ == 1, "1 argument required: get_mlogger( category )" );
     $category = 'Default' if !$category;
+
+    # $file = "/tmp/tmp.log";
+    if ($file) {
+      $conf                                         = {};
+      $conf->{"log4perl.rootLogger"}                = "DEBUG , LOGFILE";
+      $conf->{"log4perl.appender.LOGFILE"}          = "Log::Log4perl::Appender::File";
+      $conf->{"log4perl.appender.LOGFILE.filename"} = $file;
+      $conf->{"log4perl.appender.LOGFILE.mode"}     = "append";
+      $conf->{"log4perl.appender.LOGFILE.layout"}   = "Log::Log4perl::Layout::PatternLayout";
+      $conf->{"log4perl.appender.LOGFILE.layout.ConversionPattern"} =
+        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n";
+    }
 
     Log::Log4perl::init($conf);
 

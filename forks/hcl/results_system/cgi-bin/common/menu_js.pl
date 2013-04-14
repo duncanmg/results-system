@@ -177,8 +177,6 @@ sub main {
     week_fixtures( -config => $c, -query => $q, -util => $u );
   }
 
-  $u->eSetMinDebug(0);
-  print $LOG $u->eDump();
   $u->CloseLogFile( $LOG, $err );
   $u->CloseLockFile;
 

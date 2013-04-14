@@ -25,7 +25,7 @@ This package provides the methods which the objects in the results system inheri
   use strict;
   use CGI;
   use Regexp::Common;
-
+  use DateTime;
   use Logger;
   use ResultsConfiguration;
 
@@ -328,7 +328,14 @@ $s = $self->_trim( $s );
   sub logger {
     my $self = shift;
     if ( !$self->{logger} ) {
-      $self->{logger} = Logger::get_logger("rs");
+      my $now  = DateTime->now();
+      my $dir  = $self->get_configuration->get_path( -log_dir => 'Y' );
+      my $file = undef;
+      if ($dir) {
+        $file = sprintf( "%s/%s%02d.log", $dir, "rs", $now->day );
+      }
+      print STDERR "file=$file\n";
+      $self->{logger} = Logger::get_logger( "rs", $file );
     }
     return $self->{logger};
   }
