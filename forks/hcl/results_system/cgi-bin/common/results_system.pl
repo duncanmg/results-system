@@ -61,7 +61,7 @@ BEGIN {
     '/home/hantscl/perl5/lib/perl5';
 }
 
-use local::lib;
+# use local::lib;
 use strict;
 use CGI;
 use Slurp;
@@ -312,7 +312,6 @@ sub main {
       $err = 1;
     }
   }
-  $u->eSetMinDebug(0);
   $u->CloseLogFile( $LOG, $err );
   $u->CloseLockFile;
 

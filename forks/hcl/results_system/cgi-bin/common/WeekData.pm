@@ -60,7 +60,8 @@ plus -division and -week.
 =head2 process_lines
 
 Fields are : "team", "played", "result", "runs", "wickets",
-"performances", "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts"
+"performances", "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts",
+"pitchmks", "groundmks", "facilitiesmks"
 
 =cut
 
@@ -74,8 +75,10 @@ Fields are : "team", "played", "result", "runs", "wickets",
     my $err   = 0;
 
     my @labels = (
-      "team",      "played",     "result",     "runs",       "wickets", "performances",
-      "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts"
+      "team",       "played",       "result",    "runs",
+      "wickets",    "performances", "resultpts", "battingpts",
+      "bowlingpts", "penaltypts",   "totalpts",  "pitchmks",
+      "groundmks",  "facilitiesmks"
     );
 
     foreach my $l (@lines) {
@@ -174,8 +177,10 @@ Fields are : "team", "played", "result", "runs", "wickets",
     my $self = shift;
 
     my @list = (
-      "team",      "played",     "result",     "runs",       "wickets", "performances",
-      "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts"
+      "team",       "played",       "result",    "runs",
+      "wickets",    "performances", "resultpts", "battingpts",
+      "bowlingpts", "penaltypts",   "totalpts",  "pitchmks",
+      "groundmks",  "facilitiesmks"
     );
 
     return @list;
@@ -341,7 +346,8 @@ This writes the current contents of the data structure to the results file for t
     my $FP;
 
     #my @labels = ( "team", "played", "result", "runs", "wickets",
-    #  "performances", "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts" );
+    #  "performances", "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts",
+    #  "pitchmks", "groundmks", "facilitiesmks" );
 
     my @labels = get_labels;
 

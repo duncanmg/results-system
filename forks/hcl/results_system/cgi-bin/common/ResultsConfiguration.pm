@@ -59,7 +59,7 @@ $c = ResultsConfiguration->new( -full_filename => "/custom/config.ini" );
       return $self;
     }
     else {
-      $ResultsConfiguration::create_errmsg = "Could not create object. " . $self->eDump;
+      $self->logger->error("Could not create object.");
       return undef;
     }
   }
@@ -101,7 +101,7 @@ characters other than alphanumeric characters, "_", ".", or "/".
     $self->{FULL_FILENAME} = shift;
     $self->{FULL_FILENAME} =~ s/[^\w\.\/ ]//g;
     if ( !-f $self->{FULL_FILENAME} ) {
-      $self->logger->debug( $self->{FULL_FILENAME} . " does not exist.");
+      $self->logger->debug( $self->{FULL_FILENAME} . " does not exist." );
       $err = 1;
     }
     return $err;
@@ -158,7 +158,7 @@ $err = $c->read_file();
     }
 
     if ( !-f $self->get_full_filename ) {
-      $self->logger->debug( "read_file(): File does not exist. " . $self->get_full_filename);
+      $self->logger->debug( "read_file(): File does not exist. " . $self->get_full_filename );
       $err = 1;
     }
     if ( $err == 0 ) {
@@ -170,7 +170,7 @@ $err = $c->read_file();
           SuppressEmpty => ""
         );
       };
-      if ($@) { $self->logger->debug( $@); $err = 1; }
+      if ($@) { $self->logger->debug($@); $err = 1; }
     }
 
     if ( $err == 0 ) {
@@ -318,21 +318,21 @@ $path = $c->get_path( -csv_files => "Y" );
     my $p;
     my $err = 0;
 
-    $self->logger->debug( "get_path() called. " . Dumper(%args));
+    $self->logger->debug( "get_path() called. " . Dumper(%args) );
     if ( !$self->_get_tags ) {
-      $self->logger->debug( "No tags are defined.");
+      $self->logger->debug("No tags are defined.");
       $err = 1;
     }
     elsif ( !$self->_get_tags->{paths} ) {
-      $self->logger->debug( "No paths are defined.");
+      $self->logger->debug("No paths are defined.");
       $err = 1;
     }
     elsif ( !%args || !keys %args ) {
-      $self->logger->debug( "No path passed as an argument.");
+      $self->logger->debug("No path passed as an argument.");
       $err = 1;
     }
     elsif ( scalar( keys(%args) ) != 1 ) {
-      $self->logger->debug( "Only one path should be requested.");
+      $self->logger->debug("Only one path should be requested.");
       $err = 1;
     }
     return undef if $err == 1;
@@ -364,9 +364,9 @@ $path = $c->get_path( -csv_files => "Y" );
     if ( !-d $p ) {
 
       # Report this as a warning rather than a serious error.
-      $self->logger->debug( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p);
+      $self->logger->debug( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
     }
-    $self->logger->debug( "get_path() returning: " . $p);
+    $self->logger->debug( "get_path() returning: " . $p );
     return $p;
 
   }
@@ -473,10 +473,10 @@ have values of "yes" and "no".
     $copy = "no" if !$copy;
     $copy = ( $copy =~ m/yes/i ) ? "yes" : "no";
     if ( !$name ) {
-      $self->logger->debug( "get_stylesheet() No sheet element found.");
+      $self->logger->debug("get_stylesheet() No sheet element found.");
       if ( $self->_get_tags->{stylesheets}[0] =~ m/\w+/ ) {
         $name = $self->_get_tags->{stylesheets}[0];
-        $self->logger->debug( "get_stylesheet() Return $name instead.");
+        $self->logger->debug("get_stylesheet() Return $name instead.");
       }
     }
     return { name => $name, copy => $copy };

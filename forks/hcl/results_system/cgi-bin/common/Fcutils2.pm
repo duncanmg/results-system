@@ -581,7 +581,7 @@ Should really be called CreateLockFile because the file is created then closed.
     if ( $err == 0 ) {
       if ( !open( LOCKFILE, ">" . $lockfile ) ) {
         $err = 1;
-        $self->logger->debug("Unable to open file. $lockfile");
+        $self->logger->debug( "Unable to open file. $lockfile. " . $! );
       }
     }
 
@@ -589,6 +589,7 @@ Should really be called CreateLockFile because the file is created then closed.
       print LOCKFILE $lockfile . "\n";
       close LOCKFILE;
       $self->logger->debug("Lockfile created. $lockfile");
+      $self->{IOPENEDLOCKFILE} = 1;
     }
 
     return $err;
@@ -598,6 +599,8 @@ Should really be called CreateLockFile because the file is created then closed.
 =head2 CloseLockFile
 
 Doesn't close or delete the lockfile as such. Moves it to OLDFILE.
+
+Ummm ... looks like it deletes it to me.
 
 =cut
 
@@ -612,10 +615,27 @@ Doesn't close or delete the lockfile as such. Moves it to OLDFILE.
     my $lockfile    = $self->{LOCKFILE};
     my $oldlockfile = $self->{OLDFILE};
     $self->logger->debug("CloseLockFile() called.");
+    if ( !-e $lockfile ) {
+      $self->logger->debug("Lockfile $lockfile does not exist.");
+      return $err;
+    }
     $ret = unlink $lockfile;
-    if ( $ret != 1 ) { $self->logger->debug( "Can not delete lockfile " . $lockfile ); $err = 1; }
+    if ( $ret != 1 ) {
+      $self->logger->debug( "Can not delete lockfile " . $lockfile . " " . $! );
+      $err = 1;
+      $self->{IOPENEDLOCKFILE} = undef;
+    }
     $self->logger->debug( "Finished CloseLockFile(). " . $err );
     return $err;
+  }
+
+  #*****************************************************************************
+  # Close the lock file if this object opened it.
+  sub DESTROY {
+    my $self = shift;
+    $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
+    $self->CloseLockFile() if $self->{IOPENEDLOCKFILE};
+    1;
   }
 
   #*****************************************************************************
@@ -802,7 +822,7 @@ it issue a "Too Many Tries" message.
     if ( $vwrong == 1 && $err == 0 ) {
 
       # Loop through file, if it exists, and count the incorrect tries.
-      my $too_many = $self->_count_tries( $vwrongfile, $teamfile );
+      my $too_many = $self->_count_tries( $vwrongfile, $teamfile, 3 );
 
       if ( $too_many == 1 ) {
         $self->logger->debug("Too many incorrect tries (Very wrong) ");
@@ -839,6 +859,8 @@ it issue a "Too Many Tries" message.
     my $max_tries = shift;
     my $err       = 0;
     my @lines;
+    $self->logger->debug("file=$file string=$string max_tries=$max_tries");
+
     if ( -f $file ) {
       @lines = slurp($file);
     }
@@ -936,7 +958,7 @@ it issue a "Too Many Tries" message. No further attempts will be validated that 
 
       # Loop through file, if it exists, and count the incorrect tries.
       $pwdfile = $self->get_pwd_dir . "/" . $self->_get_wrong_file;
-      my $too_many_tries = $self->_count_tries( $pwdfile, $teamfile );
+      my $too_many_tries = $self->_count_tries( $pwdfile, $teamfile, 3 );
       if ($too_many_tries) {
         $self->logger->debug("Too many incorrect tries.");
         $msg = "<h3>You have entered an incorrect password too many times in one day.</h3>";

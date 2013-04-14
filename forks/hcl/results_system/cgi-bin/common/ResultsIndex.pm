@@ -78,7 +78,6 @@ from the csv file for the division.
     $line = $line . "<table>\n";
 
     my $f = Fixtures->new( -full_filename => "$dir/$file" );
-    $self->eAppend( $f->eGetError ) if $f;
     $self->logger->debug( $Fixtures::create_errmsg, 5 ) if !$f;
     my $d_ref = $f->get_date_list if $f;
     if ( !$d_ref ) {

@@ -121,7 +121,6 @@ It returns an error code (0 for success) and a message.
     else {
       ( $err, $msg ) = $u->CheckCode( $real, $code, $user );
     }
-    $self->eAppend( $u->eGetError );
 
     return ( $err, $msg );
 

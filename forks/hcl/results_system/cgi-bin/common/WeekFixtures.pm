@@ -80,7 +80,7 @@ with 11 cells. Each cell contains the &nbsp;
     my %args = (@_);
     my $line;
 
-    for ( my $x = 0; $x < 11; $x++ ) {
+    for ( my $x = 0; $x < 14; $x++ ) {
       if ( $x == 0 ) {
         $line = $line . $args{-query}->td( { -class => "teamcol" }, "&nbsp;" );
       }
@@ -93,7 +93,7 @@ with 11 cells. Each cell contains the &nbsp;
 
 =head2 _format_element
 
-This method return the HTML for a table data element.
+This method returns the HTML for a table data element.
 
 If the parameter -form is set then the element will contain a text input element. Otherwise
 it will just contain a value.
@@ -197,17 +197,20 @@ Returns an HTML string containing a table row.
     my $v;
 
     my @elements = (
-      { "name" => "team",         "size" => 32, "readonly" => "readonly" },
-      { "name" => "played",       "size" => 2,  "readonly" => undef },
-      { "name" => "result",       "size" => 2,  "readonly" => undef },
-      { "name" => "runs",         "size" => 2,  "readonly" => undef },
-      { "name" => "wickets",      "size" => 2,  "readonly" => undef },
-      { "name" => "performances", "size" => 32, "readonly" => undef },
-      { "name" => "resultpts",    "size" => 2,  "readonly" => undef },
-      { "name" => "battingpts",   "size" => 2,  "readonly" => undef },
-      { "name" => "bowlingpts",   "size" => 2,  "readonly" => undef },
-      { "name" => "penaltypts",   "size" => 2,  "readonly" => undef },
-      { "name" => "totalpts",     "size" => 2,  "readonly" => undef }
+      { "name" => "team",          "size" => 32, "readonly" => "readonly" },
+      { "name" => "played",        "size" => 2,  "readonly" => undef },
+      { "name" => "result",        "size" => 2,  "readonly" => undef },
+      { "name" => "runs",          "size" => 2,  "readonly" => undef },
+      { "name" => "wickets",       "size" => 2,  "readonly" => undef },
+      { "name" => "performances",  "size" => 32, "readonly" => undef },
+      { "name" => "resultpts",     "size" => 2,  "readonly" => undef },
+      { "name" => "battingpts",    "size" => 2,  "readonly" => undef },
+      { "name" => "bowlingpts",    "size" => 2,  "readonly" => undef },
+      { "name" => "penaltypts",    "size" => 2,  "readonly" => undef },
+      { "name" => "totalpts",      "size" => 2,  "readonly" => undef },
+      { "name" => "pitchmks",      "size" => 2,  "readonly" => undef },
+      { "name" => "groundmks",     "size" => 2,  "readonly" => undef },,
+      { "name" => "facilitiesmks", "size" => 2,  "readonly" => undef }
     );
 
     $self->logger->debug("fixture_line() called.");
@@ -257,7 +260,6 @@ Returns a WeekData object for the week and division.
       if ( $err != 0 ) {
         $self->logger->debug("Error reading WeekDate.");
       }
-      $self->eAppend( $self->{WEEK_DATA}->eGetError );
     }
     return $self->{WEEK_DATA};
   }
@@ -340,7 +342,6 @@ accesses the fixture list and returns the team name from there.
     eval {
       # print "Append<br/>\n";
       # print $f->eDump . "<br/>\n";
-      $self->eAppend( \$f->eGetError );
     };
     $self->logger->debug($@);
 
@@ -495,6 +496,9 @@ If the -form parameter is set then text input elements are displayed so that the
     $l = $l . $q->th("Bowling Pts");
     $l = $l . $q->th("Penalty Pts");
     $l = $l . $q->th("Total Pts");
+    $l = $l . $q->th("Pitch");
+    $l = $l . $q->th("Outfield");
+    $l = $l . $q->th("Facilities");
 
     $line = $line . $q->Tr($l) . "\n";
 
@@ -561,7 +565,6 @@ If the -form parameter is set then text input elements are displayed so that the
     }
 
     my $wd = $self->_get_week_data;
-    $self->eAppend( $wd->eGetError );
 
     return $line;
 
@@ -668,7 +671,6 @@ Check the password and save the results if the password is correct.
       $w->set_division( $q->param("division") );
       $w->set_week( $q->param("matchdate") );
       $err = $w->write_file;
-      $self->eAppend( $w->eGetError );
     }
 
     if ( $err == 0 ) {
@@ -681,8 +683,6 @@ Check the password and save the results if the password is correct.
     if ( $err == 0 && $args{-save_html} ) {
       $err = $self->_save_html();
     }
-
-    $self->eAppend( $p->eGetError );
 
     return ( $err, $line );
   }

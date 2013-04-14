@@ -51,7 +51,6 @@ accept the standard arguments of a Parent object. The two most important are -qu
 
  my $l = LeagueTable->new( -query => $q, -config => $c );
  $err = $l->create_league_table_file;
- $u->eAppend( \$l->eGetError );
 
 =cut
 
@@ -165,7 +164,6 @@ It returns an error code.
       );
       if ($wd) {
         $err = $wd->read_file;
-        $self->eAppend( $wd->eGetError );
       }
       else {
         $self->logger->debug("Unable to create WeekData object.");
@@ -648,7 +646,6 @@ table to the HTML file.
     }
 
     my $c = $self->get_configuration;
-    $self->eAppend( \$c->eGetError );
     return $err;
   }
 
