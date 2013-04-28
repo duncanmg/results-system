@@ -44,13 +44,13 @@ $c = ResultsConfiguration->new( -full_filename => "/custom/config.ini" );
   sub new {
 
     #***************************************
-    my $self = {};
-    bless $self;
-    shift;
+    my $class = shift;
+    my $self  = {};
+    bless $self, $class;
     my %args = (@_);
     my $err  = 0;
 
-    $self->set_full_filename("../custom/results_system.ini");
+    # $self->set_full_filename("../custom/results_system.ini");
     if ( $args{-full_filename} ) {
       $err = $self->set_full_filename( $args{-full_filename} );
     }
@@ -176,6 +176,10 @@ $err = $c->read_file();
     if ( $err == 0 ) {
       $self->{TAGS} = $tags;
     }
+
+    $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
+    $self->logger(1)->debug("File read");
+
     return $err;
   }
 
@@ -318,21 +322,21 @@ $path = $c->get_path( -csv_files => "Y" );
     my $p;
     my $err = 0;
 
-    $self->logger->debug( "get_path() called. " . Dumper(%args) );
+    $self->logger->debug( "get_path() called. " . Dumper(%args) ) if !$args{-log_dir};
     if ( !$self->_get_tags ) {
-      $self->logger->debug("No tags are defined.");
+      $self->logger->error("No tags are defined.");
       $err = 1;
     }
     elsif ( !$self->_get_tags->{paths} ) {
-      $self->logger->debug("No paths are defined.");
+      $self->logger->error("No paths are defined.");
       $err = 1;
     }
     elsif ( !%args || !keys %args ) {
-      $self->logger->debug("No path passed as an argument.");
+      $self->logger->error("No path passed as an argument.");
       $err = 1;
     }
     elsif ( scalar( keys(%args) ) != 1 ) {
-      $self->logger->debug("Only one path should be requested.");
+      $self->logger->error("Only one path should be requested.");
       $err = 1;
     }
     return undef if $err == 1;
@@ -340,9 +344,8 @@ $path = $c->get_path( -csv_files => "Y" );
     my @keys = keys(%args);
     my $key  = shift @keys;
     if ( $key !~ m/^-\w/ ) {
-      $self->logger->debug(
-        "Path argument must begin with a dash followed by an alphanumeric character eg -cgi-bin",
-        5
+      $self->logger->error(
+        "Path argument must begin with a dash followed by an alphanumeric character eg -cgi-bin"
       );
       return undef;
     }
@@ -366,7 +369,7 @@ $path = $c->get_path( -csv_files => "Y" );
       # Report this as a warning rather than a serious error.
       $self->logger->debug( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
     }
-    $self->logger->debug( "get_path() returning: " . $p );
+    $self->logger->debug( "get_path() returning: " . $p ) if !$args{-log_dir};
     return $p;
 
   }

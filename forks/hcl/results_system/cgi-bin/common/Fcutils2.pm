@@ -348,22 +348,7 @@ Set the log directory.
 
 =head2 OpenLogFile
 
-Creates a file in LOGDIR with the name logfileDDDHHMISSXX.log where logfile is the
-name passed as an argument, DDD is the day of the year, HH is the hour, MI is the minute
-and SS is the second. XX is a random 2 digit number which is intended to increase throughput.
-Before it was introduced, throughput was limited to 1 log file per second.
-
-If the file already exists, it waits 1 second and tries again. tries up to TIMEOUT times.
-
-Returns 2 values, an error code (0=OK) and a reference to the filehandle.
-
-e.g. if ($err==0) { ($err, $logfilehandle) = $utils->OpenLogFile("cteam"); }
-     if ($err==0)
-     { print $logfilehandle "File open\n"; }
-     else { print "Log file not open\n"; }
-
-If the log file can not be opened, then the file handle is set to point to the standard
-error.
+Not needed any more. Will be removed at some point.
 
 =cut
 
@@ -372,87 +357,19 @@ error.
 
     #*****************************************************************************
   {
-    my $self    = shift;
-    my $err     = 0;
-    my $count   = 0;
-    my $logfile = shift;
-
-    # print $logfile . "\n";
-    $logfile =~ s/[^A-Za-z0-9]//g;
-    if ( length($logfile) < 2 ) {
-      $self->logger->debug("OpenLogFile(): Length of logfile name is less than 2. $logfile");
-      $err = 1;
-
-      # return $err;
-    }
-    my $logbase = $logfile;
-
-    # print $logfile . "\n";
+    my ( $self, $logfile ) = @_;
+    my $err   = 0;
+    my $count = 0;
     my $LOGFILE;
-    my $lt;
 
-    $self->{LOGFILE_STEM} = $logfile;
-    my $suffix = $self->_create_suffix();
-    $logfile = $self->{LOGDIR} . "/" . $logbase . $suffix . ".log";
+    $self->logger(1)->debug("OpenLogFile called()");
 
-    $self->{LOGFILE} = $logfile;
-    while ( -e $logfile
-      && $count < $Fcutils2::TIMEOUT
-      && $self->get_append_logfile eq 'N'
-      && $err == 0 )
-    {
-      $count = $count + 1;
-      sleep 1;
-      $lt = localtime();
-
-      $suffix          = $self->_create_suffix();
-      $logfile         = $self->{LOGDIR} . "/" . $logbase . $suffix . ".log";
-      $self->{LOGFILE} = $logfile;
-
-    }
-    if ( $count >= $Fcutils2::TIMEOUT ) {
-      $err = 1;
-      $self->logger->debug("Can not create log file after $Fcutils2::TIMEOUT tries");
-    }
-    else {
-
-      my $mode = ">";
-      if ( $self->get_append_logfile eq "Y" ) {
-        $mode = ">>";
-      }
-
-      if ( $err == 0 ) {
-        if ( !open( $LOGFILE, $mode . $logfile ) ) {
-          $err = 1;
-          $self->logger->debug("Unable to open file $logfile");
-        }
-      }
-
-      if ( $err == 0 ) {
-        print $LOGFILE "file open. " . $self->{LOCKFILETRIES} . "\n";
-        $self->logger->debug("Logfile open. $logfile.");
-        print $LOGFILE $logfile . " open at " . &ApacheTime() . ".\n";
-        if ( $self->{LOCKFILETRIES} >= $Fcutils2::TIMEOUT ) {
-          print $LOGFILE "Lock file was over-written. " . $self->{LOCKFILETRIES} . "\n";
-        }
-        $self->{LOGFILENAME}     = $logfile;
-        $self->{LOGFILEREDIRECT} = 0;
-      }
-    }
-
-    # If there has been a problem, send anything written to the logfile to the standard error.
-    if ( $err != 0 ) {
-      open( $LOGFILE, ">&STDERR" );
-      $self->logger->debug("Logfile output redirected to standard error.");
-      print STDERR "Output of " . $logfile . " has been redirected to STDERR.\n";
-      $self->{LOGFILEREDIRECT} = 1;
-    }
     return ( $err, $LOGFILE );
   }    # End OpenLogFile()
 
 =head2 CloseLogFile
 
-Close the log file.
+Don't need this any more.
 
 =cut
 
@@ -463,43 +380,6 @@ Close the log file.
   {
     my $self = shift;
     my $err  = 0;
-    my $ret;
-    my $filehandle = shift;
-    my $progerr    = shift;
-    $self->logger->debug("CloseLogFile() called.");
-
-    # If there was an error in OpenLogFile, the file may have been set to point to STDERR.
-    # Don't want to close that by accident.
-    if ( $self->{LOGFILEREDIRECT} == 1 ) {
-      print STDERR "CloseLogFile() Do not attempt to close standard error.\n";
-      $err = 1;
-    }
-
-    if ( $err == 0 ) {
-      print $filehandle "Close log at " . &ApacheTime() . "\n";
-      print $filehandle "Object has been in existence for "
-        . eval( time() - $self->{TIMECREATED} )
-        . " seconds.\n";
-      if ( $progerr ne undef ) { print $filehandle "end " . $progerr . "\n"; }
-      if ( !close $filehandle ) {
-        print STDERR "CloseLogFile() Unable to close logfile. " . $! . "\n";
-        $err = 1;
-      }
-    }
-    if ( $err == 0 ) {
-      if ( $self->IsUnix() == 1 ) {
-
-        # Change permissions to -rw-rw----
-        $err = $self->setFilePermissions( $self->{LOGFILENAME} );
-        if ( $err != 0 ) { print STDERR "CloseLogFile() Unable to change mode. " . $! . "\n"; }
-      }
-    }
-
-# There is a potential problem here. The log file is already closed so there is nowhere to write an error.
-# I've taken the view that it is important to close the file quickly.
-    if ( $err == 0 ) {
-      $err = $self->auto_clean;
-    }
 
     return $err;
   }    # End CloseLogFile()

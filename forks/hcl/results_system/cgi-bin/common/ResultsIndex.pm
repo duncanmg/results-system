@@ -25,6 +25,7 @@
 
   use Fixtures;
   use ResultsConfiguration;
+  use Parent;
 
   our @ISA;
   unshift @ISA, "Parent";
@@ -39,10 +40,9 @@ Constructor for the ResultIndex object. Inherits from Parent.
   sub new {
 
     #***************************************
+    my ( $class, %args ) = @_;
     my $self = {};
-    bless $self;
-    shift;
-    my %args = (@_);
+    bless $self, $class;
 
     $self->initialise( \%args );
     $self->logger->debug("ResultsIndex object created.");

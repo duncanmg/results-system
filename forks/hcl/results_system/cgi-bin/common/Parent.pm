@@ -95,6 +95,7 @@ The -query or -config are not present then default objects are created.
         $self->set_configuration($c);
       }
     }
+    $self->logfile_name( $self->get_configuration->get_path( -log_dir => 'Y' ) );
 
   }
 
@@ -321,24 +322,26 @@ $s = $self->_trim( $s );
     return $l;
   }
 
-=head2 logger
-
-=cut
-
-  sub logger {
-    my $self = shift;
-    if ( !$self->{logger} ) {
-      my $now  = DateTime->now();
-      my $dir  = $self->get_configuration->get_path( -log_dir => 'Y' );
-      my $file = undef;
-      if ($dir) {
-        $file = sprintf( "%s/%s%02d.log", $dir, "rs", $now->day );
-      }
-      print STDERR "file=$file\n";
-      $self->{logger} = Logger::get_logger( "rs", $file );
-    }
-    return $self->{logger};
-  }
+  #=head2 logger
+  #
+  #This over-writes the one in Fcwrapper. Why?
+  #
+  #=cut
+  #
+  #  sub logger {
+  #    my $self = shift;
+  #    if ( !$self->{logger} ) {
+  #      my $now  = DateTime->now();
+  #      my $dir  = $self->get_configuration->get_path( -log_dir => 'Y' );
+  #      my $file = undef;
+  #      if ($dir) {
+  #        $file = sprintf( "%s/%s%02d.log", $dir, "rs", $now->day );
+  #      }
+  #      print STDERR "file=$file\n";
+  #      $self->{logger} = Logger::get_logger( "rs", $file );
+  #    }
+  #    return $self->{logger};
+  #  }
 
   1;
 

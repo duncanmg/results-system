@@ -259,7 +259,7 @@ sub main {
 
   eval {
     my $f = "../custom/$system/$system.ini" if $system;
-    $u->logger->debug("Configuration file <$f> for system <$system>.");
+    # $u->logger->debug("Configuration file <$f> for system <$system>.");
     $c = ResultsConfiguration->new( -full_filename => $f );
     if ( !$c ) {
       $err = 1;
