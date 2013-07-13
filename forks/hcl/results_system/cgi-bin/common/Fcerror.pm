@@ -23,7 +23,8 @@ $self->logger(1)->debug( "Always use a new logger." );
   sub logger {
     my ( $self, $force ) = @_;
     if ( $force || !$self->{logger} ) {
-      $self->{logger} = Logger::get_logger( "Fcw", $self->logfile_name );
+      my $class = ref( $self );
+      $self->{logger} = Logger::get_logger( $class, $self->logfile_name );
     }
     return $self->{logger};
   }
