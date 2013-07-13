@@ -56,6 +56,7 @@ if you want to use them together.
     if ($file) {
       $conf                                         = {};
       $conf->{"log4perl.rootLogger"}                = "DEBUG , LOGFILE";
+      $conf->{"log4perl.category.ResultsConfiguration"}                = "INFO , LOGFILE";
       $conf->{"log4perl.appender.LOGFILE"}          = "Log::Log4perl::Appender::File";
       $conf->{"log4perl.appender.LOGFILE.filename"} = $file;
       $conf->{"log4perl.appender.LOGFILE.mode"}     = "append";
