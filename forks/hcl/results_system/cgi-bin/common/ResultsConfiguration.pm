@@ -101,7 +101,7 @@ characters other than alphanumeric characters, "_", ".", or "/".
     $self->{FULL_FILENAME} = shift;
     $self->{FULL_FILENAME} =~ s/[^\w\.\/ ]//g;
     if ( !-f $self->{FULL_FILENAME} ) {
-      $self->logger->debug( $self->{FULL_FILENAME} . " does not exist." );
+      $self->logger->error( $self->{FULL_FILENAME} . " does not exist." );
       $err = 1;
     }
     return $err;
@@ -158,7 +158,7 @@ $err = $c->read_file();
     }
 
     if ( !-f $self->get_full_filename ) {
-      $self->logger->debug( "read_file(): File does not exist. " . $self->get_full_filename );
+      $self->logger->error( "read_file(): File does not exist. " . $self->get_full_filename );
       $err = 1;
     }
     if ( $err == 0 ) {
@@ -170,7 +170,7 @@ $err = $c->read_file();
           SuppressEmpty => ""
         );
       };
-      if ($@) { $self->logger->debug($@); $err = 1; }
+      if ($@) { $self->logger->error($@); $err = 1; }
     }
 
     if ( $err == 0 ) {
@@ -367,7 +367,7 @@ $path = $c->get_path( -csv_files => "Y" );
     if ( !-d $p ) {
 
       # Report this as a warning rather than a serious error.
-      $self->logger->debug( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
+      $self->logger->warn( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
     }
     $self->logger->debug( "get_path() returning: " . $p ) if !$args{-log_dir};
     return $p;
