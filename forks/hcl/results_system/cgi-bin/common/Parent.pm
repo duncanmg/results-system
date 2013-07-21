@@ -230,11 +230,11 @@ Returns the .dat filename for the week.
     my $d = $self->get_division;
 
     if ( !$w ) {
-      $self->logger->debug("Week undefined");
+      $self->logger->error("Week undefined");
       $err = 1;
     }
     if ( !$d ) {
-      $self->logger->debug("Division undefined");
+      $self->logger->error("Division undefined");
       $err = 1;
     }
     if ( $err == 0 ) {

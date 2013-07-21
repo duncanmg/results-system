@@ -72,8 +72,8 @@
         $l = $l . $q->li( $q->a( { -href => $link }, $division->{menu_name} ) );
       };
       if ($@) {
-        $self->logger->debug( "Problem processing " . $division->{menu_name} );
-        $self->logger->debug($@);
+        $self->logger->error( "Problem processing " . $division->{menu_name} );
+        $self->logger->error($@);
         $err = 1;
       }
       if ( $err != 0 ) {

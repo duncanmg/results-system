@@ -234,7 +234,7 @@ Internal method which returns the last element in the list of dates. Returns und
     my $self  = shift;
     my $d_ref = $self->{DATES};
     if ( !$d_ref ) {
-      $self->logger->debug("_get_last_date() No dates defined.");
+      $self->logger->warn("_get_last_date() No dates defined.");
       return undef;
     }
     my @d_array = @$d_ref;
@@ -263,11 +263,11 @@ Returns 0 on success.
     my $err  = 0;
     $f = $self->_trim($f);
     if ( !$d ) {
-      $self->logger->debug("_add_fixture() Undefined date parameter.");
+      $self->logger->warn("_add_fixture() Undefined date parameter.");
       $err = 1;
     }
     if ( !$f ) {
-      $self->logger->debug("_add_fixture() Undefined fixture parameter.");
+      $self->logger->warn("_add_fixture() Undefined fixture parameter.");
       $err = 1;
     }
     return 1 if $err;
@@ -331,7 +331,7 @@ It is passed a list of fixtures as an argument.
       }
       else {
         if ( $teams{$t} != $games ) {
-          $self->logger->debug( "$t should have played $games games. Played " . $teams{$t} );
+          $self->logger->warn( "$t should have played $games games. Played " . $teams{$t} );
           $err = 1;
         }
       }
@@ -362,7 +362,7 @@ Returns 0 if the file is successfully loaded and validated.
         scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
     }
     else {
-      $self->logger->debug( "Fixtures file " . $self->get_full_filename . " does not exist." );
+      $self->logger->warn( "Fixtures file " . $self->get_full_filename . " does not exist." );
       $err = 1;
     }
 
@@ -446,7 +446,7 @@ print $fh{home} . $fh{away} . "\n";
       # print "line=$l. " . Dumper( @bits ) . "\n" . Dumper( %h ) . "\n";
       # print '$h{home}=' . $h{home} . "\n";
       if ( !defined( $h{home} ) || !defined( $h{away} ) ) {
-        $self->logger->debug("_get_fixture_hash() Invalid line: $l");
+        $self->logger->warn("_get_fixture_hash() Invalid line: $l");
       }
 
       # print "return hash.\n";

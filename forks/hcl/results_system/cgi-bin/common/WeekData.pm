@@ -123,15 +123,15 @@ Fields are : "team", "played", "result", "runs", "wickets",
     my $l;
 
     if ( $args{-type} !~ m/^((line)|(match))$/ ) {
-      $self->logger->debug("get_field(): -type must be line or match.");
+      $self->logger->error("get_field(): -type must be line or match.");
       $err = 1;
     }
     if ( $args{-lineno} !~ m/^[0-9][0-9]*$/ ) {
-      $self->logger->debug("get_field(): -lineno must be a number.");
+      $self->logger->error("get_field(): -lineno must be a number.");
       $err = 1;
     }
     if ( $args{-field} !~ m/^\w/ ) {
-      $self->logger->debug( "get_field(): -field is invalid." . $args{-field} );
+      $self->logger->error( "get_field(): -field is invalid." . $args{-field} );
       $err = 1;
     }
     if ( $err == 0 ) {
@@ -139,7 +139,7 @@ Fields are : "team", "played", "result", "runs", "wickets",
       $l = $args{-lineno} * 2;
       if ( $args{-type} eq "match" ) {
         if ( $args{-team} !~ m/^((home)|(away))$/ ) {
-          $self->logger->debug("-team must be home or away if -type is match.");
+          $self->logger->error("-team must be home or away if -type is match.");
           $err = 1;
         }
         else {
@@ -214,19 +214,19 @@ Fields are : "team", "played", "result", "runs", "wickets",
     my $l;
 
     if ( $args{-type} !~ m/^((line)|(match))$/ ) {
-      $self->logger->debug("set_field(): -type must be line or match.");
+      $self->logger->error("set_field(): -type must be line or match.");
       $err = 1;
     }
     if ( $args{-lineno} !~ m/^[0-9][0-9]*$/ ) {
-      $self->logger->debug("set_field(): -lineno must be a number.");
+      $self->logger->error("set_field(): -lineno must be a number.");
       $err = 1;
     }
     if ( $args{-field} !~ m/^\w/ ) {
-      $self->logger->debug( "set_field(): -field is invalid." . $args{-field} );
+      $self->logger->error( "set_field(): -field is invalid." . $args{-field} );
       $err = 1;
     }
     if ( !any { $args{-field} eq $_ } $self->get_labels ) {
-      $self->logger->debug(
+      $self->logger->error(
         "set_field(): -field is not in list of valid fields." . $args{-field} );
       $err = 1;
     }
@@ -235,7 +235,7 @@ Fields are : "team", "played", "result", "runs", "wickets",
       $l = $args{-lineno} * 2;
       if ( $args{-type} eq "match" ) {
         if ( $args{-team} !~ m/^((home)|(away))$/ ) {
-          $self->logger->debug("-team must be home or away if -type is match.");
+          $self->logger->error("-team must be home or away if -type is match.");
           $err = 1;
         }
         else {
@@ -307,7 +307,7 @@ results have been saved then the method file_no_found is set to return true.
 
     my $ff = $self->get_full_filename;
     if ( !$ff ) {
-      $self->logger->debug("Full filename is not defined");
+      $self->logger->error("Full filename is not defined");
       $err = 1;
     }
     if ( $err == 0 ) {
@@ -358,12 +358,12 @@ This writes the current contents of the data structure to the results file for t
 
     if ( !$self->{LINES} ) {
       $err = 1;
-      $self->logger->debug("Nothing to write to file.");
+      $self->logger->error("Nothing to write to file.");
     }
     else {
 
       if ( !open( $FP, ">", $ff ) ) {
-        $self->logger->debug("WeekData(): Unable to open file for writing. $ff.");
+        $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
         $err = 1;
       }
 

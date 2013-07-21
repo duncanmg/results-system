@@ -258,7 +258,7 @@ Returns a WeekData object for the week and division.
       );
       my $err = $self->{WEEK_DATA}->read_file;
       if ( $err != 0 ) {
-        $self->logger->debug("Error reading WeekDate.");
+        $self->logger->error("Error reading WeekDate.");
       }
     }
     return $self->{WEEK_DATA};
@@ -334,7 +334,7 @@ accesses the fixture list and returns the team name from there.
     my $f = $self->_get_fixtures;
     my $r = ref($f);
     if ( $r ne "Fixtures" ) {
-      $self->logger->debug( "Not a Fixtures object. " . $r );
+      $self->logger->error( "Not a Fixtures object. " . $r );
       return undef;
     }
     my $week_ref = $f->get_week_fixtures( -date => $self->get_week );
@@ -397,8 +397,8 @@ and a fixtures object on success.
       $self->{FIXTURES} = Fixtures->new( -full_filename => $ff );
       if ( !$self->{FIXTURES} ) {
         $err = 1;
-        $self->logger->debug("get_fixtures() unable to create Fixtures object.");
-        $self->logger->debug($Fixtures::create_errmsg);
+        $self->logger->error("get_fixtures() unable to create Fixtures object.");
+        $self->logger->error($Fixtures::create_errmsg);
         return $err;
       }
 
@@ -705,14 +705,14 @@ Check the password and save the results if the password is correct.
 
     my $path = $c->get_path( -results_dir_full => "Y" );
     if ( !$path ) {
-      $self->logger->debug("No path for results htm file. -results_dir");
+      $self->logger->error("No path for results htm file. -results_dir");
       $err = 1;
     }
 
     if ( $err == 0 ) {
       $f = "$path/$f";
       if ( !open( $FP, ">", $f ) ) {
-        $self->logger->debug("Unable to open file $f");
+        $self->logger->error("Unable to open file $f");
         $err = 1;
       }
     }

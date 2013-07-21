@@ -169,7 +169,7 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
 
     my $d = $self->GetLogDir;
     if ( !opendir( $FP, $d ) ) {
-      $self->logger->debug("auto_clean(): Unable to open log dir $d.");
+      $self->logger->error("auto_clean(): Unable to open log dir $d.");
       $err = 1;
     }
     else {
@@ -282,7 +282,7 @@ Set the log directory.
     my $err  = 0;
     $self->{LOGDIR} = shift;
     if ( !-d $self->GetLogDir ) {
-      $self->logger->debug( "Log directory does not exist. " . $self->GetLogDir );
+      $self->logger->error( "Log directory does not exist. " . $self->GetLogDir );
       $err = 1;
     }
     return $err;
@@ -430,7 +430,7 @@ Should really be called CreateLockFile because the file is created then closed.
     $lockfile =~ s/[^A-Za-z0-9._]//g;    # Clean the filename.
 
     if ( length($lockfile) == 0 ) {
-      $self->logger->debug("OpenLockFile(): Parameter was null or invalid.");
+      $self->logger->error("OpenLockFile(): Parameter was null or invalid.");
       $err = 1;
     }
 
@@ -452,7 +452,7 @@ Should really be called CreateLockFile because the file is created then closed.
     }
 
     if ( $count >= $Fcutils2::TIMEOUT ) {
-      $self->logger->debug(
+      $self->logger->warn(
         "Unable to create lock file after $Fcutils2::TIMEOUT tries. Overwrite it.");
     }
 
@@ -461,7 +461,7 @@ Should really be called CreateLockFile because the file is created then closed.
     if ( $err == 0 ) {
       if ( !open( LOCKFILE, ">" . $lockfile ) ) {
         $err = 1;
-        $self->logger->debug( "Unable to open file. $lockfile. " . $! );
+        $self->logger->error( "Unable to open file. $lockfile. " . $! );
       }
     }
 
@@ -496,12 +496,12 @@ Ummm ... looks like it deletes it to me.
     my $oldlockfile = $self->{OLDFILE};
     $self->logger->debug("CloseLockFile() called.");
     if ( !-e $lockfile ) {
-      $self->logger->debug("Lockfile $lockfile does not exist.");
+      $self->logger->error("Lockfile $lockfile does not exist.");
       return $err;
     }
     $ret = unlink $lockfile;
     if ( $ret != 1 ) {
-      $self->logger->debug( "Can not delete lockfile " . $lockfile . " " . $! );
+      $self->logger->error( "Can not delete lockfile " . $lockfile . " " . $! );
       $err = 1;
       $self->{IOPENEDLOCKFILE} = undef;
     }
@@ -705,7 +705,7 @@ it issue a "Too Many Tries" message.
       my $too_many = $self->_count_tries( $vwrongfile, $teamfile, 3 );
 
       if ( $too_many == 1 ) {
-        $self->logger->debug("Too many incorrect tries (Very wrong) ");
+        $self->logger->error("Too many incorrect tries (Very wrong) ");
         $msg = "<h3>You have entered an incorrect password too many times in one day.</h3>";
         $err = 1;
       }    #tries
@@ -761,7 +761,7 @@ it issue a "Too Many Tries" message.
     my $err    = 0;
     my $FP;
     if ( !open( $FP, ">>", $file ) ) {
-      $self->logger->debug("Unable to open $file or writing.");
+      $self->logger->error("Unable to open $file or writing.");
       $err = 1;
     }
     else {
@@ -840,7 +840,7 @@ it issue a "Too Many Tries" message. No further attempts will be validated that 
       $pwdfile = $self->get_pwd_dir . "/" . $self->_get_wrong_file;
       my $too_many_tries = $self->_count_tries( $pwdfile, $teamfile, 3 );
       if ($too_many_tries) {
-        $self->logger->debug("Too many incorrect tries.");
+        $self->logger->error("Too many incorrect tries.");
         $msg = "<h3>You have entered an incorrect password too many times in one day.</h3>";
         $err = 1;
       }    #tries

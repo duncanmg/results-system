@@ -47,7 +47,7 @@ This package provides the methods which the objects in the results system inheri
     if ( $sheet_info->{copy} eq "yes" ) {
       my $s = "../../htdocs/custom/" . $sheet_info->{name};
       if ( !-f $s ) {
-        $self->logger->debug( "$s does not exist.");
+        $self->logger->error( "$s does not exist.");
         return 1;
       }
 
@@ -60,7 +60,7 @@ This package provides the methods which the objects in the results system inheri
       if ( !-f $ls || $s_stats->mtime > $ls_stats->mtime ) {
         my $ok = copy( $s, $ls );
         if ( !$ok ) {
-          $self->logger->debug( "Unable to copy $s to $ls. " . $!);
+          $self->logger->error( "Unable to copy $s to $ls. " . $!);
           return 1;
         }
       }
@@ -91,7 +91,7 @@ This package provides the methods which the objects in the results system inheri
     my ( $t_dir_physical, $r_dir_physical, $htdocs, $season, $t_dir_web, $r_dir_web );
 
     if ( !defined $type || !defined $location ) {
-      $self->logger->debug( "_get_sheet( type, location ) Undefined parameter <$type> <$location>");
+      $self->logger->error( "_get_sheet( type, location ) Undefined parameter <$type> <$location>");
       return undef;
     }
 

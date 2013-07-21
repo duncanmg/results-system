@@ -102,14 +102,14 @@ The method returns an error code and a reference to the list of week files.
     $dir = "$dir/$season";
 
     if ( !-d $dir ) {
-      $self->logger->debug("Directory for csv files not found.");
+      $self->logger->error("Directory for csv files not found.");
       $err = 1;
     }
 
     if ( $err == 0 ) {
       $csv =~ s/\..*$//g;    # Remove extension
       if ( !opendir $FP, $dir ) {
-        $self->logger->debug("Unable to open directory $dir");
+        $self->logger->error("Unable to open directory $dir");
         $err = 1;
       }
     }
@@ -166,7 +166,7 @@ It returns an error code.
         $err = $wd->read_file;
       }
       else {
-        $self->logger->debug("Unable to create WeekData object.");
+        $self->logger->error("Unable to create WeekData object.");
         $err = 1;
       }
 
@@ -375,7 +375,7 @@ The sorted data in placed in a new list.
 
     my $sorter = make_sorter( 'ST', 'descending', number => '$_->{' . $order . '}' );
     if ( !$sorter ) {
-      $self->logger->debug( "Unable to create sorter. " . $@ );
+      $self->logger->error( "Unable to create sorter. " . $@ );
       $err = 1;
     }
 
@@ -552,11 +552,11 @@ to the directory given by "table_dir" in the configuration file.
     my $dir = $c->get_path( -table_dir_full => "Y" );
 
     if ( !-d $dir ) {
-      $self->logger->debug("Table directory $dir does not exist.");
+      $self->logger->error("Table directory $dir does not exist.");
       $err = 1;
     }
     if ( !$line ) {
-      $self->logger->debug("No data passed to write_file.");
+      $self->logger->error("No data passed to write_file.");
       $err = 1;
     }
 
@@ -566,7 +566,7 @@ to the directory given by "table_dir" in the configuration file.
 
     if ( $err == 0 ) {
       if ( !open( $FP, ">", $f ) ) {
-        $self->logger->debug("Unable to open file $f for writing.");
+        $self->logger->error("Unable to open file $f for writing.");
         $err = 1;
       }
     }
@@ -596,7 +596,7 @@ table to the HTML file.
     my $is_week_data = 1;
 
     if ( !$self->get_division ) {
-      $self->logger->debug("Division not set.");
+      $self->logger->error("Division not set.");
       $err = 1;
     }
 
@@ -614,8 +614,8 @@ table to the HTML file.
       my $dir    = $self->get_configuration->get_path( -csv_files => "Y" );
       my $f      = Fixtures->new( -full_filename => "$dir/$season/$csv" );
       if ( !$f ) {
-        $self->logger->debug("Unable to create Fixtures object.");
-        $self->logger->debug($Fixtures::create_errmsg);
+        $self->logger->error("Unable to create Fixtures object.");
+        $self->logger->error($Fixtures::create_errmsg);
         $err = 1;
       }
       $self->_set_sorted_table( $f->get_all_teams ) if $err == 0;

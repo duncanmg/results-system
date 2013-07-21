@@ -78,10 +78,10 @@ from the csv file for the division.
     $line = $line . "<table>\n";
 
     my $f = Fixtures->new( -full_filename => "$dir/$file" );
-    $self->logger->debug( $Fixtures::create_errmsg, 5 ) if !$f;
+    $self->logger->error( $Fixtures::create_errmsg, 5 ) if !$f;
     my $d_ref = $f->get_date_list if $f;
     if ( !$d_ref ) {
-      $self->logger->debug("No dates found. $dir/$file");
+      $self->logger->error("No dates found. $dir/$file");
       $err = 1;
       return $err;
     }
@@ -180,8 +180,8 @@ heading and a table. This list of divisions is read from the configuration file.
         $line = $line . $l;
       };
       if ($@) {
-        $self->logger->debug( "Problem processing " . $division->{menu_name} );
-        $self->logger->debug( $@, 5 );
+        $self->logger->error( "Problem processing " . $division->{menu_name} );
+        $self->logger->error( $@, 5 );
         $err = 1;
       }
       if ( $err != 0 ) {
