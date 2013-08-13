@@ -123,7 +123,8 @@ The method returns an error code and a reference to the list of week files.
     if ( $err == 0 ) {
       my $pattern = $csv . "_";
       @files = grep /^$pattern/, @files;
-      $self->logger->debug( scalar(@files) . " of these files are week files for the division." );
+      $self->logger->debug(
+        scalar(@files) . " of these files are week files for the division. " . $csv );
     }
 
     return ( $err, \@files );
@@ -595,6 +596,37 @@ table to the HTML file.
     my ( @files, $files_ref, $line );
     my $is_week_data = 1;
 
+    ( $err, $is_week_data ) = $self->gather_data();
+
+    if ( $err == 0 && $is_week_data ) {
+      $err = $self->_sort_table;
+    }
+
+    if ( $err == 0 ) {
+      ( $err, $line ) = $self->output_html;
+    }
+
+    if ( $err == 0 ) {
+      $err = $self->write_file($line);
+    }
+
+    if ( $err == 0 ) {
+      $err = $self->_copy_stylesheet("table_dir");
+    }
+
+    my $c = $self->get_configuration;
+    return $err;
+  }
+
+  #***************************************
+  sub gather_data {
+
+    #***************************************
+    my $self = shift;
+    my $err  = 0;
+    my ( @files, $files_ref, $line );
+    my $is_week_data = 1;
+
     if ( !$self->get_division ) {
       $self->logger->error("Division not set.");
       $err = 1;
@@ -629,24 +661,7 @@ table to the HTML file.
       $err = $self->_process_data;
     }
 
-    if ( $err == 0 && $is_week_data ) {
-      $err = $self->_sort_table;
-    }
-
-    if ( $err == 0 ) {
-      ( $err, $line ) = $self->output_html;
-    }
-
-    if ( $err == 0 ) {
-      $err = $self->write_file($line);
-    }
-
-    if ( $err == 0 ) {
-      $err = $self->_copy_stylesheet("table_dir");
-    }
-
-    my $c = $self->get_configuration;
-    return $err;
+    return ( $err, $is_week_data );
   }
 
   1;

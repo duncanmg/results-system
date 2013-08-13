@@ -73,6 +73,7 @@ use WeekFixtures;
 use LeagueTable;
 use ResultsIndex;
 use TablesIndex;
+use GroundMarkings;
 
 =head1 Functions
 
@@ -239,6 +240,49 @@ sub output_page {
   return $err;
 }
 
+=head2 output_page
+
+Write the HTML for the page to the standard output.
+
+=cut
+
+# ******************************************************
+sub output_csv {
+
+  # ******************************************************
+  my %args = (@_);
+  my $q    = $args{-query};
+  my $c    = $args{-config};
+  my $u    = $args{-util};
+  my $page = $args{-page};
+  my $err  = 0;
+  my $line;
+
+  $u->logger->debug("page=$page");
+
+  eval {
+
+    if ( $page eq "ground_markings" ) {
+
+      my $p = GroundMarkings->new( -query => $q, -config => $c );
+      ( $err, $line ) = $p->output_csv;
+      print $line;
+
+    }
+
+    else {
+      $u->logger->debug( "Page parameter not recognised. " . $page );
+    }
+
+  };
+  if ($@) {
+    $u->logger->debug($@);
+    $err = 1;
+  }
+
+  return $err;
+}
+
 # ******************************************************
 sub main {
 
@@ -259,6 +303,7 @@ sub main {
 
   eval {
     my $f = "../custom/$system/$system.ini" if $system;
+
     # $u->logger->debug("Configuration file <$f> for system <$system>.");
     $c = ResultsConfiguration->new( -full_filename => $f );
     if ( !$c ) {
@@ -302,7 +347,10 @@ sub main {
       . " user="
       . $q->param("user") );
 
-  if ( $page !~ m/frame/i ) {
+  if ( $page eq 'ground_markings' ) {
+    $err = output_csv( -query => $q, -config => $c, -util => $u, -page => $page );
+  }
+  elsif ( $page !~ m/frame/i ) {
     $err = output_page( -query => $q, -config => $c, -util => $u, -page => $page );
   }
   else {
@@ -341,7 +389,7 @@ eval {
   }
   main;
 };
-print "<p>" . $@ . "</p>\n";
+print "<p>" . $@ . "</p>\n" if $@;
 
 if ($debug) {
   $t->end_html;
