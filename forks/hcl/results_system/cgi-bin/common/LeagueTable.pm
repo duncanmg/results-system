@@ -599,6 +599,10 @@ table to the HTML file.
     ( $err, $is_week_data ) = $self->gather_data();
 
     if ( $err == 0 && $is_week_data ) {
+      $err = $self->_process_data;
+    }
+
+    if ( $err == 0 && $is_week_data ) {
       $err = $self->_sort_table;
     }
 
@@ -655,10 +659,6 @@ table to the HTML file.
 
     if ( $err == 0 && $is_week_data ) {
       $err = $self->_extract_data( \@files );
-    }
-
-    if ( $err == 0 && $is_week_data ) {
-      $err = $self->_process_data;
     }
 
     return ( $err, $is_week_data );

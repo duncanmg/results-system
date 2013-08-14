@@ -22,7 +22,7 @@ sub output_csv {
   my $self   = shift;
   my $config = $self->get_configuration;
   my @menus  = $config->get_menu_names;
-  my $data   = [ [ "Division", "Home", "Away", "Pitch", "Outfield", "Facilities" ] ];
+  my $data   = [ [ "Week", "Division", "Home", "Away", "Pitch", "Outfield", "Facilities" ] ];
   my $line;
   my $err = 0;
 
@@ -34,10 +34,12 @@ sub output_csv {
     $lt->set_division( $m->{csv_file} );
     eval {
       $lt->gather_data();
-      my $rows = $lt->_get_aggregated_data;
-      next if !scalar @$rows;
+      my @rows = $lt->_get_all_week_data;
+
+      # print Dumper @rows;
+      next if !scalar @rows;
       my $formatted = [];
-      $formatted = $self->format_rows( $rows, $m->{menu_name} );
+      $formatted = $self->format_rows( \@rows, $m->{menu_name} );
       push @$data, @$formatted;
       1;
     } || $self->logger->error($@);
@@ -50,7 +52,12 @@ sub output_csv {
   }
 
   my $q = $self->get_query;
-  $line = $q->header('text/csv') . "\n" . join( "\n", @$lines ) . "\n";
+  $line = $q->header(
+    '-type'                => 'text/csv; name="ground_markings.csv"',
+    '-Content-Disposition' => 'attachment; filename= "ground_markings.csv"'
+    )
+    . "\n"
+    . join( "\n", @$lines ) . "\n";
 
   # print Dumper $line;
   return ( $err, $line );
@@ -58,22 +65,29 @@ sub output_csv {
 
 sub format_rows {
   my ( $self, $rows, $name ) = @_;
-  my $odd       = 1;
-  my $match     = {};
   my $formatted = [];
   foreach my $r (@$rows) {
-    if ($odd) {
-      $match = clone $r;
+    my $odd   = 1;
+    my $match = {};
+    my $lines = $r->{LINES};
+    my $week  = $r->{WEEK};
+    foreach my $l (@$lines) {
+      if ($odd) {
+        $match = clone $l;
+      }
+      else {
+        $match->{away_team} = $l->{team};
+        push @$formatted,
+          [
+          $week,               $name,              $match->{team},
+          $match->{away_team}, $match->{pitchmks}, $match->{groundmks},
+          $match->{facilitiesmks}
+          ];
+      }
+      $odd = $odd ? undef : 1;
+
+      # print Dumper $l;
     }
-    else {
-      $match->{away_team} = $r->{team};
-      push @$formatted,
-        [
-        $name,              $match->{team},      $match->{away_team},
-        $match->{pitchmks}, $match->{groundmks}, $match->{facilitiesmks}
-        ];
-    }
-    $odd = $odd ? undef : 1;
   }
   return $formatted;
 }
