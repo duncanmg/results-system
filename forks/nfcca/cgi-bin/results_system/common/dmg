@@ -1,8 +1,0 @@
-c 249
-$q->param( -name => "system",    -value => "nfcca" );
-$q->param( -name => "matchdate", -value => "14-May" );
-$q->param( -name => "division",  -value => "U9N" );
-$q->param( -name => "page",      -value => "week_fixtures" );
-
-#save dmg
-c 174
