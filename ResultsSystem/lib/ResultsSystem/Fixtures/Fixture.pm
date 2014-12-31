@@ -1,4 +1,4 @@
-package ResultsSystem::Fixture;
+package ResultsSystem::Fixtures::Fixture;
 
 use 5.008;
 use strict;
@@ -8,7 +8,7 @@ use Moo;
 
 =head1 NAME
 
-ResultsSystem::Fixture - The great new ResultsSystem::Fixture!
+ResultsSystem::Fixtures::Fixture - The great new ResultsSystem::Fixtures::Fixture!
 
 =head1 VERSION
 
@@ -24,9 +24,9 @@ Quick summary of what the module does.
 
 Perhaps a little code snippet.
 
-    use ResultsSystem::Fixture;
+    use ResultsSystem::Fixtures::Fixture;
 
-    my $foo = ResultsSystem::Fixture->new();
+    my $foo = ResultsSystem::Fixtures::Fixture->new();
     ...
 
 =head1 EXPORT
@@ -57,18 +57,35 @@ has 'away'            => ( 'is' => 'ro' );
 
 =head1 SUBROUTINES/METHODS
 
-=head2 function1
+=cut
+
+=head2 stringify
 
 =cut
 
-sub function1 {
+use overload '""' => 'stringify';
+
+sub stringify {
+  my ($self) = @_;
+  my ( $wc, $md );
+  return
+      'week_commencing: '
+    . ( $self->_format_date( $self->week_commencing ) || "" )
+    . ' match_date: '
+    . ( $self->_format_date( $self->match_date ) || "" )
+    . ' home: '
+    . ( $self->home || "" )
+    . ' away: '
+    . ( $self->away || "" );
 }
 
-=head2 function2
+=head2 _format_date
 
 =cut
 
-sub function2 {
+sub _format_date {
+  my ( $self, $d ) = @_;
+  return sprintf( "%s %d %s %d", $d->day_name, $d->day, $d->month_name, $d->year );
 }
 
 =head1 AUTHOR
@@ -78,7 +95,7 @@ Duncan Garland, C<< <duncan.garland at ntlworld.com> >>
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-resultssystem-fixture at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=ResultsSystem-Fixture>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=ResultsSystem-Fixtures::Fixture>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 
@@ -88,7 +105,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc ResultsSystem::Fixture
+    perldoc ResultsSystem::Fixtures::Fixture
 
 
 You can also look for information at:
@@ -97,19 +114,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=ResultsSystem-Fixture>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=ResultsSystem-Fixtures::Fixture>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/ResultsSystem-Fixture>
+L<http://annocpan.org/dist/ResultsSystem-Fixtures::Fixture>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/ResultsSystem-Fixture>
+L<http://cpanratings.perl.org/d/ResultsSystem-Fixtures::Fixture>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/ResultsSystem-Fixture/>
+L<http://search.cpan.org/dist/ResultsSystem-Fixtures::Fixture/>
 
 =back
 
@@ -160,4 +177,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1;    # End of ResultsSystem::Fixture
+1;    # End of ResultsSystem::Fixtures::Fixture
