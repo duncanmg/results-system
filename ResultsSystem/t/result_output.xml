@@ -1,0 +1,46 @@
+<result_set>
+  <match>
+    <away>Waterlooville</away>
+    <away_details>
+      <batting_points>5</batting_points>
+      <bowling_points>3</bowling_points>
+      <penalty_points>0</penalty_points>
+      <result>W</result>
+      <runs_scored>100</runs_scored>
+      <wickets_lost>5</wickets_lost>
+    </away_details>
+    <home>Purbrook</home>
+    <home_details>
+      <batting_points>5</batting_points>
+      <bowling_points>3</bowling_points>
+      <penalty_points>0</penalty_points>
+      <result>W</result>
+      <runs_scored>100</runs_scored>
+      <wickets_lost>5</wickets_lost>
+    </home_details>
+    <match_date>21-Jan-2014</match_date>
+    <played>Y</played>
+  </match>
+  <match>
+    <away>P'mouth &amp; S'sea</away>
+    <away_details>
+      <batting_points>5</batting_points>
+      <bowling_points>3</bowling_points>
+      <penalty_points>0</penalty_points>
+      <result>W</result>
+      <runs_scored>100</runs_scored>
+      <wickets_lost>5</wickets_lost>
+    </away_details>
+    <home>Fareham &amp; Crofton</home>
+    <home_details>
+      <batting_points>5</batting_points>
+      <bowling_points>3</bowling_points>
+      <penalty_points>0</penalty_points>
+      <result>W</result>
+      <runs_scored>100</runs_scored>
+      <wickets_lost>5</wickets_lost>
+    </home_details>
+    <match_date>21-Jan-2014</match_date>
+    <played>Y</played>
+  </match>
+</result_set>
