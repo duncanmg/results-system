@@ -15,52 +15,55 @@ my $obj = ResultsSystem::IO::XML->new( full_filename => $f );
 isa_ok( $obj, 'ResultsSystem::IO::XML' );
 
 my $data = {
-  'match' => [
-    { 'match_date'   => ['21-Jan-2014'],
-      'played'       => ['Y'],
-      'away'         => ['Waterlooville'],
-      'away_details' => [
-        { 'runs_scored'    => ['100'],
-          'wickets_lost'   => ['5'],
-          'bowling_points' => ['3'],
-          'penalty_points' => ['0'],
-          'batting_points' => ['5'],
-          'result'         => ['W']
+  result_set => [
+    { 'match' => [
+        { 'match_date'   => ['21-Jan-2014'],
+          'played'       => ['Y'],
+          'away'         => ['Waterlooville'],
+          'away_details' => [
+            { 'runs_scored'    => ['100'],
+              'wickets_lost'   => ['5'],
+              'bowling_points' => ['3'],
+              'penalty_points' => ['0'],
+              'batting_points' => ['5'],
+              'result'         => ['W']
+            }
+          ],
+          'home_details' => [
+            { 'runs_scored'    => ['100'],
+              'wickets_lost'   => ['5'],
+              'bowling_points' => ['3'],
+              'penalty_points' => ['0'],
+              'batting_points' => ['5'],
+              'result'         => ['W']
+            }
+          ],
+          'home' => ['Purbrook']
+        },
+        { 'match_date'   => ['21-Jan-2014'],
+          'played'       => ['Y'],
+          'away'         => ['P\'mouth & S\'sea'],
+          'away_details' => [
+            { 'runs_scored'    => ['100'],
+              'wickets_lost'   => ['5'],
+              'bowling_points' => ['3'],
+              'penalty_points' => ['0'],
+              'batting_points' => ['5'],
+              'result'         => ['W']
+            }
+          ],
+          'home_details' => [
+            { 'runs_scored'    => ['100'],
+              'wickets_lost'   => ['5'],
+              'bowling_points' => ['3'],
+              'penalty_points' => ['0'],
+              'batting_points' => ['5'],
+              'result'         => ['W']
+            }
+          ],
+          'home' => ['Fareham & Crofton']
         }
-      ],
-      'home_details' => [
-        { 'runs_scored'    => ['100'],
-          'wickets_lost'   => ['5'],
-          'bowling_points' => ['3'],
-          'penalty_points' => ['0'],
-          'batting_points' => ['5'],
-          'result'         => ['W']
-        }
-      ],
-      'home' => ['Purbrook']
-    },
-    { 'match_date'   => ['21-Jan-2014'],
-      'played'       => ['Y'],
-      'away'         => ['P\'mouth & S\'sea'],
-      'away_details' => [
-        { 'runs_scored'    => ['100'],
-          'wickets_lost'   => ['5'],
-          'bowling_points' => ['3'],
-          'penalty_points' => ['0'],
-          'batting_points' => ['5'],
-          'result'         => ['W']
-        }
-      ],
-      'home_details' => [
-        { 'runs_scored'    => ['100'],
-          'wickets_lost'   => ['5'],
-          'bowling_points' => ['3'],
-          'penalty_points' => ['0'],
-          'batting_points' => ['5'],
-          'result'         => ['W']
-        }
-      ],
-      'home' => ['Fareham & Crofton']
+      ]
     }
   ]
 };
@@ -74,7 +77,7 @@ cmp_deeply( $data_read, $data, "The data read from result.xml is as expected." )
 $obj = ResultsSystem::IO::XML->new( full_filename => "./t/result_output.xml" );
 isa_ok( $obj, 'ResultsSystem::IO::XML' );
 
-ok( $obj->_write( { result_set => $data_read } ), "Wrote data to file result_output.xml as xml" );
+ok( $obj->_write($data_read), "Wrote data to file result_output.xml as xml" );
 
 $obj = ResultsSystem::IO::XML->new( full_filename => "./t/result_output.xml" );
 isa_ok( $obj, 'ResultsSystem::IO::XML' );

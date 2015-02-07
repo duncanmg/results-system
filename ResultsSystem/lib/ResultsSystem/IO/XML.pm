@@ -30,6 +30,42 @@ has 'backup_ext' => ( 'is' => 'ro', 'default' => sub { time() . "" } );
 has 'write_dir'  => ( 'is' => 'ro', 'default' => sub {"."} );
 has 'full_filename' => ( 'is' => 'ro' );
 
+=head1 External Methods
+
+=cut
+
+=head2 new
+
+=cut
+
+=head2 read
+
+Return the current contents of the file.
+
+my $result_set = $self->read();
+
+=cut
+
+sub read {
+	my ($self)=validate_pos(@_,1);
+	return $self->_read();
+}
+
+=head2 write
+
+Accept a result_set hash ref containing one or more week worth or results.
+
+$self->write($input);
+
+=cut
+
+sub write {
+	my ($self,$input) = validate_pos(@_,1,{type=>HASHREF});
+	$self->_backup();
+	$self->_write();
+	return 1;
+}
+
 =head1 Internal Methods
 
 =cut
@@ -51,6 +87,24 @@ sub _backup {
   return 1;
 }
 
+=head2 _read
+
+=cut
+
+sub _read {
+  my ($self) = validate_pos( @_, 1 );
+  my $FP;
+  die "full_filename is not defined" if !$self->full_filename;
+  open( $FP, $self->full_filename ) || die $!;
+  my @lines = ();
+  while (<$FP>) {
+    push @lines, $_;
+  }
+  my $xml = XML::Simple->new();
+  my $in = $xml->XMLin( join( "\n", @lines ), ForceArray => 1, KeyAttr => [], KeepRoot => 1 );
+  return $in;
+}
+
 =head2 _write
 
 =cut
@@ -70,24 +124,6 @@ sub _write {
   print $FP $out || die $!;
   close $FP || die $!;
   return 1;
-}
-
-=head2 _read
-
-=cut
-
-sub _read {
-  my ($self) = validate_pos( @_, 1 );
-  my $FP;
-  die "full_filename is not defined" if !$self->full_filename;
-  open( $FP, $self->full_filename ) || die $!;
-  my @lines = ();
-  while (<$FP>) {
-    push @lines, $_;
-  }
-  my $xml = XML::Simple->new();
-  my $in = $xml->XMLin( join( "\n", @lines ), ForceArray => 1, KeyAttr => [] );
-  return $in;
 }
 
 =head1 Example Perl
