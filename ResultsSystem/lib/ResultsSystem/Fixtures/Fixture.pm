@@ -8,11 +8,11 @@ use Moo;
 
 =head1 NAME
 
-ResultsSystem::Fixtures::Fixture - The great new ResultsSystem::Fixtures::Fixture!
+ResultsSystem::Fixtures::Fixture.
 
 =head1 VERSION
 
-Version 0.01
+Version 3.01
 
 =cut
 
@@ -20,19 +20,12 @@ our $VERSION = '3.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use ResultsSystem::Fixtures::Fixture;
-
-    my $foo = ResultsSystem::Fixtures::Fixture->new();
-    ...
+Object which holds the week commencing, match date, the name of the home team and
+the name of the away team for a fixture and stringifies as described below.
 
 =head1 EXPORT
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+Nothing
 
 =head1 ATTRIBUTES
 
@@ -40,11 +33,19 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =item week_commencing
 
+DateTime object. Required. Read only.
+
 =item match_date
+
+DateTime object. Read only.
 
 =item home
 
+The name of the home team. String. Read only.
+
 =item away
+
+The name of the away team. String. Read only.
 
 =back
 
@@ -60,6 +61,10 @@ has 'away'            => ( 'is' => 'ro' );
 =cut
 
 =head2 stringify
+
+Stringifies the object to the form:
+
+week_commencing: Monday 2 June 2015 match_date: Tuesday 3 June 2015 home: England away: Australia
 
 =cut
 
@@ -80,6 +85,8 @@ sub stringify {
 }
 
 =head2 _format_date
+
+Accepts a DateTime object and return a string of the form Monday 2 June 2015.
 
 =cut
 

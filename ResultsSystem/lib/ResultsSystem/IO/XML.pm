@@ -9,17 +9,37 @@ use Path::Class;
 use XML::Simple qw/:strict/;
 use Params::Validate qw/:all/;
 
+=head1 Description
+
+Read or write to the XML file which contains the results for a division
+and a week.
+
+See "Example Perl" and "Example XML".
+
+=cut
+
 =head1 Attributes
 
 =over
 
 =item backup_dir
 
+Directory for backups. Defaults to the current directory.
+
 =item backup_ext
+
+The extension given to the backups. Defaults to a timestamp
+which does not update.
+
+abc.xml --> abc.xml.12345678
 
 =item write_dir
 
+The directory to write the files to. Defaults to the current directory.
+
 =item full_filename
+
+The full path and filename of the XML file to be read.
 
 =back
 
@@ -36,34 +56,42 @@ has 'full_filename' => ( 'is' => 'ro' );
 
 =head2 new
 
+my $obj = ResultsSystem::IO::XML->new()
+
+Return a new object. All the constructor attributes are optional. However,
+full_filename does not have a default, so you must set it before you can
+read or write.
+
 =cut
 
 =head2 read
 
-Return the current contents of the file.
+Return the current contents of the XML file given in $self->full_filename as a hash 
+ref in the form shown in "Example Perl".
 
 my $result_set = $self->read();
 
 =cut
 
 sub read {
-	my ($self)=validate_pos(@_,1);
-	return $self->_read();
+  my ($self) = validate_pos( @_, 1 );
+  return $self->_read();
 }
 
 =head2 write
 
 Accept a result_set hash ref containing one or more week worth or results.
+Backs up the file before changing it.
 
 $self->write($input);
 
 =cut
 
 sub write {
-	my ($self,$input) = validate_pos(@_,1,{type=>HASHREF});
-	$self->_backup();
-	$self->_write();
-	return 1;
+  my ( $self, $input ) = validate_pos( @_, 1, { type => HASHREF } );
+  $self->_backup();
+  $self->_write();
+  return 1;
 }
 
 =head1 Internal Methods
@@ -71,6 +99,14 @@ sub write {
 =cut
 
 =head2 _backup
+
+$self->_backup()
+
+Makes a copy of the file in $self->full_filename and puts it in the
+directory given in $self->backup_dir with a timestamp and the extension
+given in $self->backup_ext.
+
+Dies on error.
 
 =cut
 
@@ -89,6 +125,11 @@ sub _backup {
 
 =head2 _read
 
+$self->_read()
+
+Reads the contents of the file given in $self->full_filename and returns it as a hash ref.
+See "Example Perl".
+
 =cut
 
 sub _read {
@@ -106,6 +147,10 @@ sub _read {
 }
 
 =head2 _write
+
+Accept a hash ref in the format given in "Example Perl". Writes it to the
+file given in $self->full_filename as XML in the format given in
+"Example XML".
 
 =cut
 

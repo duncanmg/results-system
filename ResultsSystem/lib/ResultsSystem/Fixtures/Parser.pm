@@ -19,11 +19,11 @@ use ResultsSystem::Fixtures::Set;
 
 =head1 NAME
 
-ResultsSystem::Fixtures::Parser - The great new ResultsSystem::Fixtures::Parser!
+ResultsSystem::Fixtures::Parser
 
 =head1 VERSION
 
-Version 0.01
+Version 3.01
 
 =cut
 
@@ -31,14 +31,11 @@ our $VERSION = '3.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+Reads in a fixtures file with the format originally agreed with HCL back in 2002 or 2003. The
+file will contain all the fixtures for a division for one season.
 
-Perhaps a little code snippet.
-
-    use ResultsSystem::Fixtures::Parser;
-
-    my $foo = ResultsSystem::Fixtures::Parser->new();
-    ...
+It creates a ResultsSystem::Fixtures::Set object which contains the resulting Fixture objects.
+This is stored in the attribute "fixtures".
 
 =head1 EXPORT
 
@@ -51,11 +48,24 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =item source_file
 
+Full name and path of the file to be read.
+
 =item csv
+
+Text::CSV::XS or compatible CSV processing object.
 
 =item datetime_natural
 
+DateTime::Format::Natural or compatible date processing object.
+
 =item fixtures
+
+ResultsSystem::Fixtures::Set or compatible object. Defaults to
+ResultsSystem::Fixtures::Set->new().
+
+=item _week_pos
+
+?
 
 =back
 
@@ -70,9 +80,20 @@ has _week_pos => ( 'is' => 'rw' );
 
 =head1 SUBROUTINES/METHODS
 
-=head2 parse_file
+=head2 External Methods
 
-Slurps in the source file. It then spilts the file into weeks assuming that the week delimiter
+=cut
+
+=head3 new
+
+Constructor. Only source_file is required, but it won't do much until
+csv and datetime_natural are set.
+
+=cut
+
+=head3 parse_file
+
+Slurps in the source file. It then splits the file into weeks assuming that the week delimiter
 is the line with at least 6 "=" characters in it. eg "=====".
 
 Each week is then passed to parse_week for further processing.
@@ -98,7 +119,11 @@ sub parse_file {
 
 }
 
-=head2 parse_week
+=head2 Internal Methods
+
+=cut
+
+=head3 parse_week
 
 Accepts a week of fixtures as an array ref and parses them. 
 
@@ -148,7 +173,7 @@ sub parse_week {
   return 1;
 }
 
-=head2 parse_date
+=head3 parse_date
 
 my $datetime = $self->parse_date( $fields );
 
@@ -171,7 +196,7 @@ sub parse_date {
   return $dt;
 }
 
-=head2 parse_teams
+=head3 parse_teams
 
 my ( home, $away ) = $self->parse_teams( $fields );
 
@@ -188,6 +213,59 @@ sub parse_teams {
     grep { ( $_ || "" ) !~ m/[<>!|]/ && ( $_ || "" ) =~ m/\w/ } @$fields[ 0 .. 1 ];
   return ( $home, $away );
 }
+
+=head1 Example CSV File
+
+  05-May,,
+  Broughton,Winterbourne & HPk II,
+  Farley II,Centurions,
+  OTs & Romsey IV,Michelmersh & T III,
+  Wherwell II,Shrewton III,
+  ==========,,
+  12-May,,
+  Farley II,Winterslow II,
+  Michelmersh & T III,Wherwell II,
+  Shrewton III,Broughton,
+  Winterbourne & HPk II,Centurions,
+  ==========,,
+  19-May-2012,,
+  Broughton,Michelmersh & T III,
+  Centurions,Winterslow II,
+  OTs & Romsey IV,Farley II,
+  Winterbourne & HPk II,Shrewton III,,,,,
+  ==========,,,,,,
+  26-May,,,,,,
+  Farley II,Wherwell II,,,,,
+  Michelmersh & T III,Winterbourne & HPk II,,,,,
+  Shrewton III,Centurions,,,,,
+  Winterslow II,OTs & Romsey IV,,,,,
+  ==========,,,,,,
+  02-June,,,,,,
+  Broughton,Farley II,,,,,
+  Centurions,OTs & Romsey IV,,,,,
+  Shrewton III,Michelmersh & T III,,,,,
+  Wherwell II,Winterslow II,,,,,
+  ==========,,,,,,
+  09-Jun,,,,,,
+  Farley II,Winterbourne & HPk II,,,,,
+  Michelmersh & T III,Centurions
+  OTs & Romsey IV,Wherwell II
+  Winterslow II,Broughton
+  ==========,
+  16/Jun,
+  Broughton,OTs & Romsey IV
+  Centurions,Wherwell II
+  Shrewton III,Farley II
+  Winterbourne & HPk II,Winterslow II
+  ==========,
+  23-Jun,
+  Farley II,Michelmersh & T III
+  OTs & Romsey IV,Winterbourne & HPk II
+  Wherwell II,Broughton
+  Winterslow II,Shrewton III
+  ==========,
+
+=cut
 
 =head1 AUTHOR
 
