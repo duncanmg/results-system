@@ -11,11 +11,11 @@ use Data::Dumper;
 
 =head1 NAME
 
-ResultsSystem::Fixtures::Set - The great new ResultsSystem::Fixtures::Set!
+ResultsSystem::Fixtures::Set
 
 =head1 VERSION
 
-Version 0.01
+Version 3.01
 
 =cut
 
@@ -23,19 +23,7 @@ our $VERSION = '3.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use ResultsSystem::Fixtures::Set;
-
-    my $foo = ResultsSystem::Fixtures::Set->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+An object which golds a set of Fixture objects.
 
 =head1 ATTRIBUTES
 
@@ -57,7 +45,22 @@ has _elements => ( 'is' => 'rw', 'default' => sub { [] } );
 
 =head1 SUBROUTINES/METHODS
 
-=head2 push_element
+=head2 External Methods
+
+=cut
+
+=head3 new
+
+my $obj = ResultsSystem::Fixtures::Set->new()
+
+=cut
+
+=head3 push_element
+
+$self->push_element( $fixture );
+
+Add a Fixture object to the end of the list of Fixture objects or
+Fixture::Set objects.
 
 =cut
 
@@ -67,7 +70,9 @@ sub push_element {
   return 1;
 }
 
-=head2 iterator
+=head3 iterator
+
+Return an iyerator containing all the Fixture objects.
 
   my $iter = $self->iterator;
   while (my $i = $iter->()){
@@ -81,7 +86,11 @@ sub iterator {
   return $self->_create_iterator( $self->_elements );
 }
 
-=head2 count
+=head3 count
+
+Return the number of Fixture objects.
+
+my $count = $self->count()
 
 =cut
 
@@ -91,7 +100,13 @@ sub count {
   return scalar @{ $self->_elements };
 }
 
-=head2 _create_iterator
+=head2 Internal Methods
+
+=cut
+
+=head3 _create_iterator
+
+Helper method for creating an iterator.
 
 =cut
 
@@ -104,7 +119,13 @@ sub _create_iterator {
   };
 }
 
-=head2 stringify
+=head3 stringify
+
+When the object is stringified, it will take the following form:
+
+  ResultsSystem::Fixtures::Set with 2 elements
+    week_commencing: Tuesday 1 July 2014 match_date: Wednesday 2 July 2014 home: Yorkshire0 away: Lancashire0
+    week_commencing: Tuesday 1 July 2014 match_date: Wednesday 2 July 2014 home: Yorkshire1 away: Lancashire1
 
 =cut
 
@@ -112,20 +133,21 @@ use overload '""' => 'stringify';
 
 sub stringify {
   my ($self) = @_;
-  my $out    = ref($self) . " with " . $self->count . " elements\n";
+  my $out    = [ ref($self) . " with " . $self->count . " elements" ];
   my $iter   = $self->iterator;
   while ( my $i = $iter->() ) {
     if ( ref($i) =~ m/Fixture$/ ) {
-      $out .= "  " . $i . "\n";
+      push @$out, "  " . $i . "";
     }
     else {
+      # Must be a Set. Stringify, split and indent.
       my $s    = $i . "";
       my @bits = split( "\n", $i . "" );
-      my $res  = join( "\n", ( map { "  " . $_ } @bits ) ) . "\n";
-      $out .= $res;
+      my $res  = join( "\n", ( map { "  " . $_ } @bits ) );
+      push @$out, $res;
     }
   }
-  return $out;
+  return join( "\n", @$out );
 }
 
 =head1 AUTHOR
