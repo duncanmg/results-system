@@ -1,0 +1,35 @@
+<html>
+<body>
+
+<table>
+	<th>Team Name</th>
+	<th>Played</th>
+	<th>Result</th>
+	<th>Runs Scored</th>
+	<th>Wickets Lost</th>
+	<th>Comments</th>
+
+[% WHILE (f = fixtures) %]
+<tr>
+	<td>[% f.home | html_entity %]</td>
+	<td><input value="[% f.played %]"/></td>
+	<td><input value="[% f.result %]"/></td>
+	<td><input value="[% f.home_runs %]"/></td>
+	<td><input value="[% f.home_wickets %]"/></td>
+
+	<td><input value="[% f.comments | html_entity %]"/></td>
+</tr>
+<tr>
+	<td>[% f.away | html_entity %]</td>
+	<td><input value="[% f.played %]"/></td>
+	<td><input value="[% f.result %]"/></td>
+	<td><input value="[% f.away_runs %]"/></td>
+	<td><input value="[% f.away_wickets %]"/></td>
+
+	<td><input "[% f.comments | html_entity %]"/></td>
+</tr>
+[% END %]
+</table>
+
+</body>
+</html>

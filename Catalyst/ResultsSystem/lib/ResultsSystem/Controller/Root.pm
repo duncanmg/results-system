@@ -4,11 +4,15 @@ use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller' }
 
+use ResultsSystem::Fixtures::Parser;
+use Text::CSV;
+use DateTime::Format::Natural;
+
 #
 # Sets the actions in this controller to be registered with no prefix
 # so they function identically to actions created in MyApp.pm
 #
-__PACKAGE__->config(namespace => '');
+__PACKAGE__->config( namespace => '' );
 
 =encoding utf-8
 
@@ -28,11 +32,27 @@ The root page (/)
 
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+sub index : Path : Args(0) {
+  my ( $self, $c ) = @_;
 
-    # Hello World
-    $c->response->body( $c->welcome_message );
+  # Hello World
+  # $c->response->body( $c->welcome_message );
+
+  my $season = ResultsSystem::Fixtures::Parser->new(
+    source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
+    csv              => Text::CSV->new(),
+    datetime_natural => DateTime::Format::Natural->new
+  );
+  $season->parse_file();
+
+  $c->log->warn( "Got " . $season->fixtures->count . " weeks in season." );
+  $c->log->warn("\n".$season->fixtures);
+
+  my $week1 = $season->fixtures->iterator->();
+
+  $c->log->debug( "week 1 is " . $week1 );
+
+  $c->stash( template => 'static/fixtures.tt', fixtures => $week1->iterator );
 }
 
 =head2 default
@@ -41,10 +61,10 @@ Standard 404 error page
 
 =cut
 
-sub default :Path {
-    my ( $self, $c ) = @_;
-    $c->response->body( 'Page not found' );
-    $c->response->status(404);
+sub default : Path {
+  my ( $self, $c ) = @_;
+  $c->response->body('Page not found');
+  $c->response->status(404);
 }
 
 =head2 end
@@ -53,7 +73,7 @@ Attempt to render a view, if needed.
 
 =cut
 
-sub end : ActionClass('RenderView') {}
+sub end : ActionClass('RenderView') { }
 
 =head1 AUTHOR
 

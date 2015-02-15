@@ -267,6 +267,107 @@ sub parse_teams {
 
 =cut
 
+=head1 Example Stringified Fixtures Set
+
+  ResultsSystem::Fixtures::Set with 18 elements
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: Broughton away: Winterbourne & HPk II
+      week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: Farley II away: Centurions
+      week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: OTs & Romsey IV away: Michelmersh & T III
+      week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: Wherwell II away: Shrewton III
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 12 May 2015 match_date: Tuesday 12 May 2015 home: Farley II away: Winterslow II
+      week_commencing: Tuesday 12 May 2015 match_date: Tuesday 12 May 2015 home: Michelmersh & T III away: Wherwell II
+      week_commencing: Tuesday 12 May 2015 match_date: Tuesday 12 May 2015 home: Shrewton III away: Broughton
+      week_commencing: Tuesday 12 May 2015 match_date: Tuesday 12 May 2015 home: Winterbourne & HPk II away: Centurions
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Saturday 19 May 2012 match_date: Saturday 19 May 2012 home: Broughton away: Michelmersh & T III
+      week_commencing: Saturday 19 May 2012 match_date: Saturday 19 May 2012 home: Centurions away: Winterslow II
+      week_commencing: Saturday 19 May 2012 match_date: Saturday 19 May 2012 home: OTs & Romsey IV away: Farley II
+      week_commencing: Saturday 19 May 2012 match_date: Saturday 19 May 2012 home: Winterbourne & HPk II away: Shrewton III
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 26 May 2015 match_date: Tuesday 26 May 2015 home: Farley II away: Wherwell II
+      week_commencing: Tuesday 26 May 2015 match_date: Tuesday 26 May 2015 home: Michelmersh & T III away: Winterbourne & HPk II
+      week_commencing: Tuesday 26 May 2015 match_date: Tuesday 26 May 2015 home: Shrewton III away: Centurions
+      week_commencing: Tuesday 26 May 2015 match_date: Tuesday 26 May 2015 home: Winterslow II away: OTs & Romsey IV
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 2 June 2015 match_date: Tuesday 2 June 2015 home: Broughton away: Farley II
+      week_commencing: Tuesday 2 June 2015 match_date: Tuesday 2 June 2015 home: Centurions away: OTs & Romsey IV
+      week_commencing: Tuesday 2 June 2015 match_date: Tuesday 2 June 2015 home: Shrewton III away: Michelmersh & T III
+      week_commencing: Tuesday 2 June 2015 match_date: Tuesday 2 June 2015 home: Wherwell II away: Winterslow II
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 9 June 2015 match_date: Tuesday 9 June 2015 home: Farley II away: Winterbourne & HPk II
+      week_commencing: Tuesday 9 June 2015 match_date: Tuesday 9 June 2015 home: Michelmersh & T III away: Centurions
+      week_commencing: Tuesday 9 June 2015 match_date: Tuesday 9 June 2015 home: OTs & Romsey IV away: Wherwell II
+      week_commencing: Tuesday 9 June 2015 match_date: Tuesday 9 June 2015 home: Winterslow II away: Broughton
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 16 June 2015 match_date: Tuesday 16 June 2015 home: Broughton away: OTs & Romsey IV
+      week_commencing: Tuesday 16 June 2015 match_date: Tuesday 16 June 2015 home: Centurions away: Wherwell II
+      week_commencing: Tuesday 16 June 2015 match_date: Tuesday 16 June 2015 home: Shrewton III away: Farley II
+      week_commencing: Tuesday 16 June 2015 match_date: Tuesday 16 June 2015 home: Winterbourne & HPk II away: Winterslow II
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 23 June 2015 match_date: Tuesday 23 June 2015 home: Farley II away: Michelmersh & T III
+      week_commencing: Tuesday 23 June 2015 match_date: Tuesday 23 June 2015 home: OTs & Romsey IV away: Winterbourne & HPk II
+      week_commencing: Tuesday 23 June 2015 match_date: Tuesday 23 June 2015 home: Wherwell II away: Broughton
+      week_commencing: Tuesday 23 June 2015 match_date: Tuesday 23 June 2015 home: Winterslow II away: Shrewton III
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 30 June 2015 match_date: Tuesday 30 June 2015 home: Broughton away: Centurions
+      week_commencing: Tuesday 30 June 2015 match_date: Tuesday 30 June 2015 home: OTs & Romsey IV away: Shrewton III
+      week_commencing: Tuesday 30 June 2015 match_date: Tuesday 30 June 2015 home: Wherwell II away: Winterbourne & HPk II
+      week_commencing: Tuesday 30 June 2015 match_date: Tuesday 30 June 2015 home: Winterslow II away: Michelmersh & T III
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 7 July 2015 match_date: Tuesday 7 July 2015 home: Centurions away: Farley II
+      week_commencing: Tuesday 7 July 2015 match_date: Tuesday 7 July 2015 home: Michelmersh & T III away: OTs & Romsey IV
+      week_commencing: Tuesday 7 July 2015 match_date: Tuesday 7 July 2015 home: Shrewton III away: Wherwell II
+      week_commencing: Tuesday 7 July 2015 match_date: Tuesday 7 July 2015 home: Winterbourne & HPk II away: Broughton
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 14 July 2015 match_date: Tuesday 14 July 2015 home: Broughton away: Shrewton III
+      week_commencing: Tuesday 14 July 2015 match_date: Tuesday 14 July 2015 home: Centurions away: Winterbourne & HPk II
+      week_commencing: Tuesday 14 July 2015 match_date: Tuesday 14 July 2015 home: Wherwell II away: Michelmersh & T III
+      week_commencing: Tuesday 14 July 2015 match_date: Tuesday 14 July 2015 home: Winterslow II away: Farley II
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 21 July 2015 match_date: Tuesday 21 July 2015 home: Farley II away: OTs & Romsey IV
+      week_commencing: Tuesday 21 July 2015 match_date: Tuesday 21 July 2015 home: Michelmersh & T III away: Broughton
+      week_commencing: Tuesday 21 July 2015 match_date: Tuesday 21 July 2015 home: Shrewton III away: Winterbourne & HPk II
+      week_commencing: Tuesday 21 July 2015 match_date: Tuesday 21 July 2015 home: Winterslow II away: Centurions
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 28 July 2015 match_date: Tuesday 28 July 2015 home: Centurions away: Shrewton III
+      week_commencing: Tuesday 28 July 2015 match_date: Tuesday 28 July 2015 home: OTs & Romsey IV away: Winterslow II
+      week_commencing: Tuesday 28 July 2015 match_date: Tuesday 28 July 2015 home: Wherwell II away: Farley II
+      week_commencing: Tuesday 28 July 2015 match_date: Tuesday 28 July 2015 home: Winterbourne & HPk II away: Michelmersh & T III
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 4 August 2015 match_date: Tuesday 4 August 2015 home: Farley II away: Broughton
+      week_commencing: Tuesday 4 August 2015 match_date: Tuesday 4 August 2015 home: Michelmersh & T III away: Shrewton III
+      week_commencing: Tuesday 4 August 2015 match_date: Tuesday 4 August 2015 home: OTs & Romsey IV away: Centurions
+      week_commencing: Tuesday 4 August 2015 match_date: Tuesday 4 August 2015 home: Winterslow II away: Wherwell II
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 11 August 2015 match_date: Tuesday 11 August 2015 home: Broughton away: Winterslow II
+      week_commencing: Tuesday 11 August 2015 match_date: Tuesday 11 August 2015 home: Centurions away: Michelmersh & T III
+      week_commencing: Tuesday 11 August 2015 match_date: Tuesday 11 August 2015 home: Wherwell II away: OTs & Romsey IV
+      week_commencing: Tuesday 11 August 2015 match_date: Tuesday 11 August 2015 home: Winterbourne & HPk II away: Farley II
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 18 August 2015 match_date: Tuesday 18 August 2015 home: Farley II away: Shrewton III
+      week_commencing: Tuesday 18 August 2015 match_date: Tuesday 18 August 2015 home: OTs & Romsey IV away: Broughton
+      week_commencing: Tuesday 18 August 2015 match_date: Tuesday 18 August 2015 home: Wherwell II away: Centurions
+      week_commencing: Tuesday 18 August 2015 match_date: Tuesday 18 August 2015 home: Winterslow II away: Winterbourne & HPk II
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 25 August 2015 match_date: Tuesday 25 August 2015 home: Broughton away: Wherwell II
+      week_commencing: Tuesday 25 August 2015 match_date: Tuesday 25 August 2015 home: Michelmersh & T III away: Farley II
+      week_commencing: Tuesday 25 August 2015 match_date: Tuesday 25 August 2015 home: Shrewton III away: Winterslow II
+      week_commencing: Tuesday 25 August 2015 match_date: Tuesday 25 August 2015 home: Winterbourne & HPk II away: OTs & Romsey IV
+    ResultsSystem::Fixtures::Set with 4 elements
+      week_commencing: Tuesday 1 September 2015 match_date: Tuesday 1 September 2015 home: Centurions away: Broughton
+      week_commencing: Tuesday 1 September 2015 match_date: Tuesday 1 September 2015 home: Michelmersh & T III away: Winterslow II
+      week_commencing: Tuesday 1 September 2015 match_date: Tuesday 1 September 2015 home: Shrewton III away: OTs & Romsey IV
+      week_commencing: Tuesday 1 September 2015 match_date: Tuesday 1 September 2015 home: Winterbourne & HPk II away: Wherwell II
+  [debug] week 1 is ResultsSystem::Fixtures::Set with 4 elements
+    week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: Broughton away: Winterbourne & HPk II
+    week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: Farley II away: Centurions
+    week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: OTs & Romsey IV away: Michelmersh & T III
+    week_commencing: Tuesday 5 May 2015 match_date: Tuesday 5 May 2015 home: Wherwell II away: Shrewton III
+
+=cut
+
 =head1 AUTHOR
 
 Duncan Garland, C<< <duncan.garland at ntlworld.com> >>
