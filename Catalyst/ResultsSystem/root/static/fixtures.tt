@@ -1,6 +1,9 @@
 <html>
 <body>
+	<h1>Enter Results</h1>
+	<h2>Division: [% division | html_entity %]. Week Commencing: [% week_commencing | html_entity %].</h2>
 
+	<form id="enter_results" method="post" action="[% action %]">	
 <table>
 	<th>Team Name</th>
 	<th>Played</th>
@@ -9,27 +12,32 @@
 	<th>Wickets Lost</th>
 	<th>Comments</th>
 
+[% SET count = 0 %]
 [% WHILE (f = fixtures) %]
 <tr>
+	[% SET count = count + 1 %]
 	<td>[% f.home | html_entity %]</td>
-	<td><input value="[% f.played %]"/></td>
-	<td><input value="[% f.result %]"/></td>
-	<td><input value="[% f.home_runs %]"/></td>
-	<td><input value="[% f.home_wickets %]"/></td>
+	<td><input name="played[% count %]" value="[% f.played %]"/></td>
+	<td><input name="home_result[% count %]" value="[% f.home_result %]"/></td>
+	<td><input name="home_runs[% count %]" value="[% f.home_runs %]"/></td>
+	<td><input name="home_wickets_lost[% count %]" value="[% f.home_wickets_lost %]"/></td>
 
-	<td><input value="[% f.comments | html_entity %]"/></td>
+	<td><input name="home_comments[% count %]" value="[% f.home_comments | html_entity %]"/></td>
 </tr>
 <tr>
 	<td>[% f.away | html_entity %]</td>
-	<td><input value="[% f.played %]"/></td>
-	<td><input value="[% f.result %]"/></td>
-	<td><input value="[% f.away_runs %]"/></td>
-	<td><input value="[% f.away_wickets %]"/></td>
+	<td><input />[% f.played %]</td>
+	<td><input name="away_result[% count %]" value="[% f.away_result %]"/></td>
+	<td><input name="away_runs[% count %]" value="[% f.away_runs %]"/></td>
+	<td><input name="away_wickets_lost[% count %]" value="[% f.away_wickets_lost %]"/></td>
 
-	<td><input "[% f.comments | html_entity %]"/></td>
+	<td><input name="away_comments[% count %]" value="[% f.away_comments | html_entity %]"/></td>
 </tr>
 [% END %]
+<tr> <td><input type="submit" name="submit" value="Submit"/></td><td colspan="5">&nbsp;</td></tr>
 </table>
+
+</form>
 
 </body>
 </html>

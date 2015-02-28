@@ -7,6 +7,7 @@ BEGIN { extends 'Catalyst::Controller' }
 use ResultsSystem::Fixtures::Parser;
 use Text::CSV;
 use DateTime::Format::Natural;
+use Data::Dumper;
 
 #
 # Sets the actions in this controller to be registered with no prefix
@@ -45,14 +46,27 @@ sub index : Path : Args(0) {
   );
   $season->parse_file();
 
+  my $p = $c->request->parameters;
+  $c->log->debug( Dumper $p);
+
+  if ( $p->{submit} ) {
+    $c->log->debug("Submit!");
+  }
+
   $c->log->warn( "Got " . $season->fixtures->count . " weeks in season." );
-  $c->log->warn("\n".$season->fixtures);
+  $c->log->warn( "\n" . $season->fixtures );
 
   my $week1 = $season->fixtures->iterator->();
 
   $c->log->debug( "week 1 is " . $week1 );
 
-  $c->stash( template => 'static/fixtures.tt', fixtures => $week1->iterator );
+  $c->stash(
+    template        => 'static/fixtures.tt',
+    action          => $c->uri_for('/'),
+    division        => 'One',
+    week_commencing => "28 February 2015",
+    fixtures        => $week1->iterator
+  );
 }
 
 =head2 default

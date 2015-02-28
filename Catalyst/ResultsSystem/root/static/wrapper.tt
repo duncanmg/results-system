@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<!-- [% component.name %] -->
+
+<html>
+	<head>
+		<title>Results System</title>
+	</head>
+	<body>
+		[% content %]
+	</body>
+</html>
+<!-- End [% component.name %] -->
+
+
