@@ -5,6 +5,8 @@ use namespace::autoclean;
 BEGIN { extends 'Catalyst::Controller' }
 
 use ResultsSystem::Fixtures::Parser;
+use ResultsSystem::Results::Parser;
+use ResultsSystem::IO::XML;
 use Text::CSV;
 use DateTime::Format::Natural;
 use Data::Dumper;
@@ -39,18 +41,33 @@ sub index : Path : Args(0) {
   # Hello World
   # $c->response->body( $c->welcome_message );
 
-  my $season = ResultsSystem::Fixtures::Parser->new(
+  my $datetime_natural = DateTime::Format::Natural->new;
+  my $season           = ResultsSystem::Fixtures::Parser->new(
     source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
     csv              => Text::CSV->new(),
-    datetime_natural => DateTime::Format::Natural->new
+    datetime_natural => $datetime_natural
   );
   $season->parse_file();
 
   my $p = $c->request->parameters;
   $c->log->debug( Dumper $p);
 
+  $DB::single = 1;
   if ( $p->{submit} ) {
     $c->log->debug("Submit!");
+
+    my $writer  = ResultsSystem::IO::XML->new();
+
+    my $rparser = ResultsSystem::Results::Parser->new(
+      fixtures_file    => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
+      fixtures_handler => $season,
+      results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/results123.xml',
+      results_handler  => $writer,
+      week_commencing  => $datetime_natural->parse_datetime( $p->{week_commencing} )
+    );
+
+    my $parsed = $rparser->parse_input($p);
+    $writer->write($parsed);
   }
 
   $c->log->warn( "Got " . $season->fixtures->count . " weeks in season." );
