@@ -16,19 +16,19 @@
 [% WHILE (f = fixtures) %]
 <tr>
 	[% SET count = count + 1 %]
-	<td>[% f.home | html_entity %]</td>
+	<td>[% f.home | html_entity %]<input type="hidden" name="home[% count %]" value="[% f.home | html_entity %]"/></td>
 	<td><input name="played[% count %]" value="[% f.played %]"/></td>
 	<td><input name="home_result[% count %]" value="[% f.home_result %]"/></td>
-	<td><input name="home_runs[% count %]" value="[% f.home_runs %]"/></td>
+	<td><input name="home_runs_scored[% count %]" value="[% f.home_runs %]"/></td>
 	<td><input name="home_wickets_lost[% count %]" value="[% f.home_wickets_lost %]"/></td>
 
 	<td><input name="home_comments[% count %]" value="[% f.home_comments | html_entity %]"/></td>
 </tr>
 <tr>
-	<td>[% f.away | html_entity %]</td>
+	<td>[% f.away | html_entity %]<input type="hidden" name="away[% count %]" value="[% f.away | html_entity %]"/></td>
 	<td><input />[% f.played %]</td>
 	<td><input name="away_result[% count %]" value="[% f.away_result %]"/></td>
-	<td><input name="away_runs[% count %]" value="[% f.away_runs %]"/></td>
+	<td><input name="away_runs_scored[% count %]" value="[% f.away_runs %]"/></td>
 	<td><input name="away_wickets_lost[% count %]" value="[% f.away_wickets_lost %]"/></td>
 
 	<td><input name="away_comments[% count %]" value="[% f.away_comments | html_entity %]"/></td>

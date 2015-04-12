@@ -41,39 +41,43 @@ sub index : Path : Args(0) {
   # Hello World
   # $c->response->body( $c->welcome_message );
 
+  my $p = $c->request->parameters;
+  $c->log->debug( Dumper $p);
+
   my $datetime_natural = DateTime::Format::Natural->new;
-  my $season           = ResultsSystem::Fixtures::Parser->new(
+  my $fixtures_handler = ResultsSystem::Fixtures::Parser->new(
     source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
     csv              => Text::CSV->new(),
     datetime_natural => $datetime_natural
   );
-  $season->parse_file();
 
-  my $p = $c->request->parameters;
-  $c->log->debug( Dumper $p);
+  my $writer =
+    ResultsSystem::IO::XML->new(
+    full_filename => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml' );
 
-  $DB::single = 1;
+  my $rparser = ResultsSystem::Results::Parser->new(
+    fixtures_file    => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
+    fixtures_handler => $fixtures_handler,
+    results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml',
+    results_handler  => $writer,
+    week_commencing =>
+      $datetime_natural->parse_datetime( $p->{week_commencing} || "28 February 2015" )
+  );
+
+  $rparser->parse_file;
+
   if ( $p->{submit} ) {
     $c->log->debug("Submit!");
 
-    my $writer  = ResultsSystem::IO::XML->new();
-
-    my $rparser = ResultsSystem::Results::Parser->new(
-      fixtures_file    => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
-      fixtures_handler => $season,
-      results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/results123.xml',
-      results_handler  => $writer,
-      week_commencing  => $datetime_natural->parse_datetime( $p->{week_commencing} )
-    );
-
     my $parsed = $rparser->parse_input($p);
+    $c->log->debug( Dumper $parsed);
     $writer->write($parsed);
   }
 
-  $c->log->warn( "Got " . $season->fixtures->count . " weeks in season." );
-  $c->log->warn( "\n" . $season->fixtures );
+  $c->log->warn( "Got " . $rparser->results->count . " weeks in season." );
+  $c->log->warn( "\n" . $rparser->results );
 
-  my $week1 = $season->fixtures->iterator->();
+  my $week1 = $rparser->results->iterator->();
 
   $c->log->debug( "week 1 is " . $week1 );
 

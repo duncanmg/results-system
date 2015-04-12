@@ -90,7 +90,7 @@ $self->write($input);
 sub write {
   my ( $self, $input ) = validate_pos( @_, 1, { type => HASHREF } );
   $self->_backup();
-  $self->_write();
+  $self->_write($input);
   return 1;
 }
 
@@ -112,14 +112,12 @@ Dies on error.
 
 sub _backup {
   my $self = shift;
-  my ( $name, $path, $suffix ) = fileparse( $self->full_filename );
+  my ( $name, $path ) = fileparse( $self->full_filename );
   die "full_filename is not defined" if !$self->full_filename;
-  copy(
-    $self->full_filename,
-    Path::Class::File->new(
-      $self->backup_dir, join( '.', ( $name, $suffix, $self->backup_ext ) )
-    )
-  ) || die $!;
+  return 1 if (! -f $self->full_filename);
+  copy( $self->full_filename,
+    Path::Class::File->new( $self->backup_dir, join( '.', ( $name, $self->backup_ext ) ) ) )
+    || die $!;
   return 1;
 }
 

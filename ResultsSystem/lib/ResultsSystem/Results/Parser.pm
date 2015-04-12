@@ -133,19 +133,27 @@ sub parse_file {
 
 sub parse_input {
   my ( $self, $raw ) = validate_pos( @_, 1, { type => HASHREF } );
-  my $i    = 1;
-  my @keys = qw/ result runs wickets_lost comments /;
+  my $i = 1;
+  my @keys =
+    qw/ result runs_scored wickets_lost comments bowling_pointd batting_points penalty_points /;
 
-  my $parsed = [];
+  my $parsed = { match => [] };
   while ( $raw->{ "home" . $i } ) {
+
     my $result = {};
+
     for my $k (@keys) {
-      $result->{ "home_" . $k . $i } = $raw->{ "home_" . $k . $i };
+      $result->{home_details}->{ "home_" . $k . $i } = $raw->{ "home_" . $k . $i };
     }
+
     for my $k (@keys) {
-      $result->{ "away_" . $k . $i } = $raw->{ "away_" . $k . $i };
+      $result->{away_details}->{ "away_" . $k . $i } = $raw->{ "away_" . $k . $i };
     }
-    push @$parsed, $result;
+
+    push @{ $parsed->{match} }, $result;
+
+    $i++;
+
   }
   return $parsed;
 }
@@ -193,15 +201,25 @@ sub process_fixtures {
 
   my $iterator = $self->fixtures_handler->fixtures->iterator();
 
-  my $week = [];
-  while ( my $f = $iterator->() ) {
-    next if ref($f) =~ m/Fixture$/;
-    if ( DateTime->compare( $f->week_commencing, $self->week_commencing ) == 0 ) {
-      $self->results->push(
-        ResultsSystem::Results::Result->new( home => $f->home, away => $f->away ) );
+  my $local;
+
+  $local = sub {
+    my $it = shift;
+    while ( my $f = $it->() ) {
+      if ( ref($f) !~ m/Fixture$/ ) {
+        $local->( $f->iterator );
+      }
+      else {
+        if ( DateTime->compare( $f->week_commencing, $self->week_commencing ) == 0 ) {
+          $self->results->push(
+            ResultsSystem::Results::Result->new( home => $f->home, away => $f->away ) );
+        }
+      }
     }
-  }
-  $self->results($week);
+  };
+
+  $local->($iterator);
+
   return 1;
 }
 
