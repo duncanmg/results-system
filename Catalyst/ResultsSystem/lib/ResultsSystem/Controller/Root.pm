@@ -38,12 +38,10 @@ The root page (/)
 sub index : Path : Args(0) {
   my ( $self, $c ) = @_;
 
-  # Hello World
-  # $c->response->body( $c->welcome_message );
-
   my $p = $c->request->parameters;
   $c->log->debug( Dumper $p);
 
+  $DB::single = 1;
   my $datetime_natural = DateTime::Format::Natural->new;
   my $fixtures_handler = ResultsSystem::Fixtures::Parser->new(
     source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
@@ -61,7 +59,7 @@ sub index : Path : Args(0) {
     results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml',
     results_handler  => $writer,
     week_commencing =>
-      $datetime_natural->parse_datetime( $p->{week_commencing} || "28 February 2015" )
+      $datetime_natural->parse_datetime( $p->{week_commencing} || "12 May 2012" )
   );
 
   $rparser->parse_file;
@@ -78,15 +76,15 @@ sub index : Path : Args(0) {
   $c->log->warn( "\n" . $rparser->results );
 
   my $week1 = $rparser->results->iterator->();
-
-  $c->log->debug( "week 1 is " . $week1 );
+  my $fixtures = $week1->iterator if $week1;
+  $c->log->debug( "fixtures for week 1 are " . $fixtures );
 
   $c->stash(
     template        => 'static/fixtures.tt',
     action          => $c->uri_for('/'),
     division        => 'One',
     week_commencing => "28 February 2015",
-    fixtures        => $week1->iterator
+    fixtures        => $fixtures
   );
 }
 
