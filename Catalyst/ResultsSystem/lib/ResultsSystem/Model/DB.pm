@@ -4,7 +4,8 @@ use strict;
 use base 'Catalyst::Model::DBIC::Schema';
 
 __PACKAGE__->config(
-    schema_class => 'DB::SQLite',
+    schema_class => 'DB::SQLiteSchema',
+    connect_info => ["dbi:SQLite:dbname=/home/duncan/results-system/sqlite/rs.db","","",]
     
     
 );

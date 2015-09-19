@@ -23,7 +23,7 @@ our $VERSION = '3.01';
 
 =head1 SYNOPSIS
 
-An object which golds a set of Fixture objects.
+An object which holds a set of Fixture objects.
 
 =head1 ATTRIBUTES
 
@@ -72,7 +72,7 @@ sub push_element {
 
 =head3 iterator
 
-Return an iyerator containing all the Fixture objects.
+Return an iterator containing all the Fixture objects.
 
   my $iter = $self->iterator;
   while (my $i = $iter->()){

@@ -38,46 +38,47 @@ The root page (/)
 sub index : Path : Args(0) {
   my ( $self, $c ) = @_;
 
-  my $p = $c->request->parameters;
-  $c->log->debug( Dumper $p);
+#  my $p = $c->request->parameters;
+#  $c->log->debug( Dumper $p);
+#
+#  my $datetime_natural = DateTime::Format::Natural->new;
+#  my $fixtures_handler = ResultsSystem::Fixtures::Parser->new(
+#    source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
+#    csv              => Text::CSV->new(),
+#    datetime_natural => $datetime_natural
+#  );
+#
+#  my $writer =
+#    ResultsSystem::IO::XML->new(
+#    full_filename => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml' );
+#
+#  my $rparser = ResultsSystem::Results::Parser->new(
+#    fixtures_file    => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
+#    fixtures_handler => $fixtures_handler,
+#    results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml',
+#    results_handler  => $writer,
+#    week_commencing =>
+#      $datetime_natural->parse_datetime( $p->{week_commencing} || "12 May 2012" )
+#  );
+#
+#  $rparser->parse_file;
+#
+#  if ( $p->{submit} ) {
+#    $c->log->debug("Submit!");
+#
+#    my $parsed = $rparser->parse_input($p);
+#    $c->log->debug( Dumper $parsed);
+#    $writer->write($parsed);
+#  }
+#
+#  $c->log->warn( "Got " . $rparser->results->count . " weeks in season." );
+#  $c->log->warn( "\n" . $rparser->results );
+#
+#  my $week1 = $rparser->results->iterator->();
+#  my $fixtures = $week1->iterator if $week1;
+#  $c->log->debug( "fixtures for week 1 are " . $fixtures );
 
-  $DB::single = 1;
-  my $datetime_natural = DateTime::Format::Natural->new;
-  my $fixtures_handler = ResultsSystem::Fixtures::Parser->new(
-    source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
-    csv              => Text::CSV->new(),
-    datetime_natural => $datetime_natural
-  );
-
-  my $writer =
-    ResultsSystem::IO::XML->new(
-    full_filename => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml' );
-
-  my $rparser = ResultsSystem::Results::Parser->new(
-    fixtures_file    => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
-    fixtures_handler => $fixtures_handler,
-    results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml',
-    results_handler  => $writer,
-    week_commencing =>
-      $datetime_natural->parse_datetime( $p->{week_commencing} || "12 May 2012" )
-  );
-
-  $rparser->parse_file;
-
-  if ( $p->{submit} ) {
-    $c->log->debug("Submit!");
-
-    my $parsed = $rparser->parse_input($p);
-    $c->log->debug( Dumper $parsed);
-    $writer->write($parsed);
-  }
-
-  $c->log->warn( "Got " . $rparser->results->count . " weeks in season." );
-  $c->log->warn( "\n" . $rparser->results );
-
-  my $week1 = $rparser->results->iterator->();
-  my $fixtures = $week1->iterator if $week1;
-  $c->log->debug( "fixtures for week 1 are " . $fixtures );
+my $fixtures;
 
   $c->stash(
     template        => 'static/fixtures.tt',
