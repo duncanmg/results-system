@@ -130,6 +130,8 @@ __PACKAGE__->add_columns(
 # Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-09-19 15:21:18
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2pcJgbnEgF46PVKhdjJu6Q
 
+use overload '""' => sub { "match_id: " . $_[0]->id . ", team_id: " .
+                           $_[0]->team_id. ", home_away: " . $_[0]->home_away }, fallback => 1;
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

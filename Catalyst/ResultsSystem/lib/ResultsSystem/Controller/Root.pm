@@ -38,16 +38,13 @@ The root page (/)
 sub index : Path : Args(0) {
   my ( $self, $c ) = @_;
 
-#  my $p = $c->request->parameters;
-#  $c->log->debug( Dumper $p);
-#
-#  my $datetime_natural = DateTime::Format::Natural->new;
-#  my $fixtures_handler = ResultsSystem::Fixtures::Parser->new(
-#    source_file      => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
-#    csv              => Text::CSV->new(),
-#    datetime_natural => $datetime_natural
-#  );
-#
+  my $p = $c->request->parameters;
+  $c->log->debug( Dumper $p);
+
+my @matches = $c->model('DB::Match')->all_matches_ordered();
+#$c->log->debug(map { [ $_->match_details[0]->id, $_->match_details[1]->id] } @matches);
+$c->log->debug(Dumper map { [ "match_id: " . $_->id , (map { $_."" } $_->match_details) ] } @matches);
+
 #  my $writer =
 #    ResultsSystem::IO::XML->new(
 #    full_filename => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml' );
