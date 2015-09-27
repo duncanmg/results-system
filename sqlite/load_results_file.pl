@@ -41,10 +41,10 @@ while (my $fs = $it->()){
   }
 }
 
-my $id;
+my $id=0;
 foreach my $k (sort keys %$hr ) {
+  $schema->resultset('Team')->create( { id => $id, name => $k } );
   $hr->{$k} = $id++;
-  # $schema->resultset('Team')->create( { id => $id, name => $k } );
 }
 
 print Dumper $hr;
@@ -58,6 +58,6 @@ while (my $fs = $it->()){
   while (my $f = $fs_it->()){
     $schema->resultset('Match')->create({ id => $id++, date => $f->week_commencing });
     $schema->resultset('MatchDetail')->create({ id => $did++, match_id => $id, team_id => $hr->{$f->home}, home_away => 'H' });
-    $schema->resultset('MatchDetail')->create({ id => $did, match_id => $id, team_id => $hr->{$f->away}, home_away => 'A' });
+    $schema->resultset('MatchDetail')->create({ id => $did++, match_id => $id, team_id => $hr->{$f->away}, home_away => 'A' });
   }
 }

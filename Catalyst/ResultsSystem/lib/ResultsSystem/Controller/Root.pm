@@ -41,39 +41,12 @@ sub index : Path : Args(0) {
   my $p = $c->request->parameters;
   $c->log->debug( Dumper $p);
 
-my @matches = $c->model('DB::Match')->all_matches_ordered();
-#$c->log->debug(map { [ $_->match_details[0]->id, $_->match_details[1]->id] } @matches);
-$c->log->debug(Dumper map { [ "match_id: " . $_->id , (map { $_."" } $_->match_details) ] } @matches);
+my $parser = DateTime::Format::Natural->new;
+my $match_date = $parser->parse_datetime('2015-05-12');
+$c->log->debug("Match date: ". $match_date."");
 
-#  my $writer =
-#    ResultsSystem::IO::XML->new(
-#    full_filename => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml' );
-#
-#  my $rparser = ResultsSystem::Results::Parser->new(
-#    fixtures_file    => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.csv',
-#    fixtures_handler => $fixtures_handler,
-#    results_file     => '/home/duncan/git/results-system-v3/ResultsSystem/t/2012RD4NW.xml',
-#    results_handler  => $writer,
-#    week_commencing =>
-#      $datetime_natural->parse_datetime( $p->{week_commencing} || "12 May 2012" )
-#  );
-#
-#  $rparser->parse_file;
-#
-#  if ( $p->{submit} ) {
-#    $c->log->debug("Submit!");
-#
-#    my $parsed = $rparser->parse_input($p);
-#    $c->log->debug( Dumper $parsed);
-#    $writer->write($parsed);
-#  }
-#
-#  $c->log->warn( "Got " . $rparser->results->count . " weeks in season." );
-#  $c->log->warn( "\n" . $rparser->results );
-#
-#  my $week1 = $rparser->results->iterator->();
-#  my $fixtures = $week1->iterator if $week1;
-#  $c->log->debug( "fixtures for week 1 are " . $fixtures );
+my @matches = $c->model('DB::Match')->matches_for_date_and_division_ordered( $match_date."");
+$c->log->debug(Dumper map { [ "match_id: " . $_->id , (map { $_."" } $_->match_details) ] } @matches);
 
 my $fixtures;
 
@@ -81,8 +54,8 @@ my $fixtures;
     template        => 'static/fixtures.tt',
     action          => $c->uri_for('/'),
     division        => 'One',
-    week_commencing => "28 February 2015",
-    fixtures        => $fixtures
+    week_commencing => $match_date,
+    fixtures        => \@matches
   );
 }
 

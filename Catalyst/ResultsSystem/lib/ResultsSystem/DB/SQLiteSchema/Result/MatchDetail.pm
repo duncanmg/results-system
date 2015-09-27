@@ -133,5 +133,8 @@ __PACKAGE__->add_columns(
 use overload '""' => sub { "match_id: " . $_[0]->id . ", team_id: " .
                            $_[0]->team_id. ", home_away: " . $_[0]->home_away }, fallback => 1;
 
+__PACKAGE__->has_one('team' => 'Team',
+            { 'foreign.id' => 'self.team_id' } );
+
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
