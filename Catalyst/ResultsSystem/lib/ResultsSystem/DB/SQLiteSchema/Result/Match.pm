@@ -43,6 +43,16 @@ __PACKAGE__->table("match");
   data_type: 'string'
   is_nullable: 1
 
+=head2 home_team_id
+
+  data_type: 'int'
+  is_nullable: 1
+
+=head2 away_team_id
+
+  data_type: 'int'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -54,17 +64,23 @@ __PACKAGE__->add_columns(
   { data_type => "int", is_nullable => 1 },
   "played_yn",
   { data_type => "string", is_nullable => 1 },
+  "home_team_id",
+  { data_type => "int", is_nullable => 1 },
+  "away_team_id",
+  { data_type => "int", is_nullable => 1 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-09-19 15:21:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cCGPw4MjlDy7d0PjrUN/Aw
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-18 15:17:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BZJ6bHRjyLIBTX5qnIJ+PA
 
 __PACKAGE__->has_many('match_details' => 'MatchDetail',
             { 'foreign.match_id' => 'self.id' } );
 
 __PACKAGE__->has_many('team' => 'ResultsSystem::DB::SQLiteSchema::Team',
             { 'foreign.id' => 'self.team_id' } );
+
+__PACKAGE__->set_primary_key('id');
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

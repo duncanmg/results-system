@@ -18,7 +18,9 @@
 	[% SET home = match_details.0 %]
 	[% SET away = match_details.1 %]
 
-	<td>[% home.team_id %]. [% home.team.name | html_entity %]<input type="hidden" name="[% f.id %]home" value="[% f.home | html_entity %]"/></td>
+	<td>[% home.team_id %]. [% home.team.name | html_entity %]
+            <input type="hidden" name="[% f.id %]home" value="[% home.team_id | html_entity %]"/>
+            <input type="hidden" name="[% f.id %]id" value="[% f.id | html_entity %]"/></td>
 	<td><input name="[% f.id %]played" value="[% f.played %]"/></td>
 	<td><input name="[% f.id %]home_result" value="[% f.home_result %]"/></td>
 	<td><input name="[% f.id %]home_runs_scored" value="[% f.home_runs %]"/></td>
@@ -27,7 +29,8 @@
 	<td><input name="[% f.id %]home_comments" value="[% f.home_comments | html_entity %]"/></td>
 </tr>
 <tr>
-	<td>[% away.team_id %]. [% away.team.name | html_entity %]<input type="hidden" name="[% f.id %]away" value="[% f.away | html_entity %]"/></td>
+	<td>[% away.team_id %]. [% away.team.name | html_entity %]
+            <input type="hidden" name="[% f.id %]away" value="[% away.team_id | html_entity %]"/></td>
 	<td><input />[% f.played %]</td>
 	<td><input name="[% f.id %]away_result" value="[% f.away_result %]"/></td>
 	<td><input name="[% f.id %]away_runs_scored" value="[% f.away_runs %]"/></td>

@@ -26,12 +26,12 @@ __PACKAGE__->table("match_details");
 =head2 id
 
   data_type: 'int'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 match_id
 
   data_type: 'int'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 home_away
 
@@ -41,7 +41,7 @@ __PACKAGE__->table("match_details");
 =head2 team_id
 
   data_type: 'int'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 result
 
@@ -97,13 +97,13 @@ __PACKAGE__->table("match_details");
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "int", is_nullable => 1 },
+  { data_type => "int", is_nullable => 0 },
   "match_id",
-  { data_type => "int", is_nullable => 1 },
+  { data_type => "int", is_nullable => 0 },
   "home_away",
   { data_type => "string", is_nullable => 1 },
   "team_id",
-  { data_type => "int", is_nullable => 1 },
+  { data_type => "int", is_nullable => 0 },
   "result",
   { data_type => "string", is_nullable => 1 },
   "runs_scored",
@@ -126,15 +126,29 @@ __PACKAGE__->add_columns(
   { data_type => "int", is_nullable => 1 },
 );
 
+=head1 PRIMARY KEY
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-09-19 15:21:18
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2pcJgbnEgF46PVKhdjJu6Q
+=over 4
+
+=item * L</id>
+
+=back
+
+=cut
+
+__PACKAGE__->set_primary_key("id");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-18 15:17:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fOOZJ+i9NMME8DNFht6iSw
 
 use overload '""' => sub { "match_id: " . $_[0]->id . ", team_id: " .
                            $_[0]->team_id. ", home_away: " . $_[0]->home_away }, fallback => 1;
 
 __PACKAGE__->has_one('team' => 'Team',
             { 'foreign.id' => 'self.team_id' } );
+
+__PACKAGE__->set_primary_key('id');
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
