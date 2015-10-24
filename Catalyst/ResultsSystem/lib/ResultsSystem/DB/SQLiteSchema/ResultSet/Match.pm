@@ -3,6 +3,7 @@ use utf8;
 package ResultsSystem::DB::SQLiteSchema::ResultSet::Match;
 use strict;
 use warnings;
+use Data::Dumper;
 
 use base 'DBIx::Class::ResultSet';
 
@@ -41,15 +42,26 @@ sub create_or_update_week_results {
 
     my $tx = sub {
 
+        my $s = sub {
+            my $stem = shift() . '_';
+            my $out  = {};
+            for my $k (qw/ result runs_scored wickets_lost comments /) {
+                $out->{$k} = $hr->{ $stem . $k };
+            }
+            return $out;
+        };
+
         my $match = $self->find( { id => $hr->{id} } );
         $match->update( { played_yn => $hr->{played} } );
 
         my $details = $self->related_resultset('match_details');
-        my $h       = {};
-        for my $k (qw/ result runs_scored wickets_lost /) {
-            $h->{$k} = $hr->{ 'home_' . $k };
-        }
+
+        my $h = $s->("home");
         $details->search( { match_id => $hr->{id}, team_id => $hr->{home} } )
+          ->next->update($h);
+
+        $h = $s->("away");
+        $details->search( { match_id => $hr->{id}, team_id => $hr->{away} } )
           ->next->update($h);
     };
 

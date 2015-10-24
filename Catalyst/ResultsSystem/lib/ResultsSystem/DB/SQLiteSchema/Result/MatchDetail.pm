@@ -142,8 +142,9 @@ __PACKAGE__->set_primary_key("id");
 # Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-18 15:17:17
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fOOZJ+i9NMME8DNFht6iSw
 
-use overload '""' => sub { "match_id: " . $_[0]->id . ", team_id: " .
-                           $_[0]->team_id. ", home_away: " . $_[0]->home_away }, fallback => 1;
+use overload '""' => sub { "match_id: " . ($_[0]->id||"") . ", team_id: " .
+                           ($_[0]->team_id||"") . ", home_away: " . ($_[0]->home_away||"") . 
+                           ", result: " . ($_[0]->result||"") . ", runs_scored: " . ($_[0]->runs_scored||"") }, fallback => 1;
 
 __PACKAGE__->has_one('team' => 'Team',
             { 'foreign.id' => 'self.team_id' } );
