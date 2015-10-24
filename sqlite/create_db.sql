@@ -1,5 +1,5 @@
 CREATE TABLE 
-match ( id INT,
+match ( id INT NOT NULL,
 date STRING,
 division_id INT,
 played_yn STRING,
@@ -20,6 +20,7 @@ bowling_points INT,
 result_points  INT,
 penalty_points INT,
 total_points   INT,
+comments       STRING,
 PRIMARY KEY(id));
 
 CREATE TABLE division ( id INT, name STRING );

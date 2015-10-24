@@ -80,7 +80,7 @@ sub submit : Path('submit') : Args(0) {
             $hr->{$f} = $p->{ $id . $f };
         }
 
-        $c->log->debug( Dumper $hr);
+        $c->log->debug( "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " . Dumper $hr);
 
         $model->create_or_update_week_results( $hr );
 

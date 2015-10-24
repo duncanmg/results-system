@@ -93,6 +93,11 @@ __PACKAGE__->table("match_details");
   data_type: 'int'
   is_nullable: 1
 
+=head2 comments
+
+  data_type: 'string'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -124,6 +129,8 @@ __PACKAGE__->add_columns(
   { data_type => "int", is_nullable => 1 },
   "total_points",
   { data_type => "int", is_nullable => 1 },
+  "comments",
+  { data_type => "string", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -139,8 +146,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-18 15:17:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fOOZJ+i9NMME8DNFht6iSw
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-24 19:13:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6uw+RlGBSDNYgdTUvdJgog
 
 use overload '""' => sub { "match_id: " . ($_[0]->id||"") . ", team_id: " .
                            ($_[0]->team_id||"") . ", home_away: " . ($_[0]->home_away||"") . 

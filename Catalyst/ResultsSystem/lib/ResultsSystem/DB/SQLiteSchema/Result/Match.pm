@@ -26,7 +26,7 @@ __PACKAGE__->table("match");
 =head2 id
 
   data_type: 'int'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 date
 
@@ -43,36 +43,34 @@ __PACKAGE__->table("match");
   data_type: 'string'
   is_nullable: 1
 
-=head2 home_team_id
-
-  data_type: 'int'
-  is_nullable: 1
-
-=head2 away_team_id
-
-  data_type: 'int'
-  is_nullable: 1
-
 =cut
 
 __PACKAGE__->add_columns(
   "id",
-  { data_type => "int", is_nullable => 1 },
+  { data_type => "int", is_nullable => 0 },
   "date",
   { data_type => "string", is_nullable => 1 },
   "division_id",
   { data_type => "int", is_nullable => 1 },
   "played_yn",
   { data_type => "string", is_nullable => 1 },
-  "home_team_id",
-  { data_type => "int", is_nullable => 1 },
-  "away_team_id",
-  { data_type => "int", is_nullable => 1 },
 );
 
+=head1 PRIMARY KEY
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-18 15:17:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BZJ6bHRjyLIBTX5qnIJ+PA
+=over 4
+
+=item * L</id>
+
+=back
+
+=cut
+
+__PACKAGE__->set_primary_key("id");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-24 19:13:24
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QIqFbl7Wtvr//CvOi+2Y7w
 
 __PACKAGE__->has_many('match_details' => 'MatchDetail',
             { 'foreign.match_id' => 'self.id' } );
