@@ -15,6 +15,18 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::Validation>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("Validation");
+
 =head1 TABLE: C<match_details>
 
 =cut
@@ -146,8 +158,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-24 19:13:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6uw+RlGBSDNYgdTUvdJgog
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-11-01 12:18:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9VKI3nnwUYFEiWehBOsrww
 
 use overload '""' => sub { "match_id: " . ($_[0]->id||"") . ", team_id: " .
                            ($_[0]->team_id||"") . ", home_away: " . ($_[0]->home_away||"") . 

@@ -15,6 +15,18 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::Validation>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("Validation");
+
 =head1 TABLE: C<match>
 
 =cut
@@ -69,8 +81,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("id");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-10-24 19:13:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QIqFbl7Wtvr//CvOi+2Y7w
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-11-01 12:18:43
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:HWJTz+0Z1vzECRz7I3y++g
 
 __PACKAGE__->has_many('match_details' => 'MatchDetail',
             { 'foreign.match_id' => 'self.id' } );
@@ -79,6 +91,15 @@ __PACKAGE__->has_many('team' => 'ResultsSystem::DB::SQLiteSchema::Team',
             { 'foreign.id' => 'self.team_id' } );
 
 __PACKAGE__->set_primary_key('id');
+
+__PACKAGE__->load_components(qw/ Validation/);
+
+__PACKAGE__->validation(module => 'Data::FormValidator',
+                        profile => {},
+                        filter => 0,
+                        auto => 1);
+
+# __PACKAGE__->validation_profile({required => qw/id/});
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

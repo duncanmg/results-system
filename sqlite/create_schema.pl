@@ -12,6 +12,7 @@ use DBIx::Class::Schema::Loader qw/ make_schema_at /;
         'ResultsSystem::DB::SQLiteSchema',
         { debug => 1,
           dump_directory => $schema_fullpath,
+          components => 'Validation'
         },
         [ "dbi:SQLite:dbname=$db_fullpath","","",
            # { loader_class => 'MyLoader' } # optionally
