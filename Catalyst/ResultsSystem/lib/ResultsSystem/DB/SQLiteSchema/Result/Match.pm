@@ -95,11 +95,12 @@ __PACKAGE__->set_primary_key('id');
 __PACKAGE__->load_components(qw/ Validation/);
 
 __PACKAGE__->validation(module => 'Data::FormValidator',
-                        profile => { required => [ "id" ], optional => [ "date", "division_id", "played_yn"] },
-                        filter => 0,
+                        profile => { required => [ "id" ], optional => [ "date", "division_id", "played_yn"], 
+                                     constraint_methods => { id => qr/^[0-9]+$/x, played_yn => qr/^[YN]$/x}, 
+                                     field_filters => { played_yn => 'uc' }
+                                   },
+                        filter => 1,
                         auto => 1);
-
-# __PACKAGE__->validation_profile({required => qw/id/});
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;

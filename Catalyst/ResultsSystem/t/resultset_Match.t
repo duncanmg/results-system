@@ -20,10 +20,12 @@ ok($rs->search(undef)->count, "Got at least 1 match");
 my $min=$rs->search(undef)->get_column("id")->min();
 ok(defined($min), "Min id is $min");
 
-dies_ok(sub{$rs->create_or_update_week_results({not_id=>$min, home_runs_scored => 500});},
+dies_ok(sub{$rs->create_or_update_week_results({not_id=>$min, home_runs_scored => 510});},
 "Correctly died with missing id.") ;
 
-throws_ok(sub{$rs->create_or_update_week_results({id=>$min, home_runs_scored => 500});},
-qr/VALIDATION_FAILED/x, "Correctly died with missing mandatory field.") ;
+lives_ok(sub{$rs->create_or_update_week_results({id=>$min, home_runs_scored => 500});},
+ "Lives when id is present.") ;
+
+# throws_ok(sub{ $rs->create_or_update_week_results({id=>$min, home_runs_scored => 502});}, qr/VALIDATION_FAILED/x, "Died when id was negative.");
 
 done_testing;

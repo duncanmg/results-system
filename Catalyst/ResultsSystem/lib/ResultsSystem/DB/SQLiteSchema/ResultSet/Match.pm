@@ -51,7 +51,7 @@ sub create_or_update_week_results {
     my $tx = sub {
 
         my $results =
-          $self->die_if_invalid( $hr, { required => [qw/ id home away /] } );
+          $self->die_if_invalid( $hr, { required => [qw/ id /] } );
 
         my $s = sub {
             my $stem = shift() . '_';
@@ -71,21 +71,22 @@ sub create_or_update_week_results {
             $match->update( { played_yn => $hr->{played} } );
         }
         catch {
-            die "VALIDATION_FAILED "
-              . Dumper( $match->validation_result->missing )
-              if $match->validation_result;
+            die ("VALIDATION_FAILED "
+              . Dumper( $match->validation_result->missing, $match->validation_result->invalid ))
+              if defined $match->validation_result;
             die $_;
         };
 
-        my $details = $self->related_resultset('match_details');
+        my $details = $match->related_resultset('match_details');
 
         my $h = $s->("home");
-        $details->search( { match_id => $hr->{id}, team_id => $hr->{home} } )
+        $details->search( { home_away => 'H' } )
           ->next->update($h);
 
         $h = $s->("away");
-        $details->search( { match_id => $hr->{id}, team_id => $hr->{away} } )
+        $details->search( { home_away => 'A' } )
           ->next->update($h);
+
     };
 
     $tx->();

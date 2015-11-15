@@ -170,5 +170,18 @@ __PACKAGE__->has_one('team' => 'Team',
 
 __PACKAGE__->set_primary_key('id');
 
+__PACKAGE__->validation(module => 'Data::FormValidator',
+                        profile => { required => [ "id" ], optional => [ "match_id", "team_id", "home_away", "result", "runs_scored", "wickets_lost",
+                        "runs_conceded"  , "wickets_taken"  , "batting_points" , "bowling_points" , "result_points"  , "penalty_points" , "total_points"   , 
+                        "comments"       , ], 
+                        constraint_methods => { id => qr/^[0-9]+$/x, match_id => qr/^[0-9]+$/x, team_id => qr/^[0-9]+$/x,
+                                                wickets_lost =>  qr/^[0-9]+$/x, runs_conceded => qr/^[0-9]+$/x, wickets_taken => qr/^[0-9]+$/x,
+                                                batting_points => qr/^[0-9]+$/x, bowling_points => qr/^[0-9]+$/x, result_points => qr/^[0-9]+$/x,
+                                                penalty_points => qr/^[0-9]+$/x, total_points => qr/^[0-9]+$/x,
+                                     played_yn => qr/^[YN]$/x}, 
+                        },
+                        filter => 0,
+                        auto => 1);
+
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
