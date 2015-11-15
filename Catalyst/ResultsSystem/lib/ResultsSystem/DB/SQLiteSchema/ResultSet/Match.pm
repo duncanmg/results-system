@@ -4,8 +4,10 @@ package ResultsSystem::DB::SQLiteSchema::ResultSet::Match;
 use strict;
 use warnings;
 use Data::Dumper;
+use Try::Tiny;
+use Data::FormValidator;
 
-use base 'DBIx::Class::ResultSet';
+use base 'ResultsSystem::DB::SQLiteSchema::ResultSet';
 
 =head2 all_matches_ordered
 
@@ -35,12 +37,21 @@ sub matches_for_date_and_division_ordered {
 
 =head2 create_or_update_week_results
 
+This doesn't create, it only updates. It only updates
+one match at a time.
+
+It should be called update_week_result() or
+just update_match().
+
 =cut
 
 sub create_or_update_week_results {
     my ( $self, $hr ) = @_;
 
     my $tx = sub {
+
+        my $results =
+          $self->die_if_invalid( $hr, { required => [qw/ id home away /] } );
 
         my $s = sub {
             my $stem = shift() . '_';
@@ -51,8 +62,20 @@ sub create_or_update_week_results {
             return $out;
         };
 
+        die "Need an id for the match." if !defined $hr->{id};
+
         my $match = $self->find( { id => $hr->{id} } );
-        $match->update( { played_yn => $hr->{played} } );
+        die "No match found for id $hr->{id}" if !$match;
+
+        try {
+            $match->update( { played_yn => $hr->{played} } );
+        }
+        catch {
+            die "VALIDATION_FAILED "
+              . Dumper( $match->validation_result->missing )
+              if $match->validation_result;
+            die $_;
+        };
 
         my $details = $self->related_resultset('match_details');
 

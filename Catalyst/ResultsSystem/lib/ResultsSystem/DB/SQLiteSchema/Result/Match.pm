@@ -95,7 +95,7 @@ __PACKAGE__->set_primary_key('id');
 __PACKAGE__->load_components(qw/ Validation/);
 
 __PACKAGE__->validation(module => 'Data::FormValidator',
-                        profile => {},
+                        profile => { required => [ "id" ], optional => [ "date", "division_id", "played_yn"] },
                         filter => 0,
                         auto => 1);
 

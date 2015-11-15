@@ -1,6 +1,7 @@
 package ResultsSystem::Controller::Root;
 use Moose;
 use namespace::autoclean;
+use Try::Tiny;
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -82,8 +83,13 @@ sub submit : Path('submit') : Args(0) {
 
         $c->log->debug( "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " . Dumper $hr);
 
-        $model->create_or_update_week_results( $hr );
+        try {
+            $model->create_or_update_week_results($hr);
 
+        }
+        catch {
+            $c->log->debug( "Oh dear. " . $_ );
+        };
     }
 
     $c->response->redirect('/');
