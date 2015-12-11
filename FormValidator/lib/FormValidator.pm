@@ -4,6 +4,10 @@ use 5.008;
 use Moose;
 use Data::FormValidator;
 use Data::FormValidator::Constraints qw/:closures/;
+use Params::Validate qw/:all/;
+use Carp::Assert;
+
+use FormValidator::Constraints qw/:all/;
 
 my $pairs = {
     FV_length_between     => \&FV_length_between,
@@ -26,6 +30,7 @@ my $pairs = {
     cc_type               => \&cc_type,
     ip_address            => \&ip_address,
 
+    match_pos_integer     => \&match_pos_integer
 };
 
 =head1 NAME
@@ -65,14 +70,21 @@ if you don't export anything, such as for a purely object-oriented module.
 has _validator => (
     'is'      => 'ro',
     => 'isa'  => 'Object',
-    'default' => sub { Data::FormValidator->new; }
+    'default' => sub {
+        Data::FormValidator->new( {},
+            { validator_packages => 'FormValidator::Constraints' } );
+    }
 );
 
 =head2 Methods
 
 =cut
 
-=head3 check
+=head3 External Methods
+
+=cut
+
+=head4 check
 
 =cut
 
@@ -85,7 +97,11 @@ sub check {
     $self->_validator->check( $input, $profile );
 }
 
-=head3 substitute_constraints
+=head3 Internal Methods
+
+=cut
+
+=head4 substitute_constraints
 
 $self->substitute_constraints( $constraints );
 
@@ -98,36 +114,65 @@ Passes the constraints for each field in turn to substitute_constraints.
 =cut
 
 sub substitute_constraints {
-    my ( $self, $constraints ) = @_;
+    my ( $self, $constraints ) =
+      validate_pos( @_, 1, { type => HASHREF | UNDEF, optional => 1 } );
     return $constraints if !$constraints;
 
     for my $k ( keys %$constraints ) {
-        $constraints->{$k} = $self->substitute( $constraints->{$k} );
+        my $v = $constraints->{$k};
+        my $list = ( ref($v) eq 'ARRAY' ) ? $v : [$v];
+        $constraints->{$k} = $self->substitute($list);
     }
     return $constraints;
 }
 
-=head3 substitute
+=head4 substitute
 
-$self->substitute( "email" );
+Accepts a single constraint or a list of constraints.
+
+$self->substitute( [ "email" ] );
 
 $self->substitute( [ "email", [ "FV_max_length", 10 ] ] );
+
+$self->substitute( [ "email", [ "FV_max_length", 10 ], qr/x/ix ] );
+
+$self->substitute( [ "email", [ "FV_max_length", 10 ], sub { $_[1] ? 1 : 0 } ] );
+
+$self->substitute( [ "FV_max_length", 10 ] );
 
 =cut
 
 sub substitute {
-    my ( $self, $constraints ) = @_;
+    my ( $self, $constraints ) = validate_pos( @_, 1, { type => ARRAYREF } );
 
-    $constraints = [$constraints] if !ref $constraints;
     my $out = [];
+
+    my $process_builtin = sub {
+        my $c = shift;
+        my $f = shift @$c;
+        assert( $pairs->{$f}, "$f is a builtin" );
+        push @$out, $pairs->{$f}->(@$c);
+    };
+
+    if ( $pairs->{ $constraints->[0] } ) {
+        $process_builtin->($constraints);
+        return $out;
+
+    }
 
     for my $c (@$constraints) {
 
-        if ( ref $c ) {
+        my $ref = ref($c);
+
+        if ( $ref && ( $ref ne 'ARRAY' ) ) {
+            push @$out, $c;
+            next;
+        }
+
+        if ($ref) {
 
             # Array ref, so the first element is the name.
-            my $f = shift @$c;
-            push @$out, $pairs->{$f}->(@$c);
+            $process_builtin->($c);
         }
         else {
             # Single value eg "email".
