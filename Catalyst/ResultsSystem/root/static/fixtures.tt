@@ -1,17 +1,29 @@
-<html>
-<body>
-	<h1>Enter Results</h1>
+<script type="text/javascript" src="/statis/js/fixtures.js">
+	</script>
+
+<div id="wrap">
+
+<div id="header">
+
+	<a href="#"><h1>Enter Results</a></h1>
 	<h2>Division: [% division | html_entity %]. Week Commencing: [% week_commencing.day_name %] [% week_commencing.day %] [% week_commencing.month_name %] [% week_commencing.year %].</h2>
+
+</div>
+
+<div id="content">
+
+<p><br/><br/><br/><br/><br/></p>
 
 	<form id="enter_results" method="post" action="[% action %]">	
 <table>
+<tr>
 	<th>Team Name</th>
 	<th>Played</th>
 	<th>Result</th>
 	<th>Runs Scored</th>
 	<th>Wickets Lost</th>
 	<th>Comments</th>
-
+</tr>
 [% FOREACH f IN fixtures %]
 <tr>
         [% SET match_details = f.match_details %]
@@ -21,30 +33,31 @@
 	<td>[% home.team_id %]. [% home.team.name | html_entity %]
             <input type="hidden" name="[% f.id %]home" value="[% home.team_id | html_entity %]"/>
             <input type="hidden" name="[% f.id %]id" value="[% f.id | html_entity %]"/></td>
-	<td><input name="[% f.id %]played" value="[% f.played_yn | html_entity %]"/></td>
-	<td><input name="[% f.id %]home_result" value="[% home.result %]"/></td>
-	<td><input name="[% f.id %]home_runs_scored" value="[% home.runs_scored %]"/></td>
-	<td><input name="[% f.id %]home_wickets_lost" value="[% home.wickets_lost %]"/></td>
+	<td><input name="[% f.id %]played" value="[% f.played_yn | html_entity %]" class="validate[required]"/></td>
+	<td><input name="[% f.id %]home_result" value="[% home.result %]" class="validate[required]"/></td>
+	<td><input name="[% f.id %]home_runs_scored" value="[% home.runs_scored %]" class="validate[required] custom[integer]"/></td>
+	<td><input name="[% f.id %]home_wickets_lost" value="[% home.wickets_lost %]" class="validate[required] custom[integer]"/></td>
 
 	<td><input name="[% f.id %]home_comments" value="[% home.comments | html_entity %]"/></td>
 </tr>
 <tr>
 	<td>[% away.team_id %]. [% away.team.name | html_entity %]
-            <input type="hidden" name="[% f.id %]away" value="[% away.team_id | html_entity %]"/></td>
+            <input type="hidden" name="[% f.id %]away" value="[% away.team_id | html_entity %]" class="validate[required] custom[integer]"/></td>
 	<td>&nbsp;</td>
-	<td><input name="[% f.id %]away_result" value="[% away.result %]"/></td>
-	<td><input name="[% f.id %]away_runs_scored" value="[% away.runs_scored %]"/></td>
-	<td><input name="[% f.id %]away_wickets_lost" value="[% away.wickets_lost %]"/></td>
+	<td><input name="[% f.id %]away_result" value="[% away.result %]" class="validate[required]"/></td>
+	<td><input name="[% f.id %]away_runs_scored" value="[% away.runs_scored %]" class="validate[required] custom[integer]"/></td>
+	<td><input name="[% f.id %]away_wickets_lost" value="[% away.wickets_lost %]" class="validate[required] custom[integer]"/></td>
 
 	<td><input name="[% f.id %]away_comments" value="[% away.comments | html_entity %]"/></td>
 
 </tr>
 [% END %]
-<tr> <td><input type="submit" name="submit" value="Submit"/></td><td colspan="5">
+<tr> <td><input type="submit" name="submit" value="Submit" id="submit"/></td><td colspan="5">
 	 <input type="hidden" name="week_commencing" value="[% week_commencing | html_entity %]"/>&nbsp;</td></tr>
 </table>
 
 </form>
 
-</body>
-</html>
+</div>
+</div>
+
