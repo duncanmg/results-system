@@ -30,7 +30,12 @@ my $pairs = {
     cc_type               => \&cc_type,
     ip_address            => \&ip_address,
 
-    match_pos_integer     => \&match_pos_integer
+    match_pos_integer  => \&match_pos_integer,
+    match_integer      => \&match_integer,
+    match_pos_float    => \&match_pos_float,
+    match_float        => \&match_float,
+    match_alphanumeric => \&match_alphanumeric
+
 };
 
 =head1 NAME
@@ -176,7 +181,8 @@ sub substitute {
         }
         else {
             # Single value eg "email".
-            push @$out, $pairs->{$c}->() if $pairs->{$c};
+            assert( $pairs->{$c}, "$c is a builtin" );
+            push @$out, $pairs->{$c}->();
         }
 
     }
