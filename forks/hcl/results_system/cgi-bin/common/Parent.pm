@@ -18,33 +18,36 @@ This package provides the methods which the objects in the results system inheri
 
 =cut
 
-{ package Parent;
+{
+
+  package Parent;
 
   use strict;
   use CGI;
   use Regexp::Common;
-  
-  use Fcerror;
+  use DateTime;
+  use Logger;
   use ResultsConfiguration;
-  
+
   our @ISA;
   unshift @ISA, "Fcwrapper";
-  
+
   #***************************************
   sub new {
-  #***************************************
+
+    #***************************************
     my $self = {};
     bless $self;
     shift;
-    my %args = ( @_ );
-    
+    my %args = (@_);
+
     if ( $args{-query} ) {
       $self->set_query( $args{-query} );
     }
     else {
       $self->set_query( CGI->new() );
     }
-    
+
     return $self;
   }
 
@@ -62,20 +65,21 @@ The -query or -config are not present then default objects are created.
 
   #***************************************
   sub initialise {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $ref = shift;
+    my $ref  = shift;
     my %args = %$ref;
-    
+
     if ( $args{-query} ) {
       $self->set_query( $args{-query} );
       my $q = $self->get_query;
-      if ( $q->param( "division" ) ) {
-        $self->set_division( $q->param( "division" ) );
-      }  
-      if ( $q->param( "matchdate" ) ) {
-        $self->set_week( $q->param( "matchdate" ) );
-      }  
+      if ( $q->param("division") ) {
+        $self->set_division( $q->param("division") );
+      }
+      if ( $q->param("matchdate") ) {
+        $self->set_week( $q->param("matchdate") );
+      }
     }
     else {
       $self->set_query( CGI->new() );
@@ -86,12 +90,13 @@ The -query or -config are not present then default objects are created.
     }
     else {
       my $c = ResultsConfiguration->new();
-      if ( $c ) {
+      if ($c) {
         $c->read_file;
-        $self->set_configuration( $c );
-      }  
+        $self->set_configuration($c);
+      }
     }
-    
+    $self->logfile_name( $self->get_configuration->get_path( -log_dir => 'Y' ) );
+
   }
 
 =head2 set_query
@@ -102,7 +107,8 @@ Set the CGI object.
 
   #***************************************
   sub set_query {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     $self->{QUERY} = shift;
   }
@@ -115,7 +121,8 @@ Return the CGI object.
 
   #***************************************
   sub get_query {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     return $self->{QUERY};
   }
@@ -128,7 +135,8 @@ Set the ResultsConfiguration object.
 
   #***************************************
   sub set_configuration {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     $self->{CONFIGURATION} = shift;
   }
@@ -141,7 +149,8 @@ Return the ResultsConfiguration object.
 
   #***************************************
   sub get_configuration {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     return $self->{CONFIGURATION};
   }
@@ -154,11 +163,12 @@ Set the csv filename for the division.
 
   #***************************************
   sub set_division {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     $self->{DIVISION} = shift;
   }
-  
+
 =head2 get_division
 
 Return the name of the csv file for the division
@@ -169,11 +179,12 @@ Return the name of the csv file for the division
   # Holds the name of the csv file.
   #***************************************
   sub get_division {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     return $self->{DIVISION};
   }
-  
+
 =head2 set_week
 
 Set the match date.
@@ -182,11 +193,12 @@ Set the match date.
 
   #***************************************
   sub set_week {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     $self->{WEEK} = shift;
   }
-  
+
 =head2 get_week
 
 Return the match date.
@@ -195,7 +207,8 @@ Return the match date.
 
   #***************************************
   sub get_week {
-  #***************************************
+
+    #***************************************
     my $self = shift;
     return $self->{WEEK};
   }
@@ -208,31 +221,32 @@ Returns the .dat filename for the week.
 
   #***************************************
   sub get_filename {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $err = 0;
+    my $err  = 0;
     my $f;
     my $w = $self->get_week;
     my $d = $self->get_division;
-    
-    if ( ! $w ) {
-      $self->eAdd( "Week undefined", 5 );
+
+    if ( !$w ) {
+      $self->logger->error("Week undefined");
       $err = 1;
     }
-    if ( ! $d ) {
-      $self->eAdd( "Division undefined", 5 );
+    if ( !$d ) {
+      $self->logger->error("Division undefined");
       $err = 1;
     }
     if ( $err == 0 ) {
-      $d =~ s/\..*$//g; # Remove extension
+      $d =~ s/\..*$//g;    # Remove extension
       $f = $d . "_" . $w . ".dat";
       $f =~ s/\s//g;
-    }  
+    }
     if ( $err == 0 ) {
       return $f;
-    }  
+    }
   }
-  
+
 =head2 get_full_filename
 
 Returns the .dat filename for the week complete with the csv path.
@@ -241,18 +255,19 @@ Returns the .dat filename for the week complete with the csv path.
 
   #***************************************
   sub get_full_filename {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $err = 0;
-    my $f = $self->get_filename;
-    if ( ! $f ) {
+    my $err  = 0;
+    my $f    = $self->get_filename;
+    if ( !$f ) {
       $err = 1;
     }
     my $path = $self->get_configuration->get_path( -csv_files => 'Y' );
     my $season = $self->get_configuration->get_season;
-    if ( $err == 0 && ( $path ) ) {
+    if ( $err == 0 && ($path) ) {
       return $path . "/$season/" . $f;
-    }  
+    }
   }
 
 =head2 return_to_link
@@ -266,22 +281,23 @@ print $o->return_to_link( "identifier" );
 
   #***************************************
   sub return_to_link {
-  #***************************************
-    my $self = shift;
-    my $identifier = shift; # eg -results_index
-    my $q = $self->get_query;
+
+    #***************************************
+    my $self       = shift;
+    my $identifier = shift;              # eg -results_index
+    my $q          = $self->get_query;
     my $line;
     my ( $l, $t ) = $self->get_configuration->get_return_page( $identifier => "Y" );
-    
+
     $l = "$l";
     if ( $l && $t ) {
       $line = $q->a( { -href => $l }, $t );
-      $line = $q->p( $line );
+      $line = $q->p($line);
     }
     else {
-      $self->eAdd( "No return information for $identifier page (href and title). $l $t", 2 );
+      $self->logger->debug("No return information for $identifier page (href and title). $l $t");
     }
-    return $line
+    return $line;
   }
 
 =head2 _trim
@@ -295,15 +311,38 @@ $s = $self->_trim( $s );
 
   #***************************************
   sub _trim {
-  #***************************************
-    my $self = shift; my $l = shift;
+
+    #***************************************
+    my $self = shift;
+    my $l    = shift;
     $l =~ s/$RE{ws}{crop}//g;
+
     #$l =~ s/^\s*([^\s])/$1/;
     #$l =~ s/([^\s])\s*$/$1/;
     return $l;
   }
 
-  
+  #=head2 logger
+  #
+  #This over-writes the one in Fcwrapper. Why?
+  #
+  #=cut
+  #
+  #  sub logger {
+  #    my $self = shift;
+  #    if ( !$self->{logger} ) {
+  #      my $now  = DateTime->now();
+  #      my $dir  = $self->get_configuration->get_path( -log_dir => 'Y' );
+  #      my $file = undef;
+  #      if ($dir) {
+  #        $file = sprintf( "%s/%s%02d.log", $dir, "rs", $now->day );
+  #      }
+  #      print STDERR "file=$file\n";
+  #      $self->{logger} = Logger::get_logger( "rs", $file );
+  #    }
+  #    return $self->{logger};
+  #  }
+
   1;
-  
+
 }

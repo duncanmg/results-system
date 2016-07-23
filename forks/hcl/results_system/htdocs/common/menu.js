@@ -10,18 +10,22 @@ function add_dates( select_object ) {
   
   d = new Date(Date.parse(gFirstSaturday));
   l = new Date(Date.parse(gLastSaturday));
+  // alert( "a_d 1" );  
   while ( x < 28 && d.getTime() <= l.getTime() )
   {
   
     mon=m[d.getMonth()];
     var opt = new Option( d.getDate() + "-" + mon, d.getDate() + "-" + mon );
-    // select_object.add( opt, null ); add worked on Netscape but not IE.
+    //select_object.add( opt, null ); add worked on Netscape but not IE.
     select_object.options[select_object.options.length] = opt;
+    // alert( "a" );
    
     x=x+1;
     d = new Date(d.getTime() + (7*86400000));
 
-  }    
+    // alert( "a_d 2" );    
+  }
+  //  alert( "a_d 3" );    
 
 }
 
