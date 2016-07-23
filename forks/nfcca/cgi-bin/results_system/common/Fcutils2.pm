@@ -496,7 +496,7 @@ Ummm ... looks like it deletes it to me.
     my $oldlockfile = $self->{OLDFILE};
     $self->logger->debug("CloseLockFile() called.");
     if ( !-e $lockfile ) {
-      $self->logger->error("Lockfile $lockfile does not exist.");
+      $self->logger->debug("Lockfile $lockfile does not exist.");
       return $err;
     }
     $ret = unlink $lockfile;
