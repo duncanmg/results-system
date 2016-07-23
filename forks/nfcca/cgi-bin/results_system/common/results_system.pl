@@ -74,6 +74,8 @@ use LeagueTable;
 use ResultsIndex;
 use TablesIndex;
 use GroundMarkings;
+use FixtureList;
+use FixturesIndex;
 
 =head1 Functions
 
@@ -215,6 +217,22 @@ sub output_page {
     elsif ( $page eq "tables_index" ) {
 
       my $p = TablesIndex->new( -query => $q, -config => $c );
+      ( $err, $line ) = $p->output_html;
+      print $line;
+
+    }
+
+    elsif ( $page eq "fixtures_index" ) {
+
+      my $p = FixturesIndex->new( -query => $q, -config => $c );
+      ( $err, $line ) = $p->output_html;
+      print $line;
+
+    }
+
+    elsif ( $page eq "fixture_list" ) {
+
+      my $p = FixtureList->new( -query => $q, -config => $c );
       ( $err, $line ) = $p->output_html;
       print $line;
 
