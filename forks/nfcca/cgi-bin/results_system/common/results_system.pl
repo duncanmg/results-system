@@ -308,6 +308,9 @@ sub main(;) {
       $err = 1;
     }
   }
+
+  use Data::Dumper;print $LOG "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" . Dumper(@INC);
+
   my $dbg = $c->get_default_debug_level if $c;
   $u->eSetMinDebug( $dbg );
   print $LOG $u->eDump();  
