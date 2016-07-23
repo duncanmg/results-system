@@ -2,13 +2,14 @@
 
 {
 
-  package TablesIndex;
+  package FixturesIndex;
 
   use strict;
   use CGI;
 
   use Fixtures;
   use ResultsConfiguration;
+  use Data::Dumper;
 
   our @ISA;
   unshift @ISA, "Parent";
@@ -23,7 +24,7 @@
     my %args = (@_);
 
     $self->initialise( \%args );
-    $self->logger->debug("TablesIndex object created.");
+    $self->logger->debug("FixturesIndex object created.");
 
     return $self;
   }
@@ -60,15 +61,18 @@
       $c->get_descriptors( -title => "Y" ) . " " . $c->get_descriptors( -season => "Y" ) )
       . "\n";
 
-    $line = $line . "<h2>Index of League Tables</h2>\n";
-    $line = $line . $self->return_to_link("-tables_index") . "\n";
+    $line = $line . "<h2>Index of Fixtures</h2>\n";
+    $line = $line . $self->return_to_link("-fixtures_index") . "\n";
 
     my $d = $c->get_path( -table_dir => "Y" );
+
+    $self->logger->debug(Dumper @names);
 
     foreach my $division (@names) {
 
       eval {
-        my $link = "$d/" . $self->get_html_filename( $division->{csv_file} );
+	      $self->logger->warn('Path is hardcoded!');
+        my $link = "/results_system.pl?sysyem=nfcca&page=fixtures_index&division=$division->{csv_file}";
         $l = $l . $q->li( $q->a( { -href => $link }, $division->{menu_name} ) );
       };
       if ($@) {

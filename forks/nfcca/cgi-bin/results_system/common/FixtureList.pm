@@ -1,18 +1,18 @@
 # ******************************************************
 #
-# Name: WeekFixtures.pm
+# Name: FixtureList.pm
 #
 # 0.1  - 27 Jun 08 - POD added.
 #
 # ******************************************************
 
-=head1 WeekFixtures.pm
+=head1 FixtureList.pm
 
 =cut
 
 {
 
-  package WeekFixtures;
+  package FixtureList;
 
   use strict;
   use CGI;
@@ -46,7 +46,7 @@ Levels 2 to 5 will routinely be printed to log file.
 
 =head2 new
 
-Constructor for the WeekFixtures object. Inherits from Parent.
+Constructor for the FixtureList object. Inherits from Parent.
 
 =cut
 
@@ -60,7 +60,7 @@ Constructor for the WeekFixtures object. Inherits from Parent.
     my %args = (@_);
 
     $self->initialise( \%args );
-    $self->logger->debug("WeekFixtures object created.");
+    $self->logger->debug("FixtureList object created.");
 
     return $self;
   }
@@ -179,138 +179,6 @@ It accepts the following parameters:
     return $line;
   }
 
-=head2 _fixture_line
-
-Returns an HTML string containing a table row.
-
-=cut
-
-  #***************************************
-  sub _fixture_line {
-
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $line;
-    my $q = $args{-query};
-    my $i = $args{-index};
-    my $v;
-
-    my @elements = (
-      { "name" => "team",          "size" => 32, "readonly" => "readonly" },
-      { "name" => "played",        "size" => 2,  "readonly" => undef },
-      { "name" => "result",        "size" => 2,  "readonly" => undef },
-      { "name" => "runs",          "size" => 2,  "readonly" => undef },
-      { "name" => "wickets",       "size" => 2,  "readonly" => undef },
-      { "name" => "performances",  "size" => 32, "readonly" => undef },
-      { "name" => "resultpts",     "size" => 2,  "readonly" => undef },
-      { "name" => "battingpts",    "size" => 2,  "readonly" => undef },
-      { "name" => "bowlingpts",    "size" => 2,  "readonly" => undef },
-      { "name" => "penaltypts",    "size" => 2,  "readonly" => undef },
-      { "name" => "totalpts",      "size" => 2,  "readonly" => undef },
-      { "name" => "pitchmks",      "size" => 2,  "readonly" => undef },
-      { "name" => "groundmks",     "size" => 2,  "readonly" => undef },,
-      { "name" => "facilitiesmks", "size" => 2,  "readonly" => undef }
-    );
-
-    $self->logger->debug("fixture_line() called.");
-
-    foreach my $e (@elements) {
-
-      $v = $self->_get_value_string( $args{-type}, $i, $e->{name} );
-      if ( ( !defined($v) ) && ( !$args{-form} ) ) {
-        $v = "&nbsp;";
-      }
-      $line = $line
-        . $self->_format_element(
-        -form     => $args{-form},
-        -index    => $i,
-        -value    => $v,
-        -size     => $e->{size},
-        -readonly => $e->{readonly},
-        -type     => $args{-type},
-        -name     => $e->{name}
-        );
-
-    }
-    $line = $q->Tr($line) . "\n";
-
-    return $line;
-
-  }
-
-=head2 _get_week_data
-
-Returns a WeekData object for the week and division.
-
-=cut
-
-  #***************************************
-  sub _get_week_data {
-
-    #***************************************
-    my $self = shift;
-    if ( !$self->{WEEK_DATA} ) {
-      $self->{WEEK_DATA} = WeekData->new(
-        -week     => $self->get_week,
-        -division => $self->get_division,
-        -config   => $self->get_configuration
-      );
-      my $err = $self->{WEEK_DATA}->read_file;
-      if ( $err != 0 ) {
-        $self->logger->error("Error reading WeekDate.");
-      }
-    }
-    return $self->{WEEK_DATA};
-  }
-
-=head2 _get_value_string
-
-This attempts to retrieve the value from the WeekFixtures object. If no data has been saved
-for the current week then it returns undefined for all fields except the team name, which is
-retrieved from the fixture list.
-
- Called with 3 parameters: type, lineno and field.
- e.g. $w->get_value_string( "home", 0, "team" );
- 
- Returns a string of the form "xxxxxxxxxxxx".
- Returns undef if the value is not found.
-
-=cut
-
-  #***************************************
-  sub _get_value_string {
-
-    #***************************************
-    my $self = shift;
-    my $t    = shift;
-    my $l    = shift;
-    my $f    = shift;
-    my $obj  = $self->_get_week_data;
-    my $v;
-
-    $self->logger->debug("get_value_string called() $t $l $f");
-    if ($obj) {
-
-      $v = $obj->get_field(
-        -type   => "match",
-        -lineno => $l,
-        -field  => $f,
-        -team   => $t
-      );
-    }
-
-    if ( ( $obj->file_not_found ) && ( $f eq "team" ) ) {
-      $v = $self->_get_team_name( -type => "match", -lineno => $l, -team => $t );
-    }
-
-    if ($v) {
-      $self->logger->debug("Leaving get_value_string(): $v");
-      return $v;
-    }
-
-  }
-
 =head2 _get_team_name
 
 This function is called when there aren't any results for the division/week. It
@@ -332,6 +200,7 @@ accesses the fixture list and returns the team name from there.
     $self->logger->debug("get_team_name() called.");
 
     my $f = $self->_get_fixtures;
+    $self->logger->debug(Dumper $f);
     my $r = ref($f);
     if ( $r ne "Fixtures" ) {
       $self->logger->error( "Not a Fixtures object. " . $r );
@@ -403,6 +272,7 @@ and a fixtures object on success.
       }
 
     }
+    $self->logger->debug(Dumper $self->{FIXTURES});
     return $self->{FIXTURES};
   }
 
@@ -462,9 +332,12 @@ If the -form parameter is set then text input elements are displayed so that the
     my $q    = $self->get_query;
     my $line;
     my %args = (@_);
+    my $err=0;
 
     $self->set_division( $q->param("division") );
     $self->set_week( $q->param("matchdate") );
+
+    my $fixtures = $self->_get_fixtures();
 
     my $system = $q->param("system");
     $line = $line
@@ -472,101 +345,32 @@ If the -form parameter is set then text input elements are displayed so that the
 
     $line = $line . $self->get_heading( -form => $args{-form} );
 
-    if ( !$args{-form} && !$args{-no_link} ) {
-      my $s = "results_system.pl?system=" . $q->param("system") . "&page=results_index";
-      $line = $line . $q->p( $q->a( { -href => $s }, "Return To Results Index" ) ) . "\n";
-    }
-
-    if ( $args{-form} ) {
-      $line = $line
-        . "<form id=\"menu_form\" name=\"menu_form\" method=\"post\" action=\"results_system.pl\"\n";
-      $line = $line . " onsubmit=\"return validate_menu_form();\"\n";
-      $line = $line . " target = \"f_detail\">\n";
-    }
     $line = $line . "<table class='week_fixtures'>\n";
 
-    my $l = $q->th( { -class => "teamcol" }, "Team" );
-    $l = $l . $q->th("Played");
-    $l = $l . $q->th("Result");
-    $l = $l . $q->th("Runs");
-    $l = $l . $q->th("Wickets");
-    $l = $l . $q->th( { -class => "performances" }, "Performances" );
-    $l = $l . $q->th("Result Pts");
-    $l = $l . $q->th("Batting Pts");
-    $l = $l . $q->th("Bowling Pts");
-    $l = $l . $q->th("Penalty Pts");
-    $l = $l . $q->th("Total Pts");
-    $l = $l . $q->th("Pitch");
-    $l = $l . $q->th("Outfield");
-    $l = $l . $q->th("Facilities");
+    my $l = $q->th( { -class => "match_date" }, "Date" );
+    $l = $l . $q->th("Home");
+    $l = $l . $q->th("Away");
 
     $line = $line . $q->Tr($l) . "\n";
+    my $dates = $self->{FIXTURES}->get_date_list();
+    $self->logger->debug(Dumper $dates);
 
-    for ( my $x = 0; $x < 10; $x++ ) {
-
-      $line = $line
-        . $self->_fixture_line(
-        -index => $x,
-        -type  => "home",
-        -query => $q,
-        -form  => $args{-form}
-        );
-      $line = $line
-        . $self->_fixture_line(
-        -index => $x,
-        -type  => "away",
-        -query => $q,
-        -form  => $args{-form}
-        );
-      $line = $line . $self->_blank_line( -index => $x, -type => "blank", -query => $q );
-
+    foreach my $d (@$dates) {
+	    my $fixtures_for_week = $self->{FIXTURES}->get_week_fixtures(-date => $d);
+	    $self->logger->debug(Dumper $fixtures_for_week);
+	    foreach my $f (@$fixtures_for_week){
+	      my $cells = $q->td($d).$q->td($f->{home}).$q->td($f->{away});
+	      my $row = $q->Tr($cells);
+	      $line .= $row;
+	    }
+	    my $blanks =  $q->td('&nbsp;').$q->td('&nbsp;').$q->td('&nbsp;');
+	    my $row = $q->Tr($blanks);
+	    $line .= $row;
     }
 
     $line = $line . "</table>\n";
 
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "division",
-        -id    => "division",
-        -value => $self->get_division
-      }
-      ) . "\n";
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "matchdate",
-        -id    => "matchdate",
-        -value => $self->get_week
-      }
-      ) . "\n";
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "page",
-        -id    => "page",
-        -value => "save_results"
-      }
-      ) . "\n";
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "system",
-        -id    => "system",
-        -value => $q->param("system")
-      }
-      ) . "\n";
-
-    if ( $args{-form} ) {
-      my $p = Pwd->new( -query => $q );
-      $line = $line . $p->get_pwd_fields . "<br/>";
-      $line = $line . $q->input( { -type => "submit", -value => "Save Changes" } ) . "<br/>\n";
-      $line = $line . "</form>\n";
-    }
-
-    my $wd = $self->_get_week_data;
-
-    return $line;
+    return ($err, $line);
 
   }
 
@@ -583,11 +387,9 @@ If the -form parameter is set then text input elements are displayed so that the
     my $line;
     my %args = (@_);
     my $err  = 0;
-    my $obj  = $self->_get_week_data;
-
-    my @labels = $obj->get_labels;
 
     # Loop through the labels eg "team", "played", "result", "runs", "wickets"
+    my @labels;
     foreach my $label (@labels) {
 
       my $v;
@@ -602,13 +404,6 @@ If the -form parameter is set then text input elements are displayed so that the
       }
 
       # Store the details in the WeekData object.
-      $err = $obj->set_field(
-        -value  => $v,
-        -field  => $label,
-        -team   => $args{-type},
-        -lineno => $args{-lineno},
-        -type   => "match"
-      );
       if ( $err != 0 ) {
         $self->logger->debug(
           "save_line(): Unable to set field "
@@ -666,12 +461,6 @@ Check the password and save the results if the password is correct.
       }
 
     }
-    if ( $err == 0 ) {
-      my $w = $self->_get_week_data;
-      $w->set_division( $q->param("division") );
-      $w->set_week( $q->param("matchdate") );
-      $err = $w->write_file;
-    }
 
     if ( $err == 0 ) {
       $line = "<h3>Your changes have been accepted</h3>\n";
@@ -700,7 +489,7 @@ Check the password and save the results if the password is correct.
     my $s = $self->_get_sheet( "results_dir", "web" );
 
     # .dat file for week, no path
-    my $f = $self->_get_week_data->get_filename;
+    my $f;
     $f =~ s/\.dat/\.htm/;
 
     my $path = $c->get_path( -results_dir_full => "Y" );
