@@ -1,25 +1,11 @@
-# ****************************************************************************
-#
-# Name: checkfixtures.pl
-#
-# Function: Check for common errors in the fixtures files. Are there the same number
-#       of lines separators as week separator lines? Do all the teams play the same
-#       number of matches?
-#
-# 1.0  30 Jun 07 - Initial version
-# 1.1  23 Feb 08 - Patterns improved. POD added.
-# 1.2  27 Apr 08 - main() added. Can now check a whole directory.
-#
-# ****************************************************************************
+package Check;
 
 use Slurp;
 use List::MoreUtils qw/ uniq /;
 use Regexp::Common qw /whitespace/;
 
-print $ARGV[0] . "\n";
-
 $week_separator_pattern = "^={10,}[,\\s\\n]*\$";
-$date_pattern = "[0-9]{1,2}-[A-Z][a-z]{2}[\\n\\s]*\$";
+$date_pattern = "[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
 
 =head1 checkfixtures.pl
 
@@ -116,12 +102,12 @@ sub check_match_lines {
   my @match_lines = grep( ! /($week_separator_pattern)|($date_pattern)/, @lines );
   
   my @num_commas = grep( /\s*,\s*$/, @match_lines );
-  if ( scalar( @num_commas ) > 0 ) {
-    print "Match lines must not end in commas.\n";
-    foreach my $c ( @num_commas ) {
-      print "$c";
-    }  
-  }
+  #if ( scalar( @num_commas ) > 0 ) {
+  #  print "Match lines must not end in commas.\n";
+  #  foreach my $c ( @num_commas ) {
+  #    print "$c";
+  #  }  
+  #}
   
   foreach my $t ( @match_lines ) {
     my @bits = split( /,/, $t );
@@ -145,7 +131,7 @@ sub check_match_lines {
 
     foreach my $m ( @match_lines ) {
 
-      if ( $m =~ m/(^$t\s*,)|(,\s*$t\s*$)/ ) {
+      if ( $m =~ m/(^$t\s*,)|(,\s*$t[,\s]*$)/ ) {
         $team_count++;
       }
 
@@ -162,74 +148,17 @@ sub check_match_lines {
 }
 
 # ********************************************************
-sub check_file {
+sub check {
 # ********************************************************
-  my $file = shift;
-  my @lines;
+  my ( $file, $lines ) = @_;
   my $err = 0;
   
-  if ( ! -f $file ) {
-    print "$file does not exist.\n";
-    $err = 1;
-  }
-  else {
-    @lines = slurp( $file );
-  }
+    $err = check_dates_and_separators( $file, $lines );
   if ( $err == 0 ) {
-    $err = check_dates_and_separators( $file, \@lines );
-  }
-  if ( $err == 0 ) {
-    $err = check_match_lines( $file, \@lines );
+    $err = check_match_lines( $file, $lines );
   }
   return $err;
   
 }
 
-=head2 main()
-
-Accepts one argument which can be either a file or a directory.
-If it is a directory then all the files in the directory are checked,
-if not then only the one file is checked.
-
-=cut
-
-# ********************************************************
-sub main {
-# ********************************************************
-  my $file = shift;
-  my $FP;
-  
-  if ( -d $file ) {
-    if ( opendir( $FP, $file ) ) {
-      my @fl = readdir( $FP );
-      close $FP;
-      foreach my $f ( @fl ) {
-        if ( $f =~ m/\.$/ ) {
-          next;
-        }  
-        push @file_list, "$file/$f";
-      }
-    }
-    else {
-      print "Unable to open directory $file.\n";
-      $err = 1;
-    }  
-  }
-  else {
-    push @file_list, $file;
-  }  
-  
-  foreach my $f ( @file_list ) {
-    if ( check_file( $f ) ) {
-      print "Not OK: $f\n";
-      $err = 1;
-    }
-    else {
-      print "File OK: $f\n";
-    }  
-  }
-  
-  return $err;
-}
-
-main( $ARGV[0] );
+1;

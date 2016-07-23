@@ -6,14 +6,16 @@
 #
 # ***************************************************************************
 
-{ package Menu;
+{
+
+  package Menu;
 
   use strict;
   use CGI;
-  
+
   use ResultsConfiguration;
   use Parent;
-  
+
   our @ISA;
   unshift @ISA, "Parent";
 
@@ -40,15 +42,16 @@ $m = Menu->new( -query => $q, -config => $c );
 
   #***************************************
   sub new {
-  #***************************************
+
+    #***************************************
     my $self = {};
     bless $self;
     shift;
-    my %args = ( @_ );
-    
+    my %args = (@_);
+
     $self->initialise( \%args );
-    $self->eAdd( "Menu object created." , 1 );
-    
+    $self->logger->debug("Menu object created.");
+
     return $self;
   }
 
@@ -64,20 +67,21 @@ print $m->_return_to_link;
 
   #***************************************
   sub _return_to_link {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $q = $self->get_query;
+    my $q    = $self->get_query;
     my $line;
     my ( $l, $t ) = $self->get_configuration->get_return_page;
-    my $l = "javascript: parent.location.href=\'$l\';";
+    $l = "javascript: parent.location.href=\'$l\';";
     if ( $l && $t ) {
       $line = $q->a( { -href => $l }, $t );
-      $line = $q->p( $line );
+      $line = $q->p($line);
     }
     else {
-      $self->eAdd( "No return information for menu page (href and title). $l $t", 2 );
+      $self->logger->debug("No return information for menu page (href and title). $l $t");
     }
-    return $line
+    return $line;
   }
 
 =head2 output_html
@@ -93,42 +97,46 @@ This method returns the html for the menu page. No header or footer.
 
   #***************************************
   sub output_html {
-  #***************************************
+
+    #***************************************
     my $self = shift;
-    my $q = $self->get_query;
+    my $q    = $self->get_query;
     my $line;
- 
-    my $c = $self->get_configuration;
+
+    my $c      = $self->get_configuration;
     my $htdocs = $c->get_path( -htdocs => "Y" ) . "/common";
-    my $system = $q->param( "system" );
-    $line = $line . "<script language=\"JavaScript\" type=\"text/javascript\" src=\"menu_js.pl?system=$system\"></script>\n";
-    $line = $line . "<script language=\"JavaScript\" type=\"text/javascript\" src=\"$htdocs/menu.js\"></script>\n";
-        
+    my $system = $q->param("system");
+    $line = $line
+      . "<script language=\"JavaScript\" type=\"text/javascript\" src=\"menu_js.pl?system=$system\"></script>\n";
+    $line = $line
+      . "<script language=\"JavaScript\" type=\"text/javascript\" src=\"$htdocs/menu.js\"></script>\n";
+
     $line = $line . "<h1>Results System</h1>\n";
-    $line = $line . "<form id=\"menu_form\" name=\"menu_form\" method=\"post\" action=\"results_system.pl\"\n";
+    $line = $line
+      . "<form id=\"menu_form\" name=\"menu_form\" method=\"post\" action=\"results_system.pl\"\n";
     $line = $line . " target = \"f_detail\">\n";
     $line = $line . "<select id=\"matchdate\" name=\"matchdate\" size=\"1\">\n";
     $line = $line . "</select>\n";
     $line = $line . "<select id=\"division\" name=\"division\" size=\"1\">\n";
     $line = $line . "</select>\n";
     $line = $line . "<input type=\"submit\" value=\"Display Fixtures\"></input>\n";
-    $line = $line . "<input type=\"hidden\" id=\"page\" name=\"page\" value=\"week_fixtures\"></input>\n";
-    $line = $line . "<input type=\"hidden\" id=\"system\" name=\"system\" value=\"" . $q->param( "system" ) . "\"></input>\n";
+    $line = $line
+      . "<input type=\"hidden\" id=\"page\" name=\"page\" value=\"week_fixtures\"></input>\n";
+    $line =
+        $line
+      . "<input type=\"hidden\" id=\"system\" name=\"system\" value=\""
+      . $q->param("system")
+      . "\"></input>\n";
     $line = $line . "</form>\n";
 
     $line = $line . "<script language=\"JavaScript\" type=\"text/javascript\">\n";
-    my $l =   "gFirstSaturday='" . $c->get_descriptors( -first_saturday => "Y" ) . "'; ";
-    $l = $l . "gLastSaturday= '" . $c->get_descriptors( -last_saturday =>  "Y" ) . "';\n";
-    $self->eAdd( "These are hardcoded: $l", 2 );
-    $line = $line . $l;
-    $line = $line . "if ( typeof( menu_js ) == \"undefined\" ) { alert( \"menu_js is undefined. Was menu_js.pl loaded?\" ); }\n";
-    $line = $line . "if ( typeof( menu ) == \"undefined\" ) { alert( \" menu is undefined. Was menu.js loaded?\"  ); }\n";
+    $line = $line . "gFirstSaturday='5 May 2012'; gLastSaturday='1 Sep 2012';\n";
     $line = $line . "</script>\n";
     $line = $line . $self->_return_to_link;
     return $line;
-    
+
   }
 
   1;
-  
+
 }

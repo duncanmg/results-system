@@ -16,17 +16,20 @@
 
 =cut
 
-{ package ResultsIndex;
+{
+
+  package ResultsIndex;
 
   use strict;
   use CGI;
 
   use Fixtures;
   use ResultsConfiguration;
+  use Parent;
 
   our @ISA;
   unshift @ISA, "Parent";
-  
+
 =head2 new
 
 Constructor for the ResultIndex object. Inherits from Parent.
@@ -35,15 +38,15 @@ Constructor for the ResultIndex object. Inherits from Parent.
 
   #***************************************
   sub new {
-  #***************************************
+
+    #***************************************
+    my ( $class, %args ) = @_;
     my $self = {};
-    bless $self;
-    shift;
-    my %args = ( @_ );
-    
+    bless $self, $class;
+
     $self->initialise( \%args );
-    $self->eAdd( "ResultsIndex object created.", 1 );
-    
+    $self->logger->debug("ResultsIndex object created.");
+
     return $self;
   }
 
@@ -59,78 +62,79 @@ from the csv file for the division.
 
   # *********************************************************
   sub print_table {
-  # *********************************************************
+
+    # *********************************************************
     my $self = shift;
-    my $dir = shift;
+    my $dir  = shift;
     my $file = shift;
     my $name = shift;
     my $res_file;
-    my $c = $self->get_configuration;
+    my $c   = $self->get_configuration;
     my $err = 0;
-    my $q = $self->get_query;
-    
+    my $q   = $self->get_query;
+
     my $line = "<h2>" . $name . "</h2>\n";
-  
+
     $line = $line . "<table>\n";
-  
-    my $f = Fixtures->new( -full_filename => "$dir/$file", -config => $c );
-    $self->eAppend( $f->eGetError ) if $f;
-    $self->eAdd( $Fixtures::create_errmsg, 5 ) if ! $f;
+
+    my $f = Fixtures->new( -full_filename => "$dir/$file" );
+    $self->logger->error( $Fixtures::create_errmsg, 5 ) if !$f;
     my $d_ref = $f->get_date_list if $f;
-    if ( ! $d_ref ) {
-      $self->eAdd( "No dates found. $dir/$file", 5 );
+    if ( !$d_ref ) {
+      $self->logger->error("No dates found. $dir/$file");
       $err = 1;
       return $err;
     }
-    
-    my @dates = @$d_ref;
-    my $counter = 1;
-    my $num_cols = 6; # Columns in each row of table.
-    my $col = $num_cols;
-  
-    foreach my $d ( @dates ) {
+
+    my @dates    = @$d_ref;
+    my $counter  = 1;
+    my $num_cols = 6;           # Columns in each row of table.
+    my $col      = $num_cols;
+
+    foreach my $d (@dates) {
 
       $res_file = $file;
       $res_file =~ s/^.*\/([^\/]*)$/$1/;
       $res_file =~ s/\.[^.]*$//;
       $res_file = $res_file . $counter . ".htm";
 
-      $res_file = "results_system.pl?system="
-        . $q->param( "system" )
+      $res_file =
+          "results_system.pl?system="
+        . $q->param("system")
         . "&page=week_results&division="
         . $file
         . "&matchdate="
         . $d;
-        
+
       my $dir = $c->get_path( -csv_files => "Y" );
-      my $h = "<a href=\'$res_file\'>" . $d . "</a>"; 
-    
+      my $h = "<a href=\'$res_file\'>" . $d . "</a>";
+
       if ( $col == $num_cols ) {
-        $line = $line .  "<tr>";
-      }  
+        $line = $line . "<tr>";
+      }
       $line = $line . "<td>" . $h . "</td>";
-    
+
       if ( $col <= 1 ) {
         $line = $line . "</tr>\n";
-        $col = $num_cols;
+        $col  = $num_cols;
       }
       else {
         $col--;
       }
-    
+
       $counter++;
     }
     if ( $col >= 1 ) {
       while ( $col >= 1 ) {
         $line = $line . "<td>-</td>";
         $col--;
-      }  
+      }
       $line = $line . "</tr>";
     }
-  
+
     $line = $line . "</table>\n";
     return ( $err, $line );
-    
+
   }
 
 =head2 output_html
@@ -145,47 +149,51 @@ heading and a table. This list of divisions is read from the configuration file.
 
   # *********************************************************
   sub output_html {
-  # *********************************************************
+
+    # *********************************************************
     my $self = shift;
-    my $err = 0;
-    
-    my $q = $self->get_query;
-    my $c = $self->get_configuration;
+    my $err  = 0;
+
+    my $q     = $self->get_query;
+    my $c     = $self->get_configuration;
     my @names = $c->get_menu_names;
     my ( $line, $l );
-    $self->eAdd( scalar( @names ) . " divisions to be listed.", 1 );
-    
-    $line = $line . "<h1>" . $c->get_descriptors( -title => "Y" ) . " - Results " 
-      . $c->get_descriptors( -season => "Y" ) . "</h1>\n";
+    $self->logger->debug( scalar(@names) . " divisions to be listed." );
 
-    $line = $line . $self->return_to_link( "-results_index" ) . "\n";
-    
+    $line =
+        $line . "<h1>"
+      . $c->get_descriptors( -title => "Y" )
+      . " - Results "
+      . $c->get_descriptors( -season => "Y" )
+      . "</h1>\n";
+
+    $line = $line . $self->return_to_link("-results_index") . "\n";
+
     my $d = $c->get_path( -csv_files => "Y" );
     my $season = $c->get_season;
     $d = "$d/$season";
-    
-    foreach my $division ( @names ) {
-    
+
+    foreach my $division (@names) {
+
       eval {
         ( $err, $l ) = $self->print_table( $d, $division->{csv_file}, $division->{menu_name} );
-        $line = $line . $l
+        $line = $line . $l;
       };
-      if ( $@ ) {
-        $self->eAdd( "Problem processing " . $division->{menu_name}, 5 );
-        $self->eAdd( $@, 5 );
+      if ($@) {
+        $self->logger->error( "Problem processing " . $division->{menu_name} );
+        $self->logger->error( $@, 5 );
         $err = 1;
       }
       if ( $err != 0 ) {
         last;
-      }  
+      }
     }
-    
+
     return ( $err, $line );
-    
+
   }
 
   1;
-  
-}  
 
+}
 
