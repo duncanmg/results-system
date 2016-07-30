@@ -130,7 +130,7 @@ This method returns the html for the menu page. No header or footer.
     $line = $line . "</form>\n";
 
     $line = $line . "<script language=\"JavaScript\" type=\"text/javascript\">\n";
-    $line = $line . "gFirstSaturday='5 May 2012'; gLastSaturday='1 Sep 2012';\n";
+    $line = $line . "gFirstSaturday='30 April 2016'; gLastSaturday='3 Sep 2016';\n";
     $line = $line . "</script>\n";
     $line = $line . $self->_return_to_link;
     return $line;
