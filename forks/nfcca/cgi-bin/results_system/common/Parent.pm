@@ -91,7 +91,6 @@ The -query or -config are not present then default objects are created.
     else {
       my $c = ResultsConfiguration->new();
       if ($c) {
-        $c->read_file;
         $self->set_configuration($c);
       }
     }
