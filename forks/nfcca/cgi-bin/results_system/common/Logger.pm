@@ -1,24 +1,6 @@
 
 =head1 Logger
 
-Very simple module to set up log4perl. Logit.pm seems to be aimed at batch files, this is aimed at CGI scripts.
-
-This sends formatted messages to the STDERR on the assumption that they will end up in the Zeus logs.
-
-Debug and info level messages aren't printed on production boxes. Uses WhereAmI to decide which box it is on.
-
- use Logger;
- my $log = get_mlogger( __PACKAGE__ );
- $log->debug("Debug message");
-
- [05/May/2010:15:08:44] DEBUG main:: log4perl.pl (10) - Debug message
- [05/May/2010:15:08:44] INFO main:: log4perl.pl (11) - Info message
- [05/May/2010:15:08:44] WARN main:: log4perl.pl (12) - Warn message
- [05/May/2010:15:08:44] ERROR main:: log4perl.pl (13) - Error message
-
-Not sure what will happen if Logit and Mlog4perl are used in the same script. Will the configurations conflict? Better test it
-if you want to use them together.
-
 =cut
 
 {
@@ -35,7 +17,7 @@ if you want to use them together.
 
   our @ISA = qw/ Exporter /;
 
-  our @EXPORT_OK = qw/ get_mlogger /;
+  our @EXPORT_OK = qw/ get_logger /;
 
   my $conf = {
     "log4perl.rootLogger"             => "INFO , Screen",
@@ -47,12 +29,27 @@ if you want to use them together.
       "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
   };
 
+=head2 get_logger
+
+$logger = get_logger($category, $file);
+
+category: Log4perl category
+
+file: File messages will be logged to.
+
+If $file is undefined then messages are logged to the screen.
+
+If file is provided then it tries to read the rest of the configuration from a file called logger.conf in the current directory.
+
+If that doesn't exist then a set of defaults are used.
+
+=cut
+
   sub get_logger {
     my ( $category, $file ) = validate_pos( @_, 1, 0 );
 
     $category = 'Default' if !$category;
 
-    # $file = "/tmp/tmp.log";
     if ($file) {
       $conf                                             = {};
       $conf->{"log4perl.rootLogger"}                    = "INFO , LOGFILE";
@@ -66,6 +63,12 @@ if you want to use them together.
       $conf->{"log4perl.appender.LOGFILE.layout"}       = "Log::Log4perl::Layout::PatternLayout";
       $conf->{"log4perl.appender.LOGFILE.layout.ConversionPattern"} =
         "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n";
+
+      my $conf_file = "./logger.conf";
+      if ( -f $conf_file ) {
+        $ENV{LOGFILENAME} = $file;
+        $conf = $conf_file;
+      }
     }
 
     Log::Log4perl::init($conf);
