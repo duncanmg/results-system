@@ -87,6 +87,7 @@ The -query or -config are not present then default objects are created.
 
     if ( $args{-config} ) {
       $self->set_configuration( $args{-config} );
+      $self->logfile_name( $self->get_configuration->get_path( -log_dir => 'Y' ) );
     }
     else {
       my $c = ResultsConfiguration->new();
@@ -94,7 +95,6 @@ The -query or -config are not present then default objects are created.
         $self->set_configuration($c);
       }
     }
-    $self->logfile_name( $self->get_configuration->get_path( -log_dir => 'Y' ) );
 
   }
 
