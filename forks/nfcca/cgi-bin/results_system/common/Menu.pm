@@ -115,9 +115,9 @@ This method returns the html for the menu page. No header or footer.
     $line = $line
       . "<form id=\"menu_form\" name=\"menu_form\" method=\"post\" action=\"results_system.pl\"\n";
     $line = $line . " target = \"f_detail\">\n";
-    $line = $line . "<select id=\"matchdate\" name=\"matchdate\" size=\"1\">\n";
-    $line = $line . "</select>\n";
     $line = $line . "<select id=\"division\" name=\"division\" size=\"1\">\n";
+    $line = $line . "</select>\n";
+    $line = $line . "<select id=\"matchdate\" name=\"matchdate\" size=\"1\">\n";
     $line = $line . "</select>\n";
     $line = $line . "<input type=\"submit\" value=\"Display Fixtures\"></input>\n";
     $line = $line
