@@ -303,13 +303,19 @@ So if "path" is /x/y/z then this method will return /x/y/z/a/b/c.
 
 =head2 get_path
 
-This method accepts one named parameter and returns the appropriate path from the 
-configuration file.
+This method accepts one mandatory named parameter and one optional named
+parameter. Returns the appropriate path from the configuration file.
 
 Valid paths are -csv_files, -log_dir, -pwd_dir, -table_dir, -htdocs,
 -cgi_dir, -root. 
 
 $path = $c->get_path( -csv_files => "Y" );
+
+The optional parameter stops it emitting a warning if the path does
+not exist. For example, the Apache docroot. It can take any true
+value.
+
+$path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
 
 =cut
 
@@ -321,6 +327,9 @@ $path = $c->get_path( -csv_files => "Y" );
     my %args = (@_);
     my $p;
     my $err = 0;
+
+    my $allow_not_exists = $args{"-allow_not_exists"};
+    delete $args{"-allow_not_exists"};
 
     $self->logger->debug( "get_path() called. " . Dumper(%args) ) if !$args{-log_dir};
     if ( !$self->_get_tags ) {
@@ -364,10 +373,11 @@ $path = $c->get_path( -csv_files => "Y" );
     $p = $self->_construct_path( -path => $p ) if $p;
 
     $p = $self->_trim($p);
-    if ( !-d $p ) {
+    if ( ( !$allow_not_exists ) && ( !-d $p ) ) {
 
       # Report this as a warning rather than a serious error.
       $self->logger->warn( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
+      $self->logger->warn( Dumper caller );
     }
     $self->logger->debug( "get_path() returning: " . $p ) if !$args{-log_dir};
     return $p;

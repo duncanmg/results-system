@@ -104,7 +104,7 @@ This method returns the html for the menu page. No header or footer.
     my $line;
 
     my $c      = $self->get_configuration;
-    my $htdocs = $c->get_path( -htdocs => "Y" ) . "/common";
+    my $htdocs = $c->get_path( -htdocs => "Y", -allow_not_exists => "Y" ) . "/common";
     my $system = $q->param("system");
     $line = $line
       . "<script language=\"JavaScript\" type=\"text/javascript\" src=\"menu_js.pl?system=$system\"></script>\n";
