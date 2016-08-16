@@ -144,29 +144,20 @@ sub main {
 
   my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
   $u->logger->debug("In menu_js.pl page=$page system=$system");
-  if ( $err == 0 ) {
-    $log_path = $c->get_path( -log_dir => "Y" );
-    $log_file = $c->get_log_stem($system);
-  }
 
-  if ( $err == 0 ) {
-    $err = $u->SetLogDir($log_path);
-  }
-  if ( $err == 0 ) {
-    $u->set_lock_dir($log_path);
-  }
+  $log_path = $c->get_path( -log_dir => "Y" ) if !$err;
 
-  if ( $err == 0 ) {
-    $err = $u->OpenLockFile( $log_file . "js" );
-  }
-  if ( $err == 0 ) {
-    ( $err, $LOG ) = $u->OpenLogFile( $log_file . "js" );
-  }
-  if ( $err != 0 ) {
-    print STDERR $u->eDump;
-    print "<p>" . $u->eDump . "</p>\n";
-    return $err;
-  }
+  $log_file = $c->get_log_stem($system) if !$err;
+
+  $err = $u->SetLogDir($log_path) if !$err;
+
+  $u->set_lock_dir($log_path) if !$err;
+
+  $err = $u->OpenLockFile( $log_file . "js" ) if !$err;
+
+  ( $err, $LOG ) = $u->OpenLogFile( $log_file . "js" ) if !$err;
+
+  return $err if $err;
 
   print $q->header( -type => "text/javascript", -expires => "+1m" );
 
