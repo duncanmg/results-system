@@ -27,20 +27,7 @@
   our @ISA;
   unshift @ISA, "FileRenderer";
 
-=head2 Error Levels
-
- 0 - Subroutine Entry/Exit
- 1 - General Progress
- 2 - Progress Tracking
- 3 - Warning
- 4 -
- 5 - Fatal Error
-
-Levels 2 to 5 will routinely be printed to log file.
-
-=cut
-
-=head1 Methods
+=head1 Public Methods
 
 =cut
 
@@ -64,6 +51,209 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
     return $self;
   }
+
+=head2 output_html
+
+Returns the HTML which displays the table with the current information for the division and week.
+
+If results have been saved then that information is displayed. If not, the fixtures are displayed.
+
+Parameters:
+
+-form : If true then text input elements are displayed so that the information can be changed.
+
+-no_link : If true then the "Return To Results Index" link is not displayed.
+
+
+=cut
+
+  #***************************************
+  sub output_html {
+
+    #***************************************
+    my $self = shift;
+    my $q    = $self->get_query;
+    my $line;
+    my %args = (@_);
+    my $err  = 0;
+
+    $self->set_division( $q->param("division") );
+    $self->set_week( $q->param("matchdate") );
+
+    my $system = $q->param("system");
+    $line = $line
+      . "\n<script language=\"JavaScript\" type=\"text/javascript\" src=\"menu_js.pl?system=$system&page=week_fixtures\"></script>\n\n";
+
+    $line = $line . $self->get_heading( -form => $args{-form} );
+
+    if ( !$args{-form} && !$args{-no_link} ) {
+      my $s = "results_system.pl?system=" . $q->param("system") . "&page=results_index";
+      $line = $line . $q->p( $q->a( { -href => $s }, "Return To Results Index" ) ) . "\n";
+    }
+
+    if ( $args{-form} ) {
+      $line = $line
+        . "<form id=\"menu_form\" name=\"menu_form\" method=\"post\" action=\"results_system.pl\"\n";
+      $line = $line . " onsubmit=\"return validate_menu_form();\"\n";
+      $line = $line . " target = \"f_detail\">\n";
+    }
+    $line = $line . "<table class='week_fixtures'>\n";
+
+    my $l = $q->th( { -class => "teamcol" }, "Team" );
+    $l = $l . $q->th("Played");
+    $l = $l . $q->th("Result");
+    $l = $l . $q->th("Runs");
+    $l = $l . $q->th("Wickets");
+    $l = $l . $q->th( { -class => "performances" }, "Performances" );
+    $l = $l . $q->th("Result Pts");
+    $l = $l . $q->th("Batting Pts");
+    $l = $l . $q->th("Bowling Pts");
+    $l = $l . $q->th("Penalty Pts");
+    $l = $l . $q->th("Total Pts");
+    $l = $l . $q->th("Pitch");
+    $l = $l . $q->th("Outfield");
+    $l = $l . $q->th("Facilities");
+
+    $line = $line . $q->Tr($l) . "\n";
+
+    for ( my $x = 0; $x < 10; $x++ ) {
+
+      $line = $line
+        . $self->_fixture_line(
+        -index => $x,
+        -type  => "home",
+        -query => $q,
+        -form  => $args{-form}
+        );
+      $line = $line
+        . $self->_fixture_line(
+        -index => $x,
+        -type  => "away",
+        -query => $q,
+        -form  => $args{-form}
+        );
+      $line = $line . $self->_blank_line( -index => $x, -type => "blank", -query => $q );
+
+    }
+
+    $line = $line . "</table>\n";
+
+    $line = $line
+      . $q->input(
+      { -type  => "hidden",
+        -name  => "division",
+        -id    => "division",
+        -value => $self->get_division
+      }
+      ) . "\n";
+    $line = $line
+      . $q->input(
+      { -type  => "hidden",
+        -name  => "matchdate",
+        -id    => "matchdate",
+        -value => $self->get_week
+      }
+      ) . "\n";
+    $line = $line
+      . $q->input(
+      { -type  => "hidden",
+        -name  => "page",
+        -id    => "page",
+        -value => "save_results"
+      }
+      ) . "\n";
+    $line = $line
+      . $q->input(
+      { -type  => "hidden",
+        -name  => "system",
+        -id    => "system",
+        -value => $q->param("system")
+      }
+      ) . "\n";
+
+    if ( $args{-form} ) {
+      my $p = Pwd->new( -query => $q );
+      $line = $line . $p->get_pwd_fields . "<br/>";
+      $line = $line . $q->input( { -type => "submit", -value => "Save Changes" } ) . "<br/>\n";
+      $line = $line . "</form>\n";
+    }
+
+    my $wd = $self->_get_week_data;
+
+    return ( $err, $line );
+
+  }
+
+=head2 save_results
+
+Check the password and save the results if the password is correct.
+
+$wf->save_results(-save_html => 1);
+
+parameters:
+
+-save_html : If true then save the results to file. If false, do all the checks
+but don't save.
+
+=cut
+
+  #***************************************
+  sub save_results {
+
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
+    my $q    = $self->get_query;
+    my $type = "home";
+
+    my $p = Pwd->new( -query => $q, -config => $self->get_configuration );
+    my ( $err, $line ) = $p->check_pwd();
+
+    if ( $err == 0 ) {
+
+      $self->set_division( $q->param("division") );
+      $self->set_week( $q->param("matchdate") );
+
+      my $x = 0;
+      while ( $x < 10 && $err == 0 ) {
+
+        $err = $self->_save_line( -lineno => $x, -type => $type );
+
+        if ( $type eq "home" ) {
+          $type = "away";
+        }
+        else {
+          $type = "home";
+          $x++;
+        }
+
+      }
+
+    }
+    if ( $err == 0 ) {
+      my $w = $self->_get_week_data;
+      $w->set_division( $q->param("division") );
+      $w->set_week( $q->param("matchdate") );
+      $err = $w->write_file;
+    }
+
+    if ( $err == 0 ) {
+      $line = "<h3>Your changes have been accepted</h3>\n";
+    }
+    else {
+      $line = $line . "<h3>Your changes have been rejected.</h3>\n";
+    }
+
+    if ( $err == 0 && $args{-save_html} ) {
+      $err = $self->_save_html();
+    }
+
+    return ( $err, $line );
+  }
+
+=head1 Private Methods
+
+=cut
 
 =head2 _blank_line
 
@@ -445,133 +635,6 @@ Returns an HTML string with a heading in it.
     return $line;
   }
 
-=head2 output_html
-
-Returns the HTML which displays the table with the current information for the division and week.
-
-If results have been saved then that information is displayed. If not, the fixtures are displayed.
-
-If the -form parameter is set then text input elements are displayed so that the information can be changed.
-
-=cut
-
-  #***************************************
-  sub output_html {
-
-    #***************************************
-    my $self = shift;
-    my $q    = $self->get_query;
-    my $line;
-    my %args = (@_);
-    my $err  = 0;
-
-    $self->set_division( $q->param("division") );
-    $self->set_week( $q->param("matchdate") );
-
-    my $system = $q->param("system");
-    $line = $line
-      . "\n<script language=\"JavaScript\" type=\"text/javascript\" src=\"menu_js.pl?system=$system&page=week_fixtures\"></script>\n\n";
-
-    $line = $line . $self->get_heading( -form => $args{-form} );
-
-    if ( !$args{-form} && !$args{-no_link} ) {
-      my $s = "results_system.pl?system=" . $q->param("system") . "&page=results_index";
-      $line = $line . $q->p( $q->a( { -href => $s }, "Return To Results Index" ) ) . "\n";
-    }
-
-    if ( $args{-form} ) {
-      $line = $line
-        . "<form id=\"menu_form\" name=\"menu_form\" method=\"post\" action=\"results_system.pl\"\n";
-      $line = $line . " onsubmit=\"return validate_menu_form();\"\n";
-      $line = $line . " target = \"f_detail\">\n";
-    }
-    $line = $line . "<table class='week_fixtures'>\n";
-
-    my $l = $q->th( { -class => "teamcol" }, "Team" );
-    $l = $l . $q->th("Played");
-    $l = $l . $q->th("Result");
-    $l = $l . $q->th("Runs");
-    $l = $l . $q->th("Wickets");
-    $l = $l . $q->th( { -class => "performances" }, "Performances" );
-    $l = $l . $q->th("Result Pts");
-    $l = $l . $q->th("Batting Pts");
-    $l = $l . $q->th("Bowling Pts");
-    $l = $l . $q->th("Penalty Pts");
-    $l = $l . $q->th("Total Pts");
-    $l = $l . $q->th("Pitch");
-    $l = $l . $q->th("Outfield");
-    $l = $l . $q->th("Facilities");
-
-    $line = $line . $q->Tr($l) . "\n";
-
-    for ( my $x = 0; $x < 10; $x++ ) {
-
-      $line = $line
-        . $self->_fixture_line(
-        -index => $x,
-        -type  => "home",
-        -query => $q,
-        -form  => $args{-form}
-        );
-      $line = $line
-        . $self->_fixture_line(
-        -index => $x,
-        -type  => "away",
-        -query => $q,
-        -form  => $args{-form}
-        );
-      $line = $line . $self->_blank_line( -index => $x, -type => "blank", -query => $q );
-
-    }
-
-    $line = $line . "</table>\n";
-
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "division",
-        -id    => "division",
-        -value => $self->get_division
-      }
-      ) . "\n";
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "matchdate",
-        -id    => "matchdate",
-        -value => $self->get_week
-      }
-      ) . "\n";
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "page",
-        -id    => "page",
-        -value => "save_results"
-      }
-      ) . "\n";
-    $line = $line
-      . $q->input(
-      { -type  => "hidden",
-        -name  => "system",
-        -id    => "system",
-        -value => $q->param("system")
-      }
-      ) . "\n";
-
-    if ( $args{-form} ) {
-      my $p = Pwd->new( -query => $q );
-      $line = $line . $p->get_pwd_fields . "<br/>";
-      $line = $line . $q->input( { -type => "submit", -value => "Save Changes" } ) . "<br/>\n";
-      $line = $line . "</form>\n";
-    }
-
-    my $wd = $self->_get_week_data;
-
-    return ( $err, $line );
-
-  }
-
 =head2 _save_line
  
 =cut
@@ -627,66 +690,6 @@ If the -form parameter is set then text input elements are displayed so that the
 
     return $err;
 
-  }
-
-=head2 save_results
-
-Check the password and save the results if the password is correct.
-
-=cut
-
-  #***************************************
-  sub save_results {
-
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $q    = $self->get_query;
-    my $type = "home";
-
-    my $p = Pwd->new( -query => $q, -config => $self->get_configuration );
-    my ( $err, $line ) = $p->check_pwd();
-
-    if ( $err == 0 ) {
-
-      $self->set_division( $q->param("division") );
-      $self->set_week( $q->param("matchdate") );
-
-      my $x = 0;
-      while ( $x < 10 && $err == 0 ) {
-
-        $err = $self->_save_line( -lineno => $x, -type => $type );
-
-        if ( $type eq "home" ) {
-          $type = "away";
-        }
-        else {
-          $type = "home";
-          $x++;
-        }
-
-      }
-
-    }
-    if ( $err == 0 ) {
-      my $w = $self->_get_week_data;
-      $w->set_division( $q->param("division") );
-      $w->set_week( $q->param("matchdate") );
-      $err = $w->write_file;
-    }
-
-    if ( $err == 0 ) {
-      $line = "<h3>Your changes have been accepted</h3>\n";
-    }
-    else {
-      $line = $line . "<h3>Your changes have been rejected.</h3>\n";
-    }
-
-    if ( $err == 0 && $args{-save_html} ) {
-      $err = $self->_save_html();
-    }
-
-    return ( $err, $line );
   }
 
   #***************************************

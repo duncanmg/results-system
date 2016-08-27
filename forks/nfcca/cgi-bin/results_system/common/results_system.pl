@@ -154,6 +154,13 @@ sub output_frame {
 
 Write the HTML for the page to the standard output.
 
+In most cases, this is done by calling the output_html method of the appropriate object.
+The exceptions are "save_results" and "blank".
+
+"save_results" calls WeekFixtures to save the results and LeagueTable to regenerate the
+league tables.
+
+"blank" is handled in the function L</output_frame>.
 =cut
 
 # ******************************************************
@@ -221,6 +228,8 @@ sub output_page {
 }
 
 =head2 output_html
+
+Helper function called from output_page.
 
 =cut
 
