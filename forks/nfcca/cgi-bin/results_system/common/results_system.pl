@@ -9,7 +9,7 @@ results_system.pl
 =head1 Description
 
 The script is part of the Results System and is designed to be called from a browser. It is most commonly
-be called using GET parameters.
+called using GET parameters.
 
 Examples:
 
@@ -34,19 +34,23 @@ The HTML page which the script should output. This parameter is mandatory.
 
 =over 5
 
-=item * results_index
+=item * L<results_index|ResultsIndex>
 
-=item * tables_index
+=item * L<tables_index|TablesIndex>
 
 =item * frame
 
-=item * menu
+=item * L<menu|Menu>
 
-=item * week_fixtures
+=item * L<week_fixtures|WeekFixtures>
 
-=item * week_results
+=item * L<week_results|WeekFixtures>
 
 =item * save_results
+
+=item * L<fixtures_index|FixturesIndex>
+
+=item * L<fixture_list|FixtureList>
 
 =item * blank
 
@@ -243,7 +247,7 @@ sub output_page {
     }
 
     else {
-      $u->logger->debug( "Page parameter not recognised. " . $page );
+      $u->logger->error( "Page parameter not recognised. " . $page );
     }
 
   };
@@ -258,7 +262,7 @@ sub output_page {
   return $err;
 }
 
-=head2 output_page
+=head2 output_csv
 
 Write the HTML for the page to the standard output.
 
@@ -300,6 +304,10 @@ sub output_csv {
 
   return $err;
 }
+
+=head2 main
+
+=cut
 
 # ******************************************************
 sub main {
