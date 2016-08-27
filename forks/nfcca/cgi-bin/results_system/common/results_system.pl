@@ -81,6 +81,8 @@ use GroundMarkings;
 use FixtureList;
 use FixturesIndex;
 
+my $logger;
+
 =head1 Functions
 
 =cut
@@ -176,80 +178,31 @@ sub output_page {
 
   eval {
 
-    if ( $page eq "menu" ) {
+    my $dispatch_table = {
+      "menu"          => sub { output_html( Menu->new( -query         => $q, -config => $c ) ); },
+      "week_fixtures" => sub { output_html( WeekFixtures->new( -query => $q, -config => $c ) ); },
+      "week_results"  => sub { output_html( WeekFixtures->new( -query => $q, -config => $c ) ); },
+      "save_results" => sub {
+        $err = output_html( WeekFixtures->new( -query => $q, -config => $c ) );
+        if ( $err == 0 ) {
+          my $l = LeagueTable->new( -query => $q, -config => $c );
+          $err = $l->create_league_table_file;
+        }
+        $err;
+      },
+      "results_index" => sub { output_html( ResultsIndex->new( -query => $q, -config => $c ) ); },
+      "tables_index"  => sub { output_html( TablesIndex->new( -query  => $q, -config => $c ) ); },
 
-      my $p = Menu->new( -query => $q, -config => $c );
-      print $p->output_html;
+      "fixtures_index" =>
+        sub { output_html( FixturesIndex->new( -query => $q, -config => $c ) ); },
+      "fixture_list" => sub { output_html( FixtureList->new( -query => $q, -config => $c ) ); },
+      "blank" => sub { $u->logger->debug("Blank page called"); },
+    };
 
-    }
-
-    elsif ( $page eq "week_fixtures" ) {
-
-      my $p = WeekFixtures->new( -query => $q, -config => $c );
-      print $p->output_html( -form => "Y" );
-
-    }
-
-    elsif ( $page eq "week_results" ) {
-
-      my $p = WeekFixtures->new( -query => $q, -config => $c );
-      print $p->output_html();
-
-    }
-
-    elsif ( $page eq "save_results" ) {
-
-      my $p = WeekFixtures->new( -query => $q, -config => $c );
-      ( $err, $line ) = $p->save_results( -save_html => "Y" );
-      print $line;
-
-      if ( $err == 0 ) {
-        my $l = LeagueTable->new( -query => $q, -config => $c );
-        $err = $l->create_league_table_file;
-      }
-
-    }
-
-    elsif ( $page eq "results_index" ) {
-
-      my $p = ResultsIndex->new( -query => $q, -config => $c );
-      ( $err, $line ) = $p->output_html;
-      print $line;
-
-    }
-
-    elsif ( $page eq "tables_index" ) {
-
-      my $p = TablesIndex->new( -query => $q, -config => $c );
-      ( $err, $line ) = $p->output_html;
-      print $line;
-
-    }
-
-    elsif ( $page eq "fixtures_index" ) {
-
-      my $p = FixturesIndex->new( -query => $q, -config => $c );
-      ( $err, $line ) = $p->output_html;
-      print $line;
-
-    }
-
-    elsif ( $page eq "fixture_list" ) {
-
-      my $p = FixtureList->new( -query => $q, -config => $c );
-      ( $err, $line ) = $p->output_html;
-      print $line;
-
-    }
-
-    elsif ( $page eq "blank" ) {
-      $u->logger->debug("Blank page called");
-    }
-
-    else {
-      $u->logger->error( "Page parameter not recognised. " . $page );
-    }
-
+    $err =
+        $dispatch_table->{$page}
+      ? $dispatch_table->{$page}->()
+      : $u->logger->error( "Page parameter not recognised. " . $page );
   };
   if ($@) {
     $u->logger->debug($@);
@@ -259,6 +212,19 @@ sub output_page {
   # print "err=" . $err . " " . localtime;
   print $q->end_html;
 
+  return $err;
+}
+
+=head2 output_html
+
+=cut
+
+sub output_html {
+  my $object = shift;
+  my ($err,$line) = $object->output_html;
+  if ($line){
+  print $line;
+  }
   return $err;
 }
 
@@ -323,6 +289,7 @@ sub main {
   # my $line;
 
   my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
+  $logger = $u->logger;
 
   my $system = $q->param("system");
   my $page   = $q->param("page");
