@@ -93,6 +93,36 @@ If the -form parameter is set then text input elements are displayed so that the
 
 $html = $fl->output_html();
 
+    <h1>New Forest Colts Cricket Association 2016</h1>
+    <h1>Fixtures For Division U9S</h1>
+    <table class='week_fixtures'>
+        <tr>
+            <th class="match_date">Date</th>
+            <th>Home</th>
+            <th>Away</th>
+        </tr>
+        <tr>
+            <td>7-May</td>
+            <td>Langley Manor 1</td>
+            <td>Lymington 1</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>14-May</td>
+            <td>Fawley</td>
+            <td>Langley Manor 1</td>
+        </tr>
+        <tr>
+            <td>14-May</td>
+            <td>Bashley</td>
+            <td>Lymington 2</td>
+        </tr>
+    </table>
+
 =cut
 
   #***************************************
