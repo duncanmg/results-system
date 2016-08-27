@@ -133,7 +133,7 @@ This method returns the html for the menu page. No header or footer.
     $line = $line . "gFirstSaturday='30 April 2016'; gLastSaturday='3 Sep 2016';\n";
     $line = $line . "</script>\n";
     $line = $line . $self->_return_to_link;
-    return $line;
+    return ( 0, $line );
 
   }
 

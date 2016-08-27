@@ -197,20 +197,21 @@ Returns an HTML string containing a table row.
     my $v;
 
     my @elements = (
-      { "name" => "team",          "size" => 32, "readonly" => "readonly" },
-      { "name" => "played",        "size" => 2,  "readonly" => undef },
-      { "name" => "result",        "size" => 2,  "readonly" => undef },
-      { "name" => "runs",          "size" => 2,  "readonly" => undef },
-      { "name" => "wickets",       "size" => 2,  "readonly" => undef },
-      { "name" => "performances",  "size" => 32, "readonly" => undef },
-      { "name" => "resultpts",     "size" => 2,  "readonly" => undef },
-      { "name" => "battingpts",    "size" => 2,  "readonly" => undef },
-      { "name" => "bowlingpts",    "size" => 2,  "readonly" => undef },
-      { "name" => "penaltypts",    "size" => 2,  "readonly" => undef },
-      { "name" => "totalpts",      "size" => 2,  "readonly" => undef },
-      { "name" => "pitchmks",      "size" => 2,  "readonly" => undef },
-      { "name" => "groundmks",     "size" => 2,  "readonly" => undef },,
-      { "name" => "facilitiesmks", "size" => 2,  "readonly" => undef }
+      { "name" => "team",         "size" => 32, "readonly" => "readonly" },
+      { "name" => "played",       "size" => 2,  "readonly" => undef },
+      { "name" => "result",       "size" => 2,  "readonly" => undef },
+      { "name" => "runs",         "size" => 2,  "readonly" => undef },
+      { "name" => "wickets",      "size" => 2,  "readonly" => undef },
+      { "name" => "performances", "size" => 32, "readonly" => undef },
+      { "name" => "resultpts",    "size" => 2,  "readonly" => undef },
+      { "name" => "battingpts",   "size" => 2,  "readonly" => undef },
+      { "name" => "bowlingpts",   "size" => 2,  "readonly" => undef },
+      { "name" => "penaltypts",   "size" => 2,  "readonly" => undef },
+      { "name" => "totalpts",     "size" => 2,  "readonly" => undef },
+      { "name" => "pitchmks",     "size" => 2,  "readonly" => undef },
+      { "name" => "groundmks",    "size" => 2,  "readonly" => undef },
+      ,
+      { "name" => "facilitiesmks", "size" => 2, "readonly" => undef }
     );
 
     $self->logger->debug("fixture_line() called.");
@@ -462,6 +463,7 @@ If the -form parameter is set then text input elements are displayed so that the
     my $q    = $self->get_query;
     my $line;
     my %args = (@_);
+    my $err  = 0;
 
     $self->set_division( $q->param("division") );
     $self->set_week( $q->param("matchdate") );
@@ -566,7 +568,7 @@ If the -form parameter is set then text input elements are displayed so that the
 
     my $wd = $self->_get_week_data;
 
-    return $line;
+    return ( $err, $line );
 
   }
 
