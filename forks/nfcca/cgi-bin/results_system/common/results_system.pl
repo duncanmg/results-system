@@ -176,27 +176,32 @@ sub output_page {
   );
   $u->logger->debug("page=$page");
 
+  my $output_html = sub {
+    return output_html( $_[0]->new( -query => $q, -config => $c ) );
+  };
+
+  my $save_results = sub {
+    $err = $output_html->("WeekFixtures");
+    if ( $err == 0 ) {
+      my $l = LeagueTable->new( -query => $q, -config => $c );
+      $err = $l->create_league_table_file;
+    }
+    return $err;
+  };
+
   eval {
 
     my $dispatch_table = {
-      "menu"          => sub { output_html( Menu->new( -query         => $q, -config => $c ) ); },
-      "week_fixtures" => sub { output_html( WeekFixtures->new( -query => $q, -config => $c ) ); },
-      "week_results"  => sub { output_html( WeekFixtures->new( -query => $q, -config => $c ) ); },
-      "save_results" => sub {
-        $err = output_html( WeekFixtures->new( -query => $q, -config => $c ) );
-        if ( $err == 0 ) {
-          my $l = LeagueTable->new( -query => $q, -config => $c );
-          $err = $l->create_league_table_file;
-        }
-        $err;
-      },
-      "results_index" => sub { output_html( ResultsIndex->new( -query => $q, -config => $c ) ); },
-      "tables_index"  => sub { output_html( TablesIndex->new( -query  => $q, -config => $c ) ); },
+      "menu"          => sub { $output_html->("Menu"); },
+      "week_fixtures" => sub { $output_html->("WeekFixtures"); },
+      "week_results"  => sub { $output_html->("WeekFixtures"); },
+      "save_results"  => sub { $save_results->(); },
+      "results_index" => sub { $output_html->("ResultsIndex"); },
+      "tables_index"  => sub { $output_html->("TablesIndex"); },
 
-      "fixtures_index" =>
-        sub { output_html( FixturesIndex->new( -query => $q, -config => $c ) ); },
-      "fixture_list" => sub { output_html( FixtureList->new( -query => $q, -config => $c ) ); },
-      "blank" => sub { $u->logger->debug("Blank page called"); },
+      "fixtures_index" => sub { $output_html->("FixturesIndex"); },
+      "fixture_list"   => sub { $output_html->("FixtureList"); },
+      "blank"          => sub { $u->logger->debug("Blank page called"); },
     };
 
     $err =
@@ -221,9 +226,9 @@ sub output_page {
 
 sub output_html {
   my $object = shift;
-  my ($err,$line) = $object->output_html;
-  if ($line){
-  print $line;
+  my ( $err, $line ) = $object->output_html;
+  if ($line) {
+    print $line;
   }
   return $err;
 }
