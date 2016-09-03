@@ -14,6 +14,16 @@ use CGI;
 use ResultsConfiguration;
 use Fcutils2;
 
+=head1 menu_js.pl
+
+=cut
+
+=head2 menu
+
+Returns a string containing the javascript for two arrays: menu_names and csv_files.
+
+=cut
+
 # *********************************************
 sub menu {
 
@@ -49,6 +59,12 @@ sub menu {
   # print "alert( menu_names[0] );\n";
 
 }
+
+=head2 week_fixtures
+
+Returns the javascript for 2 functions: validate_menu_form and calculate_points.
+
+=cut
 
 # *********************************************
 sub week_fixtures {
@@ -124,6 +140,10 @@ sub week_fixtures {
   $u->logger->debug($line);
 
 }
+
+=head2 main
+
+=cut
 
 # *********************************************
 sub main {
