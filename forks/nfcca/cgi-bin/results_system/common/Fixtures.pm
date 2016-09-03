@@ -66,7 +66,7 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
   our @ISA;
   unshift @ISA, "Parent";
 
-=head1 Methods
+=head1 Public Methods
 
 =head2 new
 
@@ -121,6 +121,186 @@ Sets the full_filename. No validation or return code.
     my $self = shift;
     $self->{FULLFILENAME} = shift;
   }
+
+=head2 get_date_list
+
+Returns a reference to the array of dates.
+
+$dates_ref = $f->get_date_list;
+print $dates_ref->[0];
+
+=cut
+
+  #***************************************
+  sub get_date_list {
+
+    #***************************************
+    my $self = shift;
+
+    # Returns an array reference.
+    return $self->{DATES};
+  }
+
+=head2 get_week_fixtures
+
+Returns an array reference. Each element of the array is a
+hash element.
+
+ $array_ref = $f->get_week_fixtures( -date => "01-Jun" );
+ print $array_ref->[0]->{home};
+
+=cut
+
+  #***************************************
+  sub get_week_fixtures {
+
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
+    my %h;
+    my @fixtures;
+
+    my $i    = 0;
+    my $more = 1;
+    while ($more) {
+      %h = $self->_get_fixture_hash( -date => $args{-date}, -index => $i );
+      if ( ( !$h{home} ) || $i > 1000 ) {
+        $self->logger->debug( "No more elements for date " . $args{-date} . ": i=" . $i );
+        last;
+      }
+      push @fixtures, {%h};
+      $i++;
+    }
+    return \@fixtures;
+  }
+
+=head2 get_all_fixtures
+
+Returns a list reference containing all the fixtures for the current division. 
+Each element is a list ref containing the date and a list ref of fixtures for
+that date.
+
+Dates are in chronological order.
+
+$list_ref = $f->get_all_fixtures;
+
+  [
+          [
+            '7-May',
+            [
+              {
+                'away' => 'Lymington 1',
+                'home' => 'Langley Manor 1'
+              },
+              {
+                'away' => 'Fawley',
+                'home' => 'Hythe & Dibden'
+              },
+              {
+                'away' => 'New Milton',
+                'home' => 'Lymington 2'
+              },
+              {
+                'away' => 'Bashley',
+                'home' => 'Pylewell Park'
+              }
+            ]
+          ],
+          [
+            '14-May',
+            [
+              {
+                'away' => 'Langley Manor 1',
+                'home' => 'Fawley'
+              },
+              {
+                'away' => 'Lymington 2',
+                'home' => 'Bashley'
+              },
+              {
+                'away' => 'Hythe & Dibden',
+                'home' => 'New Milton'
+              },
+              {
+                'away' => 'Pylewell Park',
+                'home' => 'Lymington 1'
+              }
+            ]
+          ],
+  ]
+
+=cut
+
+  #***************************************
+  sub get_all_fixtures {
+
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
+    my @dates = ();
+    my @list = ();
+
+    if ( $self->{DATES} ) {
+      @dates = @{ $self->{DATES} };
+    }
+
+    foreach my $d (@dates) {
+
+      my $ref = $self->get_week_fixtures( -date => $d );
+      push @list, [ $d, $ref ];
+
+    }
+    $self->logger->debug(Dumper  \@list);
+    return \@list;
+  }
+
+=head2 get_all_teams
+
+Returns an array reference containing a sorted hash list of teams in the division.
+
+  eg $teams = $team_list_ref = $f->get_all_teams
+
+  print $teams->[0]->{team};
+  
+=cut
+
+  # **************************************
+  sub get_all_teams {
+
+    # **************************************
+    my ( $self, %args ) = (@_);
+    my ( @teams, @allteams, %h );
+
+    # Get hash_ref containing all fixtures.
+    my $all_fixtures = $self->get_all_fixtures;
+
+    # Each key is a week which contains a list of fixtures.
+    foreach my $d ( keys(%$all_fixtures) ) {
+
+      # Loop through the fixtures and add the teams to the list.
+      my $matches = $all_fixtures->{$d};
+      foreach my $m (@$matches) {
+
+        push @allteams, $m->{home};
+        push @allteams, $m->{away};
+
+      }
+
+    }
+
+    # From: http://www.antipope.org/Charlie/attic/perl/one-liner.html
+    # Sort and eliminate duplicates.
+    @teams = sort grep( ( ( $h{$_}++ == 1 ) || 0 ), @allteams );
+
+    @teams = map( { { team => $_ } } @teams );
+
+    return \@teams;
+
+  }
+
+=head1 Private Methods
+
+=cut
 
 =head2 _is_date
 
@@ -396,25 +576,6 @@ Returns 0 if the file is successfully loaded and validated.
     return $err;
   }
 
-=head2 get_date_list
-
-Returns a reference to the array of dates.
-
-$dates_ref = $f->get_date_list;
-print $dates_ref->[0];
-
-=cut
-
-  #***************************************
-  sub get_date_list {
-
-    #***************************************
-    my $self = shift;
-
-    # Returns an array reference.
-    return $self->{DATES};
-  }
-
 =head2 _get_fixture_hash
 
 Internal method which accepts a date and an index and returns a hash
@@ -456,112 +617,6 @@ print $fh{home} . $fh{away} . "\n";
 
     # print "return empty hash\n";
     return %h;
-  }
-
-=head2 get_week_fixtures
-
-Returns an array reference. Each element of the array is a
-hash element.
-
- $array_ref = $f->get_week_fixtures( -date => "01-Jun" );
- print $array_ref->[0]->{home};
-
-=cut
-
-  #***************************************
-  sub get_week_fixtures {
-
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my %h;
-    my @fixtures;
-
-    my $i    = 0;
-    my $more = 1;
-    while ($more) {
-      %h = $self->_get_fixture_hash( -date => $args{-date}, -index => $i );
-      if ( ( !$h{home} ) || $i > 1000 ) {
-        $self->logger->debug( "No more elements for date " . $args{-date} . ": i=" . $i );
-        last;
-      }
-      push @fixtures, {%h};
-      $i++;
-    }
-    return \@fixtures;
-  }
-
-=head2 get_all_fixtures
-
-Returns a hash reference. Each key in the hash is the date of the week's fixtures.
-
- $hash_ref = $f->get_all_fixtures;
- print $hash_ref->{"01-Jun"}[0]->{home};
-
-=cut
-
-  #***************************************
-  sub get_all_fixtures {
-
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my ( %h, @dates );
-
-    if ( $self->{DATES} ) {
-      @dates = @{ $self->{DATES} };
-    }
-    foreach my $d (@dates) {
-
-      my $ref = $self->get_week_fixtures( -date => $d );
-      $h{$d} = $ref;
-
-    }
-    return \%h;
-  }
-
-=head2 get_all_teams
-
-Returns an array reference containing a sorted hash list of teams in the division.
-
-  eg $teams = $team_list_ref = $f->get_all_teams
-
-  print $teams->[0]->{team};
-  
-=cut
-
-  # **************************************
-  sub get_all_teams {
-
-    # **************************************
-    my ( $self, %args ) = (@_);
-    my ( @teams, @allteams, %h );
-
-    # Get hash_ref containing all fixtures.
-    my $all_fixtures = $self->get_all_fixtures;
-
-    # Each key is a week which contains a list of fixtures.
-    foreach my $d ( keys(%$all_fixtures) ) {
-
-      # Loop through the fixtures and add the teams to the list.
-      my $matches = $all_fixtures->{$d};
-      foreach my $m (@$matches) {
-
-        push @allteams, $m->{home};
-        push @allteams, $m->{away};
-
-      }
-
-    }
-
-    # From: http://www.antipope.org/Charlie/attic/perl/one-liner.html
-    # Sort and eliminate duplicates.
-    @teams = sort grep( ( ( $h{$_}++ == 1 ) || 0 ), @allteams );
-
-    @teams = map( { { team => $_ } } @teams );
-
-    return \@teams;
-
   }
 
   1;
