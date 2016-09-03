@@ -134,9 +134,7 @@ $html = $fl->output_html();
     my $line;
     my $err = 0;
 
-    $self->set_division( $q->param("division") );
-
-    my $fixtures = $self->_get_fixtures();
+    my $fixtures_list = $self->output_raw_list();
 
     my $system = $q->param("system");
     $line = $line
@@ -151,13 +149,10 @@ $html = $fl->output_html();
     $l = $l . $q->th("Away");
 
     $line = $line . $q->Tr($l) . "\n";
-    my $dates = $self->{FIXTURES}->get_date_list();
-    $self->logger->debug( Dumper $dates);
 
-    foreach my $d (@$dates) {
-      my $fixtures_for_week = $self->{FIXTURES}->get_week_fixtures( -date => $d );
-      $self->logger->debug( Dumper $fixtures_for_week);
-      foreach my $f (@$fixtures_for_week) {
+    foreach my $fixtures_for_week (@$fixtures_list) {
+      my ( $d, $fixtures ) = @$fixtures_for_week;
+      foreach my $f (@$fixtures) {
         my $cells = $q->td($d) . $q->td( $f->{home} ) . $q->td( $f->{away} );
         my $row   = $q->Tr($cells);
         $line .= $row;
@@ -173,6 +168,29 @@ $html = $fl->output_html();
 
   }
 
+=head2 output_raw_list
+
+=cut
+
+  #***************************************
+  sub output_raw_list {
+
+    #***************************************
+    my $self = shift;
+    my $q    = $self->get_query;
+    my $line;
+    my $err = 0;
+
+    $self->set_division( $q->param("division") );
+
+    my $fixtures = $self->_get_fixtures();
+
+    $self->logger->debug( Dumper $fixtures->get_all_fixtures );
+
+    return ( $err, $fixtures->get_all_fixtures );
+
+  }
+
 =head1 Private Methods
 
 =cut
@@ -182,7 +200,7 @@ $html = $fl->output_html();
 Returns the fixtures object for the division. Returns 1 on error
 and a fixtures object on success.
 
-$fixtures = $seld->_get_fixtures();
+$fixtures = $self->_get_fixtures();
 
 =cut
 
