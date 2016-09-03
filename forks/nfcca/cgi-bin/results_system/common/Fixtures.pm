@@ -235,10 +235,10 @@ $list_ref = $f->get_all_fixtures;
   sub get_all_fixtures {
 
     #***************************************
-    my $self = shift;
-    my %args = (@_);
+    my $self  = shift;
+    my %args  = (@_);
     my @dates = ();
-    my @list = ();
+    my @list  = ();
 
     if ( $self->{DATES} ) {
       @dates = @{ $self->{DATES} };
@@ -250,7 +250,7 @@ $list_ref = $f->get_all_fixtures;
       push @list, [ $d, $ref ];
 
     }
-    $self->logger->debug(Dumper  \@list);
+    $self->logger->debug( Dumper \@list );
     return \@list;
   }
 
