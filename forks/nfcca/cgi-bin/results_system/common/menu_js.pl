@@ -22,6 +22,15 @@ use Fcutils2;
 
 Returns a string containing the javascript for two arrays: menu_names and csv_files.
 
+  if ( typeof( menu_names ) == "undefined" ) { menu_names = new Array(); }
+  if ( typeof( csv_files ) == "undefined" ) { csv_files = new Array(); }
+  
+  menu_names.push( "U9N" );
+  csv_files.push( "U9N.csv" );
+  
+  menu_names.push( "U9S" );
+  csv_files.push( "U9S.csv" );
+
 =cut
 
 # *********************************************
