@@ -10,9 +10,11 @@ BEGIN {
 use strict;
 use warnings;
 use CGI;
+use Data::Dumper;
 
 use ResultsConfiguration;
 use Fcutils2;
+use Fixtures;
 
 =head1 menu_js.pl
 
@@ -80,8 +82,8 @@ sub week_fixtures {
 
   # *********************************************
   my %args = (@_);
-  my $c    = $args{-config};
-  my $q    = $args{-query};
+
+  my $q = $args{-query};
   my $line;
   my $u = $args{-util};
   $line = qq/
@@ -150,6 +152,68 @@ sub week_fixtures {
 
 }
 
+=head2 get_all_dates_by_division
+
+Return a hash ref contatining all the dates for each division keyed by cvs file name.
+
+  $VAR1 = {
+            'U9S.csv' => [
+                         '7-May',
+                         '14-May',
+                         '21-May',
+                       ]
+          };
+
+=cut
+
+sub get_all_dates_by_division {
+  my %args = (@_);
+  my $c    = $args{-config};
+  my $q    = $args{-query};
+  my $u    = $args{-util};
+
+  my $dates = {};
+
+  my @x = $c->get_menu_names;
+  my $path = $c->get_path( -csv_files => 'Y' ) . '/' . $c->get_season;
+  $u->logger->debug($path);
+
+  foreach my $div (@x) {
+    my $f = Fixtures->new( -full_filename => $path . '/' . $div->{csv_file} );
+    next if !$f;
+    $dates->{ $div->{csv_file} } = $f->get_date_list;
+  }
+  $u->logger->debug( Dumper $dates);
+  return $dates;
+}
+
+=head2 get_all_dates_by_division_as_json
+
+=cut
+
+sub get_all_dates_by_division_as_json {
+  my %args = (@_);
+  my $c    = $args{-config};
+  my $q    = $args{-query};
+  my $u    = $args{-util};
+
+  my $dates = get_all_dates_by_division( -config => $c, -query => $q, -util => $u );
+
+  my @lines = ();
+  foreach my $div ( keys %$dates ) {
+    my $line = "'" . $div . "':";
+
+    my @weeks = map { "'" . $_ . "'" } @{ $dates->{$div} };
+    my $week_line = join( ",\n", @weeks );
+    $line .= '[' . $week_line . ']';
+
+    push @lines, $line;
+  }
+  my $out = '{' . join( ",\n", @lines ) . '}';
+  $u->logger->debug( Dumper $out);
+  return $out;
+}
+
 =head2 main
 
 =cut
@@ -192,6 +256,9 @@ sub main {
 
   if ( $q->param("page") ne "week_fixtures" ) {
     menu( -config => $c, -query => $q, -util => $u );
+
+    print "all_dates = \n"
+      . get_all_dates_by_division_as_json( -config => $c, -query => $q, -util => $u ) . ";\n";
   }
   else {
     week_fixtures( -config => $c, -query => $q, -util => $u );
