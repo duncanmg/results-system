@@ -96,7 +96,7 @@ error returned if the processing fails. This must be inferred from the messages 
     }
     $self->logger->debug("Fixtures object created.") if !$err;
     return $self if $err == 0;
-    $Fixtures::create_errmsg = $self->eDump;
+    $Fixtures::create_errmsg = "Error";
     return undef;
   }
 
