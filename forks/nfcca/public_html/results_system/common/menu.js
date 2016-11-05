@@ -1,27 +1,18 @@
 // alert( 0 );
 // **************************************************
-function add_dates( select_object ) {
+function add_dates(  ) {
 // **************************************************
 
-  var x=0; var d; var m; var l;
-  var m = new Array ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
-  
-  // alert( gFirstSaturday );
-  
-  d = new Date(Date.parse(gFirstSaturday));
-  l = new Date(Date.parse(gLastSaturday));
-  while ( x < 28 && d.getTime() <= l.getTime() )
-  {
-  
-    mon=m[d.getMonth()];
-    var opt = new Option( d.getDate() + "-" + mon, d.getDate() + "-" + mon );
-    // select_object.add( opt, null ); add worked on Netscape but not IE.
-    select_object.options[select_object.options.length] = opt;
-   
-    x=x+1;
-    d = new Date(d.getTime() + (7*86400000));
-
-  }    
+  var select_object = document.getElementById( "matchdate" );
+  var sdivision = document.getElementById( "division" );
+  if(sdivision.selectedIndex>=0){
+      var division = sdivision.options[sdivision.selectedIndex].value;
+      var dates = all_dates[division];
+      for (x=0;x<dates.length;x++){
+	       var opt = new Option( dates[x],dates[x] );
+	       select_object.options[select_object.options.length] = opt;
+  }   
+  } 
 
 }
 
@@ -29,11 +20,6 @@ function add_dates( select_object ) {
 function set_up() {
 // **************************************************
 
-  //alert( 2 );
-  var sdate = document.getElementById( "matchdate" );
-  add_dates( sdate );
-  //alert( 3 );
-  
   var sdivision = document.getElementById( "division" );
   // alert( menu_names.length + " divisions" );
   for ( var x = 0; x < menu_names.length; x++ ) {
@@ -42,6 +28,10 @@ function set_up() {
     sdivision.options[sdivision.options.length] = o;
     
   }
+  
+  //alert( 2 );
+  add_dates( );
+  //alert( 3 );
   
 }
 
