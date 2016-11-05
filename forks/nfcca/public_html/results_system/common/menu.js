@@ -8,6 +8,7 @@ function add_dates() {
     if (sdivision.selectedIndex >= 0) {
         var division = sdivision.options[sdivision.selectedIndex].value;
         var dates = all_dates[division];
+	select_object.options.length = 0;
         for (x = 0; x < dates.length; x++) {
             var opt = new Option(dates[x], dates[x]);
             select_object.options[select_object.options.length] = opt;
