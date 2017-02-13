@@ -77,6 +77,8 @@ Parameters:
     my %args = (@_);
     my $err  = 0;
 
+    $self->logger->debug( Dumper \%args );
+
     $self->set_division( $q->param("division") );
     $self->set_week( $q->param("matchdate") );
 
@@ -206,6 +208,7 @@ but don't save.
     my $q    = $self->get_query;
     my $type = "home";
 
+    $self->logger->debug("save_results ".Dumper(@_));
     my $p = Pwd->new( -query => $q, -config => $self->get_configuration );
     my ( $err, $line ) = $p->check_pwd();
 

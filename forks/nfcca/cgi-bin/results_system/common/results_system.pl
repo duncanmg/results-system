@@ -69,6 +69,7 @@ BEGIN {
 use strict;
 use CGI;
 use Slurp;
+use Params::Validate qw/:all/;
 
 use Fcutils2;
 
@@ -80,6 +81,7 @@ use TablesIndex;
 use GroundMarkings;
 use FixtureList;
 use FixturesIndex;
+use Data::Dumper;
 
 my $logger;
 
@@ -183,12 +185,9 @@ sub output_page {
   );
   $u->logger->debug("page=$page");
 
-  my $output_html = sub {
-    return output_html( $_[0]->new( -query => $q, -config => $c ) );
-  };
-
   my $save_results = sub {
-    $err = $output_html->("WeekFixtures");
+    my $obj = WeekFixtures->new( -query => $q, -config => $c );
+    $err = $obj->save_results( -save_html => 1 );
     if ( $err == 0 ) {
       my $l = LeagueTable->new( -query => $q, -config => $c );
       $err = $l->create_league_table_file;
@@ -199,16 +198,23 @@ sub output_page {
   eval {
 
     my $dispatch_table = {
-      "menu"          => sub { $output_html->("Menu"); },
-      "week_fixtures" => sub { $output_html->("WeekFixtures"); },
-      "week_results"  => sub { $output_html->("WeekFixtures"); },
-      "save_results"  => sub { $save_results->(); },
-      "results_index" => sub { $output_html->("ResultsIndex"); },
-      "tables_index"  => sub { $output_html->("TablesIndex"); },
+      "menu"          => sub { output_html( "Menu", { -query => $q, -config => $c }, {} ); },
+      "week_fixtures" => sub {
+        output_html( "WeekFixtures", { -query => $q, -config => $c }, { "-form" => 1 } );
+      },
+      "week_results" =>
+        sub { output_html( "WeekFixtures", { -query => $q, -config => $c }, {} ); },
+      "save_results" => sub { $save_results->(); },
+      "results_index" =>
+        sub { output_html( "ResultsIndex", { -query => $q, -config => $c }, {} ); },
+      "tables_index" =>
+        sub { output_html( "TablesIndex", { -query => $q, -config => $c }, {} ); },
 
-      "fixtures_index" => sub { $output_html->("FixturesIndex"); },
-      "fixture_list"   => sub { $output_html->("FixtureList"); },
-      "blank"          => sub { $u->logger->debug("Blank page called"); },
+      "fixtures_index" =>
+        sub { output_html( "FixturesIndex", { -query => $q, -config => $c }, {} ); },
+      "fixture_list" =>
+        sub { output_html( "FixtureList", { -query => $q, -config => $c }, {} ); },
+      "blank" => sub { $u->logger->debug("Blank page called"); },
     };
 
     $err =
@@ -234,8 +240,12 @@ Helper function called from output_page.
 =cut
 
 sub output_html {
-  my $object = shift;
-  my ( $err, $line ) = $object->output_html;
+  my ( $object, $constructor_args, $method_args ) =
+    validate_pos( @_, { type => SCALAR }, { type => HASHREF }, { type => HASHREF } );
+
+  my $obj = $object->new(%$constructor_args);
+
+  my ( $err, $line ) = $obj->output_html(%$method_args);
   if ($line) {
     print $line;
   }
