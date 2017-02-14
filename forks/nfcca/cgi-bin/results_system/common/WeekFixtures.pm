@@ -76,7 +76,7 @@ Parameters:
     my $line;
     my %args = (@_);
     my $err  = 0;
-
+    my $show_markings;    # Not implemented.
     $self->set_division( $q->param("division") );
     $self->set_week( $q->param("matchdate") );
 
@@ -110,9 +110,12 @@ Parameters:
     $l = $l . $q->th("Bowling Pts");
     $l = $l . $q->th("Penalty Pts");
     $l = $l . $q->th("Total Pts");
-    $l = $l . $q->th("Pitch");
-    $l = $l . $q->th("Outfield");
-    $l = $l . $q->th("Facilities");
+
+    if ($show_markings) {
+      $l = $l . $q->th("Pitch");
+      $l = $l . $q->th("Outfield");
+      $l = $l . $q->th("Facilities");
+    }
 
     $line = $line . $q->Tr($l) . "\n";
 
@@ -270,7 +273,7 @@ with 11 cells. Each cell contains the &nbsp;
     my %args = (@_);
     my $line;
 
-    for ( my $x = 0; $x < 14; $x++ ) {
+    for ( my $x = 0; $x < 11; $x++ ) {
       if ( $x == 0 ) {
         $line = $line . $args{-query}->td( { -class => "teamcol" }, "&nbsp;" );
       }
@@ -398,10 +401,9 @@ Returns an HTML string containing a table row.
       { "name" => "bowlingpts",   "size" => 2,  "readonly" => undef },
       { "name" => "penaltypts",   "size" => 2,  "readonly" => undef },
       { "name" => "totalpts",     "size" => 2,  "readonly" => undef },
-      { "name" => "pitchmks",     "size" => 2,  "readonly" => undef },
-      { "name" => "groundmks",    "size" => 2,  "readonly" => undef },
-      ,
-      { "name" => "facilitiesmks", "size" => 2, "readonly" => undef }
+      # { "name" => "pitchmks",     "size" => 2,  "readonly" => undef },
+      # { "name" => "groundmks",    "size" => 2,  "readonly" => undef },
+      # { "name" => "facilitiesmks", "size" => 2, "readonly" => undef }
     );
 
     $self->logger->debug("fixture_line() called.");
