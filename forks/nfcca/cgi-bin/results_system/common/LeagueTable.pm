@@ -567,7 +567,7 @@ to the directory given by "table_dir" in the configuration file.
 
     if ( $err == 0 ) {
       if ( !open( $FP, ">", $f ) ) {
-        $self->logger->error("Unable to open file $f for writing.");
+        $self->logger->error( "Unable to open file $f for writing. " . $! );
         $err = 1;
       }
     }

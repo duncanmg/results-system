@@ -187,7 +187,8 @@ sub output_page {
 
   my $save_results = sub {
     my $obj = WeekFixtures->new( -query => $q, -config => $c );
-    $err = $obj->save_results( -save_html => 1 );
+    ( $err, $line ) = $obj->save_results( -save_html => 1 );
+    print $line . "\n";
     if ( $err == 0 ) {
       my $l = LeagueTable->new( -query => $q, -config => $c );
       $err = $l->create_league_table_file;
