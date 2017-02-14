@@ -390,7 +390,7 @@ Returns an HTML string containing a table row.
       { "name" => "team",         "size" => 32, "readonly" => "readonly" },
       { "name" => "played",       "size" => 2,  "readonly" => undef },
       { "name" => "result",       "size" => 2,  "readonly" => undef },
-      { "name" => "runs",         "size" => 2,  "readonly" => undef },
+      { "name" => "runs",         "size" => 4,  "readonly" => undef },
       { "name" => "wickets",      "size" => 2,  "readonly" => undef },
       { "name" => "performances", "size" => 32, "readonly" => undef },
       { "name" => "resultpts",    "size" => 2,  "readonly" => undef },
