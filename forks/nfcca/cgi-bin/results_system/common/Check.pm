@@ -4,8 +4,11 @@ use Slurp;
 use List::MoreUtils qw/ uniq /;
 use Regexp::Common qw /whitespace/;
 
+use parent Exporter;
+our @EXPORT_OK = qw/ check_dates_and_separators check_match_lines check /;
+
 $week_separator_pattern = "^={10,}[,\\s\\n]*\$";
-$date_pattern = "[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
+$date_pattern           = "^[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
 
 =head1 checkfixtures.pl
 
@@ -32,7 +35,6 @@ perl checkfixtures.pl <filename>
  ==========,
 
 =cut
-
 
 =head2 Rules
 
@@ -63,56 +65,71 @@ These must be equal and must not be zero.
 
 =cut
 
+=head2 Functions
+
+=head3 check_dates_and_separators
+
+=cut
+
 # ********************************************************
 sub check_dates_and_separators {
-# ********************************************************
-  my $file = shift;
-  my $ref = shift;
+
+  # ********************************************************
+  my $file  = shift;
+  my $ref   = shift;
   my @lines = @$ref;
-  my $err = 0;
+  my $err   = 0;
 
   my $num_week_separators = grep( /$week_separator_pattern/, @lines );
 
   my $num_date_lines = grep( /$date_pattern/, @lines );
 
   if ( $num_week_separators != $num_date_lines ) {
-    print "$file does not have the same number of week separators as date lines.\n";
+    print "File does not have the same number of week separators as date lines.\n";
     print "Week separators: $num_week_separators \n";
     print "Date lines: $num_date_lines \n";
     $err = 1;
   }
   if ( $num_week_separators == 0 || $num_date_lines == 0 ) {
-    print "$file.  Neither the number of week separators  or the number of date lines can be zero.\n";
+    print
+      "Neither the number of week separators  or the number of date lines can be zero.\n";
     print "Week separators: $num_week_separators \n";
     print "Date lines: $num_date_lines \n";
+    $err = 1;
   }
   return $err;
 }
 
+=head3 check_match_lines
+
+=cut
+
 # ********************************************************
 sub check_match_lines {
-# ********************************************************
-  my $file = shift;
-  my $ref = shift;
+
+  # ********************************************************
+  my $file  = shift;
+  my $ref   = shift;
   my @lines = @$ref;
   my @teams;
   my $err = 0;
 
   # Eliminate the date lines and line separators. Anything left should be a fixture.
-  my @match_lines = grep( ! /($week_separator_pattern)|($date_pattern)/, @lines );
-  
+  my @match_lines = grep( !/($week_separator_pattern)|($date_pattern)/, @lines );
+
   my @num_commas = grep( /\s*,\s*$/, @match_lines );
+
   #if ( scalar( @num_commas ) > 0 ) {
   #  print "Match lines must not end in commas.\n";
   #  foreach my $c ( @num_commas ) {
   #    print "$c";
-  #  }  
+  #  }
   #}
-  
-  foreach my $t ( @match_lines ) {
+
+  foreach my $t (@match_lines) {
     my @bits = split( /,/, $t );
-    $bits[0] =~ s/$RE{ws}{crop}//g;           # Delete surrounding whitespace
-    # $bits[0] should be the home team.
+    $bits[0] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
+                                       # $bits[0] should be the home team.
     push @teams, $bits[0];
   }
   @teams = sort @teams;
@@ -122,14 +139,15 @@ sub check_match_lines {
   # Now find out how many matches each team plays. They should all play the same number.
 
   my $correct_matches = -1;
-  foreach my $t ( @teams ) {
+  foreach my $t (@teams) {
 
     my $team_count = 0;
+
     # Escape any brackets in the search string.
     $t =~ s/\(/\\\(/g;
     $t =~ s/\)/\\\)/g;
 
-    foreach my $m ( @match_lines ) {
+    foreach my $m (@match_lines) {
 
       if ( $m =~ m/(^$t\s*,)|(,\s*$t[,\s]*$)/ ) {
         $team_count++;
@@ -137,28 +155,35 @@ sub check_match_lines {
 
     }
 
-   if ( ( $correct_matches >= 0 ) && ( $correct_matches != $team_count ) ) {
-     print "$t play $team_count matches. The correct number is $correct_matches.\n";
-     $err = 1;
-   }
-   $correct_matches = $team_count;
+    if ( ( $correct_matches >= 0 ) && ( $correct_matches != $team_count ) ) {
+      print "$t play $team_count matches. The correct number is $correct_matches.\n";
+      $err = 1;
+    }
+    $correct_matches = $team_count;
 
   }
   return $err;
 }
 
+=head3 check
+
+=cut
+
 # ********************************************************
 sub check {
-# ********************************************************
+
+  # ********************************************************
   my ( $file, $lines ) = @_;
   my $err = 0;
-  
-    $err = check_dates_and_separators( $file, $lines );
+
+  $lines = [ slurp $file ];
+
+  $err = check_dates_and_separators( $file, $lines );
   if ( $err == 0 ) {
     $err = check_match_lines( $file, $lines );
   }
   return $err;
-  
+
 }
 
 1;
