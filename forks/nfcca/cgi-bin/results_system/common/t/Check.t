@@ -1,0 +1,47 @@
+use strict;
+use warnings;
+use Test::More;
+
+use_ok( 'Check', qw/check_dates_and_separators check_match_lines/ );
+
+my $week_separator = "==========";
+
+ok(
+  !check_dates_and_separators(
+    [ "1-Jun", $week_separator, "8-Jun", $week_separator, "15-Jun", $week_separator ]
+  ),
+  "Dates and separators match"
+);
+ok(
+  check_dates_and_separators(
+    [ "1-Jun",  $week_separator, "8-Jun", $week_separator,
+      "15-Jun", $week_separator, $week_separator
+    ]
+  ),
+  "Dates and separators do not match"
+);
+ok(
+  check_dates_and_separators( [ "1-Jun", $week_separator, "8-Jun", $week_separator, "15-Jun" ] ),
+  "Dates and separators do not match"
+);
+
+ok(
+  !check_match_lines(
+    [ "1-Jun", "A,B",           "C,D",    $week_separator, "8-Jun", "A,C",
+      "B,D",   $week_separator, "15-Jun", "A,D",           "B,C",   $week_separator
+    ]
+  ),
+  "check_match_lines ok"
+);
+
+ok(
+  check_match_lines(
+    [ "1-Jun",  "A,B", "C,D", $week_separator,
+      "8-Jun",  "A,C", "B,D", $week_separator,
+      "15-Jun", "A,D", $week_separator
+    ]
+  ),
+  "check_match_lines ok"
+);
+
+done_testing;

@@ -3,6 +3,8 @@ package Check;
 use Slurp;
 use List::MoreUtils qw/ uniq /;
 use Regexp::Common qw /whitespace/;
+use Params::Validate qw/:all/;
+use Data::Dumper;
 
 use parent Exporter;
 our @EXPORT_OK = qw/ check_dates_and_separators check_match_lines check /;
@@ -75,14 +77,12 @@ These must be equal and must not be zero.
 sub check_dates_and_separators {
 
   # ********************************************************
-  my $file  = shift;
-  my $ref   = shift;
-  my @lines = @$ref;
-  my $err   = 0;
+  my ($lines) = validate_pos( @_, { type => ARRAYREF } );
+  my $err = 0;
 
-  my $num_week_separators = grep( /$week_separator_pattern/, @lines );
+  my $num_week_separators = grep( /$week_separator_pattern/, @$lines );
 
-  my $num_date_lines = grep( /$date_pattern/, @lines );
+  my $num_date_lines = grep( /$date_pattern/, @$lines );
 
   if ( $num_week_separators != $num_date_lines ) {
     print "File does not have the same number of week separators as date lines.\n";
@@ -91,8 +91,7 @@ sub check_dates_and_separators {
     $err = 1;
   }
   if ( $num_week_separators == 0 || $num_date_lines == 0 ) {
-    print
-      "Neither the number of week separators  or the number of date lines can be zero.\n";
+    print "Neither the number of week separators  or the number of date lines can be zero.\n";
     print "Week separators: $num_week_separators \n";
     print "Date lines: $num_date_lines \n";
     $err = 1;
@@ -108,63 +107,35 @@ sub check_dates_and_separators {
 sub check_match_lines {
 
   # ********************************************************
-  my $file  = shift;
-  my $ref   = shift;
-  my @lines = @$ref;
+  my ($lines) = validate_pos( @_, { type => ARRAYREF } );
   my @teams;
   my $err = 0;
 
   # Eliminate the date lines and line separators. Anything left should be a fixture.
-  my @match_lines = grep( !/($week_separator_pattern)|($date_pattern)/, @lines );
+  my @match_lines = grep( !/($week_separator_pattern)|($date_pattern)/, @$lines );
 
   my @num_commas = grep( /\s*,\s*$/, @match_lines );
 
-  #if ( scalar( @num_commas ) > 0 ) {
-  #  print "Match lines must not end in commas.\n";
-  #  foreach my $c ( @num_commas ) {
-  #    print "$c";
-  #  }
-  #}
-
+  my $team_counts={};
   foreach my $t (@match_lines) {
     my @bits = split( /,/, $t );
     $bits[0] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
-                                       # $bits[0] should be the home team.
-    push @teams, $bits[0];
+    $bits[1] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
+
+    $team_counts->{$bits[0]}=0 if !  $team_counts->{$bits[0]};
+    $team_counts->{$bits[1]}=0 if !  $team_counts->{$bits[1]};
+     $team_counts->{$bits[0]}++;
+     $team_counts->{$bits[1]}++;
   }
-  @teams = sort @teams;
-  @teams = uniq @teams;
 
-  # @teams should now be a sorted list of the teams in the division.
   # Now find out how many matches each team plays. They should all play the same number.
-
-  my $correct_matches = -1;
-  foreach my $t (@teams) {
-
-    my $team_count = 0;
-
-    # Escape any brackets in the search string.
-    $t =~ s/\(/\\\(/g;
-    $t =~ s/\)/\\\)/g;
-
-    foreach my $m (@match_lines) {
-
-      if ( $m =~ m/(^$t\s*,)|(,\s*$t[,\s]*$)/ ) {
-        $team_count++;
-      }
-
-    }
-
-    if ( ( $correct_matches >= 0 ) && ( $correct_matches != $team_count ) ) {
-      print "$t play $team_count matches. The correct number is $correct_matches.\n";
+  if (scalar(uniq(sort(map { $team_counts->{$_} }keys %$team_counts)))>1){
+      print "The teams do not all play the same number of matches.\n";
+      print Dumper $team_counts;
       $err = 1;
-    }
-    $correct_matches = $team_count;
-
   }
   return $err;
 }
-
 =head3 check
 
 =cut

@@ -25,7 +25,7 @@ found are sent to the standard output.
 
 Details of the checks are in Check.pm.
 
-perl checkfixtures.pl <filename>
+perl checkfixtures.pl [ filename | dirname ]
 
 =cut
 
@@ -62,8 +62,12 @@ sub main {
       $err = 1;
     }
   }
-  else {
+  elsif ( -f $file ) {
     push @file_list, $file unless ( $file !~ m/\.csv$/ );
+  }
+  else {
+    print "$file does not exist.\n";
+    $err = 1;
   }
 
   foreach my $f (@file_list) {
