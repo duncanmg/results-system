@@ -91,7 +91,7 @@ sub check_dates_and_separators {
     $err = 1;
   }
   if ( $num_week_separators == 0 || $num_date_lines == 0 ) {
-    print "Neither the number of week separators  or the number of date lines can be zero.\n";
+    print "Neither the number of week separators nor the number of date lines can be zero.\n";
     print "Week separators: $num_week_separators \n";
     print "Date lines: $num_date_lines \n";
     $err = 1;
