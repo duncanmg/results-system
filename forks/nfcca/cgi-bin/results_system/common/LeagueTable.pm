@@ -503,7 +503,7 @@ print $q->header . " " . $line . "\n";
     my $c = $self->get_configuration;
 
     my $p =
-        $c->get_path( "-cgi-dir" => "Y" )
+        $c->get_path( "-cgi_dir" => "Y" )
       . "/common/results_system.pl?page=tables_index&system="
       . $q->param("system");
     $line = $q->p( $q->a( { -href => $p }, "Return to Tables Index" ) ) . $line;

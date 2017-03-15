@@ -610,10 +610,10 @@ The configuration file is an XML file.
   <!-- The document root -->
   /usr/home/sehca/public_html
  </root>
- <cgi-dir>
+ <cgi_dir>
   <!-- The location of the cgi-bin directory relative to the document root. -->
   /cgi-bin/results_system/dev
- </cgi-dir>
+ </cgi_dir>
  <!-- The location of the csv files on the file system. Not the URL. --> 
  <csv_files>
     ../fixtures/sehca/2008

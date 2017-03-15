@@ -15,7 +15,7 @@ ok( !$config->read_file, "Read file" );
 
 foreach my $p (
   qw/ -csv_files -log_dir -pwd_dir
-  -cgi_dir -root -cgi-dir /
+  -root -cgi_dir_full /
   )
 {
   my $ff = $config->get_path( $p => "Y" ) || "";
@@ -27,7 +27,7 @@ foreach my $p (
   -htdocs -cgi_dir -root /
   )
 {
-  my $ff = $config->get_path( $p => "Y" )||"";
+  my $ff = $config->get_path( $p => "Y", -allow_not_exists => "Y" )||"";
   ok( $ff, "$ff is set. " . $p );
 }
 
