@@ -149,9 +149,9 @@ sub check {
 
   $lines = [ slurp $file ];
 
-  $err = check_dates_and_separators( $file, $lines );
+  $err = check_dates_and_separators( $lines );
   if ( $err == 0 ) {
-    $err = check_match_lines( $file, $lines );
+    $err = check_match_lines( $lines );
   }
   return $err;
 
