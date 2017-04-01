@@ -90,6 +90,7 @@ error returned if the processing fails. This must be inferred from the messages 
     my %args = (@_);
     my $err  = 0;
     $Fixtures::create_errmsg = "";
+    $self->{no_validate_games_played} = $args{-no_validate_games_played};
     if ( $args{-full_filename} ) {
       $self->set_full_filename( $args{-full_filename} );
       $err = $self->_read_file();
@@ -511,7 +512,7 @@ It is passed a list of fixtures as an argument.
       }
       else {
         if ( $teams{$t} != $games ) {
-          $self->logger->warn( "$t should have played $games games. Played " . $teams{$t} );
+          $self->logger->error( "$t should have played $games games. Played " . $teams{$t} );
           $err = 1;
         }
       }
@@ -547,8 +548,10 @@ Returns 0 if the file is successfully loaded and validated.
     }
 
     if ( $err == 0 ) {
-      $err = $self->_validate_file(@lines);
-      $self->logger->debug("After _validate_file() err=$err");
+      $self->logger->warn("_validate_file disabled.");
+
+      # $err = $self->_validate_file(@lines) if ! $self->{no_validate_games_played};
+      # $self->logger->debug("After _validate_file() err=$err");
     }
 
     foreach my $l (@lines) {
