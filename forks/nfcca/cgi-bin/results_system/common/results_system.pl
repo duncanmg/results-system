@@ -125,7 +125,7 @@ sub output_frame {
     $err = 1;
   }
 
-  my $cgi_path = $c->get_path( "-cgi-dir" => "Y", -allow_not_exists => 1 );
+  my $cgi_path = $c->get_path( "-cgi_dir" => "Y", -allow_not_exists => 1 );
   $cgi_path = "$cgi_path/common";
   if ( !-d "$root$cgi_path" ) {
     $u->logger->debug("output_frame() $root$cgi_path does not exist.");
