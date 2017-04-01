@@ -180,6 +180,7 @@ sub get_all_dates_by_division {
 
   foreach my $div (@x) {
     my $f = Fixtures->new( -full_filename => $path . '/' . $div->{csv_file} );
+    $u->logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$f;
     next if !$f;
     $dates->{ $div->{csv_file} } = $f->get_date_list;
   }
