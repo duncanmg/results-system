@@ -248,6 +248,34 @@ Fields are : "team", "played", "result", "runs", "wickets",
     }
 
     if ( $err == 0 ) {
+      if ( $args{-field} =~ m/runs|wickets|resultpts|battingpts|bowlingpts|totalpts|penaltypts/ )
+      {
+        if ( ( $args{-value} ) && ( $args{-value} !~ m/^[0-9]+$/ ) ) {
+          $self->logger->error("$args{-field} must be a positive integer or empty.");
+          $err = 1;
+        }
+      }
+    }
+
+    if ( $err == 0 ) {
+      if ( $args{-field} eq "totalpts" ) {
+        if ( ( $args{-value} ) && ( $args{-value} !~ m/^-{0,1}[0-9]+$/ ) ) {
+          $self->logger->error("$args{-field} must be an integer or empty.");
+          $err = 1;
+        }
+      }
+    }
+
+    if ( $err == 0 ) {
+      if ( $args{-field} eq "played" ) {
+        if ( $args{-value} !~ m/^[YN]$/ ) {
+          $self->logger->error("$args{-field} must be Y or N");
+          $err = 1;
+        }
+      }
+    }
+
+    if ( $err == 0 ) {
 
       if ( @{ $self->{LINES} }[$l] ) {
         @{ $self->{LINES} }[$l]->{ $args{-field} } = $args{-value};
@@ -415,5 +443,4 @@ This writes the current contents of the data structure to the results file for t
   }
 
   1;
-
 }
