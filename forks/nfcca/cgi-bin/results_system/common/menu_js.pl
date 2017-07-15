@@ -118,6 +118,10 @@ sub week_fixtures {
      }
      
      function calculate_points( obj, i ) {
+
+       var ok = true;
+       var check_int = function(i,m) { if (! Number.isInteger(parseInt(i))) { alert(m + " must be an integer. " + i ); ok=false; } };
+
        var name = obj.name;
        var venue;
        if ( name.search( \/^home\/ ) >= 0 ) {
@@ -138,12 +142,21 @@ sub week_fixtures {
        var battingpts = document.menu_form[venue+"battingpts"+i].value;
        var bowlingpts = document.menu_form[venue+"bowlingpts"+i].value;
        var penaltypts = document.menu_form[venue+"penaltypts"+i].value;
+
        resultpts = resultpts ? resultpts : 0
        battingpts = battingpts ? battingpts : 0;
        bowlingpts = bowlingpts ? bowlingpts : 0;
        penaltypts = penaltypts ? penaltypts : 0;
-       var totalpts = parseInt( resultpts ) + parseInt( battingpts ) + parseInt( bowlingpts ) - parseInt( penaltypts );
-       document.menu_form[venue+"totalpts"+i].value = totalpts;
+
+       check_int(battingpts,"batting points");
+       check_int(bowlingpts,"bowling points");
+       check_int(penaltypts,"penalty points");
+       check_int(resultpts,"result points");
+
+       if (ok==true){
+         var totalpts = parseInt( resultpts ) + parseInt( battingpts ) + parseInt( bowlingpts ) - parseInt( penaltypts );
+         document.menu_form[venue+"totalpts"+i].value = totalpts;
+       }
 
      }
   /;
