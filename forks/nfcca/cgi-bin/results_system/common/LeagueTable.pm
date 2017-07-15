@@ -363,7 +363,7 @@ The sorted data in placed in a new list.
         return 0;
       }
       else {
-        $self->("_sort_table(): No aggregated data and not list of teams.");
+        $self->logger->error("_sort_table(): No aggregated data and no list of teams.");
         return 1;
       }
     }
@@ -381,7 +381,12 @@ The sorted data in placed in a new list.
     }
 
     if ( $err == 0 ) {
-      @sorted = $sorter->(@table);
+      local $@;
+      eval {
+        @sorted = $sorter->(@table);
+        1;
+      }
+        || do { $self->logger->error( "Unable to sort table. $@ " . Dumper( \@table ) ); $err = 1; };
       $self->{SORTED_TABLE} = \@sorted;
     }
 
