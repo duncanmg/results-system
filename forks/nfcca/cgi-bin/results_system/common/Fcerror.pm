@@ -10,7 +10,7 @@
   package Fcwrapper;
 
   use Logger;
-  use DateTime;
+  use DateTime::Tiny;
   use Clone qw/ clone /;
 
 =head2 logger
@@ -48,24 +48,24 @@ will set $logfile_name to "/tmp/rs28.log"
 
   sub logfile_name {
     my ( $self, $dir ) = @_;
-    my $now = DateTime->now();
+    my $now = DateTime::Tiny->now();
     if ($dir) {
       $self->{logfilename} = sprintf( "%s/%s%02d.log", $dir, "rs", $now->day );
-      $self->delete_old_logfile( $now, $dir );
+      # $self->delete_old_logfile( $now, $dir );
     }
     return $self->{logfilename};
   }
 
-  sub delete_old_logfile {
-	  my ( $self, $date, $dir ) = @_;
-	  my $tomorrow = clone $date;
-	  $tomorrow->add( days => 1 );
-	  $file = sprintf( "%s/%s%02d.log", $dir, "rs", $tomorrow->day );
-	  if ( -f $file ) {
-		  unlink( $file ) || print STDERR $! . "\n";
-	  }
-	  return 1;
-  }
+#  sub delete_old_logfile {
+#	  my ( $self, $date, $dir ) = @_;
+#	  my $tomorrow = clone $date;
+#	  $tomorrow->add( days => 1 );
+#	  $file = sprintf( "%s/%s%02d.log", $dir, "rs", $tomorrow->day );
+#	  if ( -f $file ) {
+#		  unlink( $file ) || print STDERR $! . "\n";
+#	  }
+#	  return 1;
+#  }
 
   1;
 
