@@ -313,6 +313,7 @@ sub main {
 
   # my $line;
 
+  # Logs go to standard error until configuration is properly loaded.
   my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
   $logger = $u->logger;
 
@@ -352,6 +353,10 @@ sub main {
   }
   if ( $err == 0 ) {
     ( $err, $LOG ) = $u->OpenLogFile($log_file);
+  }
+  if ( $err == 0 ) {
+    $u->set_logfile_stem('rs');
+    $u->auto_clean;
   }
   if ( $err != 0 ) {
     return $err;

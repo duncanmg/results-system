@@ -162,7 +162,11 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     my $err  = 0;
     my $FP;
     my $stem;
+    my $num_files   = 0;
+    my $num_matches = 0;
+    my $num_too_old = 0;
 
+    $self->logger->debug( "Start auto_clean. " . $self->get_auto_clean );
     if ( $self->get_auto_clean ne 'Y' ) {
       return $err;
     }
@@ -187,16 +191,22 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
           next;
         }
 
+        $num_files++;
         my $st = stat($ff);
         if ( $f =~ m/^$stem.*log$/ ) {
+          $num_matches++;
           if ( $st->mtime < $t ) {
-            unlink $ff;
+            $num_too_old++;
+            $self->logger->debug("Delete old log file $ff");
+            unlink($ff)
+              || do { $self->logger->error( "Unable to delete old log file $ff. " . $! ); $err = 1; }
           }
         }
 
       }
 
     }
+    $self->logger->debug("$num_files files $num_matches match $stem $num_too_old too old.");
     close $FP;
     return $err;
   }
@@ -265,6 +275,15 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     #*****************************************************************************
     my $self = shift;
     return $self->{LOGFILE_STEM};
+  }
+
+  #*****************************************************************************
+  sub set_logfile_stem {
+
+    #*****************************************************************************
+    my ( $self, $v ) = @_;
+    $self->{LOGFILE_STEM} = $v;
+    return 1;
   }
 
 =head2 SetLogDir
