@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
 BEGIN {
-  unshift @INC, '/home/hantscl/perl5/lib/perl5/x86_64-linux-thread-multi',
-    '/home/hantscl/perl5/lib/perl5';
+  use LoadEnv;
+  LoadEnv::run();
 }
 
 # use local::lib;
