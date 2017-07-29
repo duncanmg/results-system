@@ -22,7 +22,7 @@
   use XML::Simple;
   use Sort::Maker;
   use strict;
-  use List::MoreUtils qw/ first_value /;
+  use List::MoreUtils qw/ first_value any /;
   use Regexp::Common qw /whitespace/;
   use Data::Dumper;
 
@@ -363,6 +363,10 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
       "-csv_files",   "-log_dir", "-pwd_dir", "-table_dir",
       "-results_dir", "-htdocs",  "-cgi_dir", "-root"
     );
+    if ( !( any { $key eq $_ } @valid_paths ) ) {
+      $self->logger->warn("$key is not in the list of valid paths.");
+      $self->logger->warn( Dumper caller );
+    }
 
     if ( $args{$key} ) {
       my $k = $key;
