@@ -47,7 +47,7 @@ This package provides the methods which the objects in the results system inheri
     if ( $sheet_info->{copy} eq "yes" ) {
       my $s = "../../htdocs/custom/" . $sheet_info->{name};
       if ( !-f $s ) {
-        $self->logger->error( "$s does not exist.");
+        $self->logger->error("$s does not exist.");
         return 1;
       }
 
@@ -60,7 +60,7 @@ This package provides the methods which the objects in the results system inheri
       if ( !-f $ls || $s_stats->mtime > $ls_stats->mtime ) {
         my $ok = copy( $s, $ls );
         if ( !$ok ) {
-          $self->logger->error( "Unable to copy $s to $ls. " . $!);
+          $self->logger->error( "Unable to copy $s to $ls. " . $! );
           return 1;
         }
       }
@@ -91,7 +91,8 @@ This package provides the methods which the objects in the results system inheri
     my ( $t_dir_physical, $r_dir_physical, $htdocs, $season, $t_dir_web, $r_dir_web );
 
     if ( !defined $type || !defined $location ) {
-      $self->logger->error( "_get_sheet( type, location ) Undefined parameter <$type> <$location>");
+      $self->logger->error(
+        "_get_sheet( type, location ) Undefined parameter <$type> <$location>");
       return undef;
     }
 
@@ -110,10 +111,10 @@ This package provides the methods which the objects in the results system inheri
       $r_dir_web      = "";
     }
     else {
-      $htdocs = $c->get_path( -htdocs => "Y" );
+      $htdocs = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
       my $htdocs_full = $c->get_path( -htdocs_full => "Y" );
       $season = $c->get_season;
-      my $system = $c->get_path( -system => "Y" );
+      my $system = $c->get_path( -system => "Y", -allow_not_exists => 1 );
       $t_dir_physical = "$htdocs_full/custom/$system";
       $r_dir_physical = "$htdocs_full/custom/$system";
       $t_dir_web      = "$htdocs/custom/$system";

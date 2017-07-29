@@ -63,7 +63,7 @@
     $line = $line . "<h2>Index of League Tables</h2>\n";
     $line = $line . $self->return_to_link("-tables_index") . "\n";
 
-    my $d = $c->get_path( -table_dir => "Y" );
+    my $d = $c->get_path( -table_dir => "Y", -allow_not_exists => 1 );
 
     foreach my $division (@names) {
 
