@@ -131,6 +131,7 @@ sub check_match_lines {
   # Now find out how many matches each team plays. They should all play the same number.
   if ( scalar( uniq( sort( map { $team_counts->{$_} } keys %$team_counts ) ) ) > 1 ) {
     print "The teams do not all play the same number of matches.\n";
+    local $Data::Dumper::Sortkeys = 1;
     print Dumper $team_counts;
     $err = 1;
   }
