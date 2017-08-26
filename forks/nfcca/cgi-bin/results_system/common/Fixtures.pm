@@ -90,7 +90,7 @@ error returned if the processing fails. This must be inferred from the messages 
     my %args = (@_);
     my $err  = 0;
     $Fixtures::create_errmsg = "";
-    $self->{no_validate_games_played} = $args{-no_validate_games_played};
+
     if ( $args{-full_filename} ) {
       $self->set_full_filename( $args{-full_filename} );
       $err = $self->_read_file();
@@ -466,61 +466,6 @@ Returns 0 on success.
 
   }
 
-=head2 _validate_file
-
-Check all teams have played the same number of games. Returns 0 if OK.
-
-It is passed a list of fixtures as an argument.
-
- eg my @l = ( "England, Australia", "Purbrook, Waterlooville" );
- $err = $f->_validate_file( @l );
-
-=cut
-
-  #***************************************
-  sub _validate_file {
-
-    #***************************************
-    my $self  = shift;
-    my $err   = 0;
-    my @lines = (@_);
-    my ( %teams, $games );
-    my @fixtures = grep $self->_is_fixture($_), @lines;
-
-    foreach my $f (@fixtures) {
-
-      my @bits = split /,/, $f;
-
-      $bits[0] = $self->_trim( $bits[0] );
-      if ( !$teams{ $bits[0] } ) {
-        $teams{ $bits[0] } = 0;
-      }
-      $teams{ $bits[0] }++;
-
-      $bits[1] = $self->_trim( $bits[1] );
-      if ( !$teams{ $bits[1] } ) {
-        $teams{ $bits[1] } = 0;
-      }
-      $teams{ $bits[1] }++;
-
-    }
-
-    foreach my $t ( keys(%teams) ) {
-
-      if ( !defined $games ) {
-        $games = $teams{$t};
-      }
-      else {
-        if ( $teams{$t} != $games ) {
-          $self->logger->error( "$t should have played $games games. Played " . $teams{$t} );
-          $err = 1;
-        }
-      }
-    }
-
-    return $err;
-  }
-
 =head2 _read_file
 
 Internal method which reads the fixtures file and loads it into an internal data structure.
@@ -545,13 +490,6 @@ Returns 0 if the file is successfully loaded and validated.
     else {
       $self->logger->warn( "Fixtures file " . $self->get_full_filename . " does not exist." );
       $err = 1;
-    }
-
-    if ( $err == 0 ) {
-      $self->logger->warn("_validate_file disabled.");
-
-      # $err = $self->_validate_file(@lines) if ! $self->{no_validate_games_played};
-      # $self->logger->debug("After _validate_file() err=$err");
     }
 
     foreach my $l (@lines) {

@@ -116,26 +116,27 @@ sub check_match_lines {
 
   my @num_commas = grep( /\s*,\s*$/, @match_lines );
 
-  my $team_counts={};
+  my $team_counts = {};
   foreach my $t (@match_lines) {
     my @bits = split( /,/, $t );
     $bits[0] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
     $bits[1] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
 
-    $team_counts->{$bits[0]}=0 if !  $team_counts->{$bits[0]};
-    $team_counts->{$bits[1]}=0 if !  $team_counts->{$bits[1]};
-     $team_counts->{$bits[0]}++;
-     $team_counts->{$bits[1]}++;
+    $team_counts->{ $bits[0] } = 0 if !$team_counts->{ $bits[0] };
+    $team_counts->{ $bits[1] } = 0 if !$team_counts->{ $bits[1] };
+    $team_counts->{ $bits[0] }++;
+    $team_counts->{ $bits[1] }++;
   }
 
   # Now find out how many matches each team plays. They should all play the same number.
-  if (scalar(uniq(sort(map { $team_counts->{$_} }keys %$team_counts)))>1){
-      print "The teams do not all play the same number of matches.\n";
-      print Dumper $team_counts;
-      $err = 1;
+  if ( scalar( uniq( sort( map { $team_counts->{$_} } keys %$team_counts ) ) ) > 1 ) {
+    print "The teams do not all play the same number of matches.\n";
+    print Dumper $team_counts;
+    $err = 1;
   }
   return $err;
 }
+
 =head3 check
 
 =cut
@@ -149,9 +150,9 @@ sub check {
 
   $lines = [ slurp $file ];
 
-  $err = check_dates_and_separators( $lines );
+  $err = check_dates_and_separators($lines);
   if ( $err == 0 ) {
-    $err = check_match_lines( $lines );
+    $err = check_match_lines($lines);
   }
   return $err;
 
