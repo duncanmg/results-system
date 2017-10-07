@@ -82,7 +82,7 @@ Parameters:
 
     my $system = $q->param("system");
     $line = $line
-      . "\n<script language=\"JavaScript\" type=\"text/javascript\" src=\"menu_js.pl?system=$system&page=week_fixtures\"></script>\n\n";
+      . "\n<script type=\"text/javascript\" src=\"menu_js.pl?system=$system&page=week_fixtures\"></script>\n\n";
 
     $line = $line . $self->get_heading( -form => $args{-form} );
 
@@ -314,6 +314,8 @@ It accepts the following parameters:
     my $v = $args{-value};
     my $q = $self->get_query;
 
+    $args{-element_type} ||= 'text';
+
     if ( $args{-form} ) {
 
       if ( $args{-name} eq "team" ) {
@@ -322,7 +324,7 @@ It accepts the following parameters:
 
       if ( $args{-name} !~ m/^(played)|(result)$/ ) {
         my %h = (
-          -type     => 'text',
+          -type     => $args{-element_type},
           -name     => $args{-type} . $args{-name} . $i,
           -id       => $args{-type} . $args{-name} . $i,
           -size     => $args{-size},
@@ -365,8 +367,12 @@ It accepts the following parameters:
       $line = $v;
 
     }
+
+    # When -name is "team", it is set to undef earlier in this method. Don't know why.
+    # This causes $class to be undef.
     my $class = $args{-name} eq "team" ? "teamcol" : $args{-name};
-    $line = $q->td( { -class => $class }, $line );
+
+    $line = $class ? $q->td( { -class => $class }, $line ) : $q->td($line);
     $line = $line . "\n";
 
     return $line;
@@ -393,14 +399,15 @@ Returns an HTML string containing a table row.
       { "name" => "team",         "size" => 32, "readonly" => "readonly" },
       { "name" => "played",       "size" => 2,  "readonly" => undef },
       { "name" => "result",       "size" => 2,  "readonly" => undef },
-      { "name" => "runs",         "size" => 4,  "readonly" => undef },
-      { "name" => "wickets",      "size" => 2,  "readonly" => undef },
+      { "name" => "runs",         "size" => 4,  "readonly" => undef, "element_type" => "number" },
+      { "name" => "wickets",      "size" => 2,  "readonly" => undef, "element_type" => "number" },
       { "name" => "performances", "size" => 32, "readonly" => undef },
-      { "name" => "resultpts",    "size" => 2,  "readonly" => undef },
-      { "name" => "battingpts",   "size" => 2,  "readonly" => undef },
-      { "name" => "bowlingpts",   "size" => 2,  "readonly" => undef },
-      { "name" => "penaltypts",   "size" => 2,  "readonly" => undef },
-      { "name" => "totalpts",     "size" => 2,  "readonly" => undef },
+      { "name" => "resultpts",    "size" => 2,  "readonly" => undef, "element_type" => "number" },
+      { "name" => "battingpts",   "size" => 2,  "readonly" => undef, "element_type" => "number" },
+      { "name" => "bowlingpts",   "size" => 2,  "readonly" => undef, "element_type" => "number" },
+      { "name" => "penaltypts",   "size" => 2,  "readonly" => undef, "element_type" => "number" },
+      { "name" => "totalpts",     "size" => 2,  "readonly" => undef, "element_type" => "number" },
+
       # { "name" => "pitchmks",     "size" => 2,  "readonly" => undef },
       # { "name" => "groundmks",    "size" => 2,  "readonly" => undef },
       # { "name" => "facilitiesmks", "size" => 2, "readonly" => undef }
@@ -416,13 +423,14 @@ Returns an HTML string containing a table row.
       }
       $line = $line
         . $self->_format_element(
-        -form     => $args{-form},
-        -index    => $i,
-        -value    => $v,
-        -size     => $e->{size},
-        -readonly => $e->{readonly},
-        -type     => $args{-type},
-        -name     => $e->{name}
+        -form         => $args{-form},
+        -index        => $i,
+        -value        => $v,
+        -size         => $e->{size},
+        -readonly     => $e->{readonly},
+        -type         => $args{-type},
+        -name         => $e->{name},
+        -element_type => $e->{element_type},
         );
 
     }
