@@ -67,7 +67,7 @@ BEGIN {
 
 # use local::lib;
 use strict;
-use CGI;
+use FcCGI qw/meta/;
 use Slurp;
 use Params::Validate qw/:all/;
 
@@ -177,13 +177,27 @@ sub output_page {
   my $err  = 0;
   my $line;
 
+  my $html5 = { "week_fixtures" => 1 };
+
   print $q->header( -expires => "+15m" );
   my @styles = $c->get_stylesheets;
-  print $q->start_html(
+
+  my $params = {
     -title => "Results System: " . $page,
-    -style => $c->get_path( -htdocs => "Y", -allow_not_exists => "Y" ) . "/custom/" . $styles[0]
-  );
-  $u->logger->debug("page=$page");
+    -style => $c->get_path( -htdocs => "Y", -allow_not_exists => "Y" ) . "/custom/" . $styles[0],
+
+    #-head => {-http-equiv => 'Content-Type', -content=>'text/html',charset=>'utf-8'}
+    -head => meta(
+      { -http_equiv => 'Content-Type',
+        -content    => 'text/html; charset=utf-8'
+      }
+    )
+  };
+
+  $params->{-html5} = 1 if $html5->{$page};
+
+  print $q->start_html(%$params);
+  $u->logger->debug( "page=$page", Dumper($params) );
 
   my $save_results = sub {
     my $obj = WeekFixtures->new( -query => $q, -config => $c );
@@ -304,7 +318,7 @@ sub output_csv {
 sub main {
 
   # ******************************************************
-  my $q   = CGI->new();
+  my $q   = FcCGI->new();
   my $err = 0;
   my $LOG;
   my $log_file = "results_system";
@@ -393,7 +407,7 @@ my $debug = 0;
 my $t;
 if ($debug) {
 
-  $t = CGI->new;
+  $t = FcCGI->new;
   print $t->header;
   print $t->start_html;
 
