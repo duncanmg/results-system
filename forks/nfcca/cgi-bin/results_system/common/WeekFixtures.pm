@@ -327,10 +327,11 @@ It accepts the following parameters:
           -type     => $args{-element_type},
           -name     => $args{-type} . $args{-name} . $i,
           -id       => $args{-type} . $args{-name} . $i,
-          -size     => $args{-size},
           -value    => "",
           -onChange => "calculate_points( this, $i )"
         );
+        $h{-min}  = $args{-min}  if defined $args{-min};
+        $h{-size} = $args{-size} if defined $args{-size};
         if ($v) {
           $h{-value} = $v;
         }
@@ -372,7 +373,8 @@ It accepts the following parameters:
     # This causes $class to be undef.
     my $class = $args{-name} eq "team" ? "teamcol" : $args{-name};
 
-    $line = $class ? $q->td( { -class => $class }, $line ) : $q->td($line);
+    $line =
+      $class ? $q->td( { -class => $class }, $line ) : $q->td( { -class => "teamname" }, $line );
     $line = $line . "\n";
 
     return $line;
@@ -396,17 +398,41 @@ Returns an HTML string containing a table row.
     my $v;
 
     my @elements = (
-      { "name" => "team",         "size" => 32, "readonly" => "readonly" },
-      { "name" => "played",       "size" => 2,  "readonly" => undef },
-      { "name" => "result",       "size" => 2,  "readonly" => undef },
-      { "name" => "runs",         "size" => 4,  "readonly" => undef, "element_type" => "number" },
-      { "name" => "wickets",      "size" => 2,  "readonly" => undef, "element_type" => "number" },
-      { "name" => "performances", "size" => 32, "readonly" => undef },
-      { "name" => "resultpts",    "size" => 2,  "readonly" => undef, "element_type" => "number" },
-      { "name" => "battingpts",   "size" => 2,  "readonly" => undef, "element_type" => "number" },
-      { "name" => "bowlingpts",   "size" => 2,  "readonly" => undef, "element_type" => "number" },
-      { "name" => "penaltypts",   "size" => 2,  "readonly" => undef, "element_type" => "number" },
-      { "name" => "totalpts",     "size" => 2,  "readonly" => undef, "element_type" => "number" },
+      { "name" => "team",   "size" => 32, "readonly" => "readonly" },
+      { "name" => "played", "size" => 2,  "readonly" => undef },
+      { "name" => "result", "size" => 2,  "readonly" => undef },
+      { "name"         => "runs",
+        "readonly"     => undef,
+        "element_type" => "number",
+        "min"          => 0
+      },
+      { "name"         => "wickets",
+        "readonly"     => undef,
+        "element_type" => "number",
+        "min"          => 0
+      },
+      { "name" => "performances", "readonly" => undef },
+      { "name"         => "resultpts",
+        "readonly"     => undef,
+        "element_type" => "number",
+        "min"          => 0
+      },
+      { "name"         => "battingpts",
+        "readonly"     => undef,
+        "element_type" => "number",
+        "min"          => 0
+      },
+      { "name"         => "bowlingpts",
+        "readonly"     => undef,
+        "element_type" => "number",
+        "min"          => 0
+      },
+      { "name"         => "penaltypts",
+        "readonly"     => undef,
+        "element_type" => "number",
+        "min"          => 0
+      },
+      { "name" => "totalpts", "size" => 2, "readonly" => undef, "element_type" => "number" },
 
       # { "name" => "pitchmks",     "size" => 2,  "readonly" => undef },
       # { "name" => "groundmks",    "size" => 2,  "readonly" => undef },
@@ -431,6 +457,7 @@ Returns an HTML string containing a table row.
         -type         => $args{-type},
         -name         => $e->{name},
         -element_type => $e->{element_type},
+        -min          => $e->{min},
         );
 
     }
