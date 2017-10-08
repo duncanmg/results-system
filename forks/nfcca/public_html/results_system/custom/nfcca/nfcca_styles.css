@@ -144,4 +144,18 @@ table.week_fixtures td.performances,  table.week_fixtures th.performances {
   width: 30%;
 }  
 
+table.week_fixtures td.performances input {
+  width: 90%
+}
 
+table.week_fixtures input[type=number] {
+  width: 60px;
+}
+
+table.week_fixtures {
+	width: 80%;
+}
+
+table.week_fixtures td.teamname {
+	width: 275px;
+}
