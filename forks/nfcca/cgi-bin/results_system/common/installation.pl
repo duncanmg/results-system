@@ -33,7 +33,7 @@ sub sync_tree {
 
 sub mirror {
 
-  sync_tree( $CURRENT, $LAST ) || die "Unable to sync_tree $CURRENT";
+  sync_tree( "$CURRENT/*", "$LAST" ) || die "Unable to sync_tree $CURRENT";
 
   sync_tree( "$NFCCA:results_system", "$CURRENT" )
     || die "Unable to sync_tree: $NFCCA:results_system";
