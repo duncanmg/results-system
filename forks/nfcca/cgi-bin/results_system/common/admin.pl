@@ -15,6 +15,28 @@ use Template;
 
 my $placeholders = {};
 
+=head1 admin
+
+Admin script for the results system. CGI script.
+
+admin.pl?system=nfcca&increment_season=2017&submit=1
+
+admin.pl?system=nfcca&csv_file=xyx&submit=1
+
+The above examples show the parameters in the query string, but they can also be posted.
+
+=cut
+
+=head2 Functions
+
+=cut
+
+=head3 main
+
+Loads the configurations and, if submit is true, calls increment_season() or load_csv_file().
+
+=cut
+
 #*************************************************************************
 sub main() {
 
@@ -55,6 +77,12 @@ sub main() {
 
 }
 
+=head3 load_csv_file
+
+Not sure what this is intended to do.
+
+=cut
+
 #*************************************************************************
 sub load_csv_file {
   my ( $config, $params ) = @_;
@@ -91,6 +119,29 @@ sub load_csv_file {
   }
 
 }
+
+=head3 increment_season
+
+Setups up the directories for the coming season. The season year must be less
+than the current year.
+
+If the current year is 2017, passing in 2015 will set up the directories for 2016,
+2016 will set up 2017, 2017 will cause an error.
+
+It use the information in the config file to set up the following directories for the
+new season:
+
+table_dir_full 
+
+results_dir_full
+
+csv_files
+
+It also parses the config file and replaces all occurrences of the old season with the new season.
+
+It makes a backup of the config file before changing it.
+
+=cut
 
 #*************************************************************************
 sub increment_season {
