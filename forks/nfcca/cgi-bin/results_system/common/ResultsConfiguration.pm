@@ -142,6 +142,59 @@ Read the configuration file. Returns an error if the file doesn't exist or the r
 
 $err = $c->read_file();
 
+Uses the full filename given by $self->get_full_filename().
+
+If the full filename ends in _local.ini then it will look for a similar file
+without the _local and use that as a parent. eg nfcca.ini and nfcca_local.ini.
+
+It will merge the tags from the local file into the parent and put the result into
+the TAGS attribute.
+
+The tags which can be merged are paths, descriptors, return_to, stylesheets, divisions, 
+users, calculations
+
+eg If nfcca.ini contains:
+
+  <descriptors>
+   <title>
+     South East Hampshire Cricket Association
+   </title>
+   <season>
+     2008
+   </season>  
+  </descriptors>
+
+  <stylesheets>
+    <sheet>
+      sehca_styles.css
+    </sheet>
+   </stylesheets>
+
+And nfcca_local.ini contains:
+
+  <stylesheets>
+    <sheet>
+      different.css
+    </sheet>
+   </stylesheets>
+
+Then the merged xml will be:
+
+  <descriptors>
+   <title>
+     South East Hampshire Cricket Association
+   </title>
+   <season>
+     2008
+   </season>  
+  </descriptors>
+
+  <stylesheets>
+    <sheet>
+      different.css
+    </sheet>
+   </stylesheets>
+
 =cut
 
   #***************************************
@@ -150,37 +203,69 @@ $err = $c->read_file();
     #***************************************
     my $self = shift;
     my $err  = 0;
+    my ( $main, $main_xml, $local_xml );
+
+    my $full_filename = $self->get_full_filename();
+    $main = $full_filename;
+    $main =~ s/_local(\.ini)$/$1/;
+
+    ( $err, $main_xml ) = $self->_load_file($main);
+    return $err if $err;
+
+    if ( $main ne $full_filename ) {
+      ( $err, $local_xml ) = $self->_load_file($full_filename);
+      return 1 if $err;
+
+      foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
+        next if !$local_xml->{$k};
+        $main_xml->{$k} = $local_xml->{$k};
+      }
+    }
+
+    $self->{TAGS} = $main_xml;
+
+    $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
+
+    return $err;
+  }
+
+=head2 _load_file
+
+Read the configuration file. Returns an error if the file doesn't exist or the read fails.
+
+($err, $xml) = $c->_load_file($full_filename);
+
+=cut
+
+  #***************************************
+  sub _load_file {
+
+    #***************************************
+    my ( $self, $full_filename ) = @_;
+    my $err = 0;
     my ($tags);
 
     my $xml = XML::Simple->new();
-    if ( !$xml ) {
-      $err = 1;
+    return 1 if !$xml;
+
+    if ( !-f $full_filename ) {
+      $self->logger->error( "_load_file(): File does not exist. " . $full_filename );
+      return 1;
     }
 
-    if ( !-f $self->get_full_filename ) {
-      $self->logger->error( "read_file(): File does not exist. " . $self->get_full_filename );
-      $err = 1;
-    }
-    if ( $err == 0 ) {
-      eval {
-        $tags = $xml->XMLin(
-          $self->get_full_filename,
-          NoAttr        => 1,
-          ForceArray    => 1,
-          SuppressEmpty => ""
-        );
-      };
-      if ($@) { $self->logger->error($@); $err = 1; }
-    }
+    eval {
+      $tags = $xml->XMLin(
+        $full_filename,
+        NoAttr        => 1,
+        ForceArray    => 1,
+        SuppressEmpty => ""
+      );
+    };
+    if ($@) { $self->logger->error($@); return 1; }
 
-    if ( $err == 0 ) {
-      $self->{TAGS} = $tags;
-    }
-
-    $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
     $self->logger(1)->debug("File read");
 
-    return $err;
+    return ( 0, $tags );
   }
 
 =head2 get_menu_names
@@ -308,6 +393,8 @@ parameter. Returns the appropriate path from the configuration file.
 
 Valid paths are -csv_files, -log_dir, -pwd_dir, -table_dir, -htdocs,
 -cgi_dir, -root. 
+
+It logs a warning and continues if the key isn't in the list of valid keys.
 
 $path = $c->get_path( -csv_files => "Y" );
 
