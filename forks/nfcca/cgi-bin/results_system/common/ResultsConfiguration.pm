@@ -33,10 +33,18 @@
 
 =head2 new
 
-Constructor for the ResultsConfiguration object. Accept the full filename
+Constructor for the ResultsConfiguration object. Optionally accepts the full filename
 of the configuration file as an argument. Does not read the file at this point.
 
-$c = ResultsConfiguration->new( -full_filename => "/custom/config.ini" );
+If -full_filename is not provided, then it must be set explicitly before the file 
+can be read.
+
+  $c = ResultsConfiguration->new( -full_filename => "/custom/config.ini" );
+
+or 
+
+  $c = ResultsConfiguration->new();
+  $c->set_full_filename("/custom/config.ini");
 
 =cut
 
@@ -99,7 +107,7 @@ characters other than alphanumeric characters, "_", ".", or "/".
     my $self = shift;
     my $err  = 0;
     $self->{FULL_FILENAME} = shift;
-    $self->{FULL_FILENAME} =~ s/[^\w\.\/ ]//g;
+    $self->{FULL_FILENAME} =~ s/[^\w\.\/ -]//g;
     if ( !-f $self->{FULL_FILENAME} ) {
       $self->logger->error( $self->{FULL_FILENAME} . " does not exist." );
       $err = 1;
@@ -203,30 +211,74 @@ Then the merged xml will be:
     #***************************************
     my $self = shift;
     my $err  = 0;
-    my ( $main, $main_xml, $local_xml );
 
-    my $full_filename = $self->get_full_filename();
-    $main = $full_filename;
-    $main =~ s/_local(\.ini)$/$1/;
-
-    ( $err, $main_xml ) = $self->_load_file($main);
+    $err = $self->_read_file();
     return $err if $err;
 
-    if ( $main ne $full_filename ) {
-      ( $err, $local_xml ) = $self->_load_file($full_filename);
-      return 1 if $err;
+    return $err;
+  }
 
-      foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
-        next if !$local_xml->{$k};
-        $main_xml->{$k} = $local_xml->{$k};
-      }
-    }
+=head2 _read_file
+
+Does the hard work for read_file().
+
+=cut
+
+  #***************************************
+  sub _read_file {
+
+    #***************************************
+    my $self = shift;
+    my $err  = 0;
+    my ( $main_filename, $local_filename, $main_xml, $local_xml );
+
+    ( $main_filename, $local_filename ) = $self->_get_local_and_main_filenames();
+
+    ( $err, $main_xml ) = $self->_load_file($main_filename);
+    return $err if $err;
 
     $self->{TAGS} = $main_xml;
+    return $err if !$local_filename;
+
+    ( $err, $local_xml ) = $self->_load_file($local_filename);
+    return $err if $err;
+
+    $self->{TAGS} = $self->_merge_files( $local_xml, $main_xml );
 
     $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
 
     return $err;
+  }
+
+=head2 _get_local_and_main_filenames
+
+Analyze the full_filename to see if it is a local configuration.
+
+If it is, return both the main filename and the local filename. Otherwise return the main filename and undef.
+
+=cut
+
+  sub _get_local_and_main_filenames {
+    my $self = shift;
+
+    my $full_filename = $self->get_full_filename();
+    my $main          = $full_filename;
+    $main =~ s/_local(\.ini)$/$1/;
+
+    return ( $main eq $full_filename ) ? ( $main, undef ) : ( $main, $full_filename );
+  }
+
+=head2 _merge_files
+
+=cut
+
+  sub _merge_files {
+    my ( $self, $local_xml, $main_xml ) = @_;
+    foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
+      next if !$local_xml->{$k};
+      $main_xml->{$k} = $local_xml->{$k};
+    }
+    return $main_xml;
   }
 
 =head2 _load_file

@@ -6,10 +6,17 @@ use Test::Exception;
 use_ok('LeagueTable');
 use_ok('ResultsConfiguration');
 
-ok( scalar(@ARGV), "Got a filename in ARGV. " . $ARGV[0] );
+ok(
+  $ARGV[0] || $ENV{NFCCA_CONFIG},
+  "Got a filename in ARGV. <"
+    . ( $ARGV[0] || "" )
+    . "> or NFCCA_CONFIG is set. <"
+    . ( $ENV{NFCCA_CONFIG} || "" ) . ">"
+) || die "Unable to continue.";
+my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
 
 my $config;
-ok( $config = ResultsConfiguration->new( -full_filename => shift(@ARGV) ), "Object created." );
+ok( $config = ResultsConfiguration->new( -full_filename => $file ), "Object created." );
 isa_ok( $config, 'ResultsConfiguration' );
 ok( !$config->read_file, "Read file" );
 
