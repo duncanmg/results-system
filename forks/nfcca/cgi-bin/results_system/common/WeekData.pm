@@ -268,8 +268,8 @@ Fields are : "team", "played", "result", "runs", "wickets",
 
     if ( $err == 0 ) {
       if ( $args{-field} eq "played" ) {
-        if ( $args{-value} !~ m/^[YN]$/ ) {
-          $self->logger->error("$args{-field} must be Y or N");
+        if ( $args{-value} !~ m/^[YNA]$/ ) {
+          $self->logger->error("$args{-field} must be Y,N or A");
           $err = 1;
         }
       }

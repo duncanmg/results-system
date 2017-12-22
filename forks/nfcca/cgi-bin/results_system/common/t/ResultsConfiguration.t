@@ -3,15 +3,11 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
+use Helper qw/ get_config/;
+
 use_ok('ResultsConfiguration');
 
-ok( scalar(@ARGV), "Got a filename in ARGV. " . $ARGV[0] );
-
-my $config;
-ok( $config = ResultsConfiguration->new( -full_filename => shift(@ARGV) ), "Object created." );
-isa_ok( $config, 'ResultsConfiguration' );
-
-ok( !$config->read_file, "Read file" );
+my $config = get_config;
 
 foreach my $p (
   qw/ -csv_files -log_dir -pwd_dir

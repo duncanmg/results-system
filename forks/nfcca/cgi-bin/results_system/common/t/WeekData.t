@@ -3,16 +3,12 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use List::MoreUtils qw/any/;
+use Helper qw/get_config/;
 
 use_ok('WeekData');
 use_ok('ResultsConfiguration');
 
-ok( scalar(@ARGV), "Got a filename in ARGV. " . $ARGV[0] );
-
-my $config;
-ok( $config = ResultsConfiguration->new( -full_filename => shift(@ARGV) ), "Object created." );
-isa_ok( $config, 'ResultsConfiguration' );
-ok( !$config->read_file, "Read file" );
+my $config = get_config;
 
 my $wd;
 ok( $wd = WeekData->new( -config => $config ), "Created a WeekData object." );
@@ -23,10 +19,8 @@ my @labels = (
   "groundmks", "facilitiesmks"
 );
 
-my @integers = (
-  "runs",       "wickets",    "resultpts",
-  "battingpts", "bowlingpts", "penaltypts", "totalpts",
-);
+my @integers =
+  ( "runs", "wickets", "resultpts", "battingpts", "bowlingpts", "penaltypts", "totalpts", );
 
 foreach my $l (@labels) {
   if ( any { $_ eq $l } @integers ) {
@@ -41,15 +35,15 @@ foreach my $l (@labels) {
   }
 }
 
-      is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'Y', -type => "line" ),
-        0, "Value 'Y' accepted for 'played'" );
-      is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'N', -type => "line" ),
-        0, "Value 'N' accepted for 'played'" );
-      is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'A', -type => "line" ),
-        0, "Value 'A' accepted for 'played'" );
-      is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'X', -type => "line" ),
-        1, "Value 'X' rejected for 'played'" );
-      is( $wd->set_field( -lineno => 0, -field => 'played', -value => undef, -type => "line" ),
-        1, "Value undef rejected for 'played'" );
+is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'Y', -type => "line" ),
+  0, "Value 'Y' accepted for 'played'" );
+is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'N', -type => "line" ),
+  0, "Value 'N' accepted for 'played'" );
+is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'A', -type => "line" ),
+  0, "Value 'A' accepted for 'played'" );
+is( $wd->set_field( -lineno => 0, -field => 'played', -value => 'X', -type => "line" ),
+  1, "Value 'X' rejected for 'played'" );
+is( $wd->set_field( -lineno => 0, -field => 'played', -value => undef, -type => "line" ),
+  1, "Value undef rejected for 'played'" );
 
 done_testing;
