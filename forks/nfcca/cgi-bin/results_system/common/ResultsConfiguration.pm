@@ -25,11 +25,11 @@
   use List::MoreUtils qw/ first_value any /;
   use Regexp::Common qw /whitespace/;
   use Data::Dumper;
+  use Fcerror;
 
   use Fcutils2;
 
-  our @ISA;
-  unshift @ISA, "Fcwrapper";
+  our @ISA = qw/Fcerror/;
 
 =head2 new
 

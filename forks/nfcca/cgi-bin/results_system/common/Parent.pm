@@ -28,9 +28,9 @@ This package provides the methods which the objects in the results system inheri
   use DateTime;
   use Logger;
   use ResultsConfiguration;
+  use Fcerror;
 
-  our @ISA;
-  unshift @ISA, "Fcwrapper";
+  our @ISA = qw/Fcerror/;
 
   #***************************************
   sub new {
@@ -320,27 +320,6 @@ $s = $self->_trim( $s );
     #$l =~ s/([^\s])\s*$/$1/;
     return $l;
   }
-
-  #=head2 logger
-  #
-  #This over-writes the one in Fcwrapper. Why?
-  #
-  #=cut
-  #
-  #  sub logger {
-  #    my $self = shift;
-  #    if ( !$self->{logger} ) {
-  #      my $now  = DateTime->now();
-  #      my $dir  = $self->get_configuration->get_path( -log_dir => 'Y' );
-  #      my $file = undef;
-  #      if ($dir) {
-  #        $file = sprintf( "%s/%s%02d.log", $dir, "rs", $now->day );
-  #      }
-  #      print STDERR "file=$file\n";
-  #      $self->{logger} = Logger::get_logger( "rs", $file );
-  #    }
-  #    return $self->{logger};
-  #  }
 
   1;
 

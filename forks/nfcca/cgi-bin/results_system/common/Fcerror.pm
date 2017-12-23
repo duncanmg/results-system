@@ -7,7 +7,7 @@
 #*********************************************************
 {
 
-  package Fcwrapper;
+  package Fcerror;
 
   use Logger;
   use DateTime::Tiny;
@@ -69,4 +69,4 @@ will set $logfile_name to "/tmp/rs28.log"
 
   1;
 
-}    # End package Fcwrapper
+}    # End package Fcerror

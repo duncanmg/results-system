@@ -41,8 +41,7 @@ Utilities.
   use Time::localtime;
   use Fcerror;
 
-  our @ISA;
-  unshift @ISA, "Fcwrapper";
+  our @ISA = qw/Fcerror/;
 
   # Class variables
   $Fcutils2::LOGDIR             = "";
