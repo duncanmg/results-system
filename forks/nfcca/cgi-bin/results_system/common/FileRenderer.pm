@@ -7,7 +7,16 @@
 
 =head1 FileRenderer.pm
 
-This package provides the methods which the objects in the results system inherit.
+This package provides the methods which several objects in the results system inherit.
+
+It inherits from Parent and add three more methods which handle stylesheets.
+
+They are all marked with an underscore which means they can be inherited, but do not
+form part of the API of the child class.
+
+In fact only _copy_stylesheet and _get_sheet are used by the child classes.
+
+TODO Don't understand what this does or why it is necessary.
 
 =cut
 
@@ -30,7 +39,18 @@ This package provides the methods which the objects in the results system inheri
 
   our @ISA = qw/Parent/;
 
-=head2 _copy_stylesheet
+=head2 Methods used by child classes
+
+=cut
+
+=head3 _copy_stylesheet
+
+  $self->_copy_stylesheet($type);
+
+This doesn't do anything unless the "copy" element of the stylesheet
+info in the configuration is set it "yes".
+
+If it is "yes" ...
 
 =cut
 
@@ -67,17 +87,20 @@ This package provides the methods which the objects in the results system inheri
     return $err;
   }
 
-  #***************************************
-  sub _get_default_sheet {
+=head3 _get_sheet
 
-    #***************************************
-    my $self = shift;
+  $self->_get_sheet( $type, $location );
 
-    my $c     = $self->get_configuration;
-    my $sheet = $c->get_stylesheet;
+$type - Can be "table_dir" or "results_dir"
 
-    return $sheet;
-  }
+$location - Can be "physical" or "web"
+
+Behaves differently if the copy element of the sheet is "yes" or "no".
+
+Seems to be called with "physical" if the stylesheet is to be copied
+and "web" from elsewhere.
+
+=cut
 
   #***************************************
   sub _get_sheet {
@@ -129,6 +152,29 @@ This package provides the methods which the objects in the results system inheri
       return $s ? "$s/$sheet" : $sheet;
     }
     return undef;
+  }
+
+=head2 Methods not used elsewhere
+
+=cut
+
+=head3 _get_default_sheet
+
+This calls get_stylesheet(0 on the configuration object
+and returns the result.
+
+=cut
+
+  #***************************************
+  sub _get_default_sheet {
+
+    #***************************************
+    my $self = shift;
+
+    my $c     = $self->get_configuration;
+    my $sheet = $c->get_stylesheet;
+
+    return $sheet;
   }
 
   1;
