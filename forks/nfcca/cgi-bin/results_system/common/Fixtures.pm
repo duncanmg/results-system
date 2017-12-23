@@ -63,8 +63,7 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
 
   use Parent;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
 =head1 Public Methods
 

@@ -27,8 +27,7 @@
   use ResultsConfiguration;
   use Parent;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
 =head2 new
 

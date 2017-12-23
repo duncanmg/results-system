@@ -18,8 +18,7 @@
   use Slurp;
   use List::MoreUtils qw / any /;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
 =head1 WeekData.pm
 

@@ -10,8 +10,7 @@
   use Fixtures;
   use ResultsConfiguration;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
   #***************************************
   sub new {

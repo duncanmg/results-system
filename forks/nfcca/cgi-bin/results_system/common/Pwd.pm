@@ -16,8 +16,7 @@
   use Parent;
   use Fcutils2;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
 =head1 Pwd
 
@@ -42,7 +41,7 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
     my %args = (@_);
 
     $self->initialise( \%args );
-    $self->logger->debug( "Pwd object created.");
+    $self->logger->debug("Pwd object created.");
 
     return $self;
   }
@@ -115,7 +114,7 @@ It returns an error code (0 for success) and a message.
     my $code = $q->param("code");
     my $real = $c->get_code($user);
     if ( !$real ) {
-      $self->logger->debug( "No password for user $user.");
+      $self->logger->debug("No password for user $user.");
       $err = 1;
     }
     else {

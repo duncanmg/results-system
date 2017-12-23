@@ -11,8 +11,7 @@
   use ResultsConfiguration;
   use Data::Dumper;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
   #***************************************
   sub new {
@@ -66,13 +65,14 @@
 
     my $d = $c->get_path( -table_dir => "Y" );
 
-    $self->logger->debug(Dumper @names);
+    $self->logger->debug( Dumper @names );
 
     foreach my $division (@names) {
 
       eval {
-	      $self->logger->warn('Path is hardcoded!');
-        my $link = "/results_system.pl?sysyem=nfcca&page=fixtures_index&division=$division->{csv_file}";
+        $self->logger->warn('Path is hardcoded!');
+        my $link =
+          "/results_system.pl?sysyem=nfcca&page=fixtures_index&division=$division->{csv_file}";
         $l = $l . $q->li( $q->a( { -href => $link }, $division->{menu_name} ) );
       };
       if ($@) {

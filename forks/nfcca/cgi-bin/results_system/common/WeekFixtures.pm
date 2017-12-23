@@ -24,8 +24,7 @@
   use Pwd;
   use Data::Dumper;
 
-  our @ISA;
-  unshift @ISA, "FileRenderer";
+  our @ISA =qw/FileRenderer/;
 
 =head1 Public Methods
 

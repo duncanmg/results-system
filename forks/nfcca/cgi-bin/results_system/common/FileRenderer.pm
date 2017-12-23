@@ -28,8 +28,7 @@ This package provides the methods which the objects in the results system inheri
 
   use Parent;
 
-  our @ISA;
-  unshift @ISA, "Parent";
+  our @ISA = qw/Parent/;
 
 =head2 _copy_stylesheet
 

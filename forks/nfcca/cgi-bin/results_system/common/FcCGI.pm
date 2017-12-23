@@ -13,8 +13,7 @@ use warnings;
 use CGI qw/meta/;
 use Exporter;
 
-our @ISA;
-push @ISA, 'CGI', 'Exporter';
+our @ISA = qw/CGI Exporter/;
 
 our @EXPORT_OK = qw/meta/;
 
