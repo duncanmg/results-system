@@ -23,8 +23,7 @@
   use Fixtures;
   use Data::Dumper;
 
-  our @ISA;
-  unshift @ISA, "FileRenderer";
+  our @ISA = qw/FileRenderer/;
 
 =head2 Error Levels
 
