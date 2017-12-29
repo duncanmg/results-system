@@ -48,7 +48,6 @@ Utilities.
   $Fcutils2::LOCKDIR            = $Fcutils2::LOGDIR;
   $Fcutils2::OLDFILE            = "";
   $Fcutils2::TIMEOUT            = 105;
-  $Fcutils2::DEFAULTPERMISSIONS = 0660;                # Octal representation of rw-rw----
 
   #***************************************************..***************************
   # The two global variables and the three functions (signal_handler(), AddToLockList(),
@@ -111,7 +110,6 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     $self->{LOGFILEREDIRECT} = 0;
     $self->{LOCKFILETRIES}   = 0;
     $self->{TIMECREATED}     = time();
-    $self->setPermissions($Fcutils2::DEFAULTPERMISSIONS);
 
     $self->{APPEND_TO_LOGFILE} = 'N';
     if ( $args{-append_to_logfile} =~ m/Y/i ) {
@@ -557,65 +555,6 @@ Ummm ... looks like it deletes it to me.
   {
     my $self = shift;
     $self->{LOCKDIR} = shift;
-  }
-
-=head2 AssignCode
-
-Return a 6 digit code.
-
-=cut
-
-  #*****************************************************************************
-  sub AssignCode
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    my $code = rand(999999);
-    while ( $code == 0 )    { $code = rand(999999); }
-    while ( $code < 99999 ) { $code = $code * 10; }
-    $code = int($code);
-    while ( length $code < 6 ) { $code = "0" . $code; }
-    return $code;
-  }    # End Assign Code
-
-
-  #*****************************************************************************
-  sub setPermissions
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    $self->{FILEPERMISSIONS} = shift;
-  }
-
-  #*****************************************************************************
-  sub getPermissions
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{FILEPERMISSIONS};
-  }
-
-=head2 setFilePermissions
-
-Accepts a filename and sets the permissions to the ones set by setPermissions().
-The default is rw-rw---- which is 0660 in octal.
-
-=cut
-
-  #*****************************************************************************
-  sub setFilePermissions
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    my $file = shift;
-    my $err  = 0;
-    my $ret  = chmod( $self->getPermissions(), $file );
-    if ( $ret != 1 ) { $err = 1; }
-    return $err;
   }
 
   1;
