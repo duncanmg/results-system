@@ -26,7 +26,11 @@ the password methods of the Fcutils2 object.
 
 =cut
 
-=head2 new
+=head2 External Methods
+
+=cut
+
+=head3 new
 
 Constructor for the Pwd object. Accepts -config and -query arguments.
 
@@ -52,7 +56,7 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
     return $self;
   }
 
-=head2 get_pwd_fields
+=head3 get_pwd_fields
 
 Reurns the HTML for a table containing 1 row and 2 cells. The first cell
 contains the user input field, the second contains the passwords input fields. 
@@ -86,7 +90,7 @@ The id and name attributes are the same and are set to "user" and "code" respect
     return $line;
   }
 
-=head2 check_pwd
+=head3 check_pwd
 
 This method interrogates the query object and retrieves the user and code parameters.
 It then reads the correct password for the user from the ResultsConfiguration object.
@@ -128,7 +132,35 @@ It returns an error code (0 for success) and a message.
 
   }
 
-=head2 CheckCode
+=head3 get_pwd_dir
+
+=cut
+
+  #*****************************************************************************
+  sub get_pwd_dir {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->{PWDDIR};
+  }
+
+=head3 set_pwd_dir
+
+=cut
+
+  #*****************************************************************************
+  sub set_pwd_dir {
+
+    #*****************************************************************************
+    my $self = shift;
+    $self->{PWDDIR} = shift;
+  }
+
+=head2 Internal Methods
+
+=cut
+
+=head3 CheckCode
 
 Accepts two 6 digit numbers and the number of a team. It compare the 2 numbers and
 if they do not match, it returns 1, otherwise it returns 0.
@@ -200,7 +232,7 @@ it issue a "Too Many Tries" message. No further attempts will be validated that 
     return ( $err, $msg );
   }    # End CheckCode()
 
-=head2 CheckVeryWrong
+=head3 CheckVeryWrong
 
 Accepts two 6 digit numbers and the number of a team. It compare the 2 numbers, and
 if more than 3 digits are different, it returns 1, otherwise it returns 0.
@@ -296,6 +328,10 @@ it issue a "Too Many Tries" message.
 
   }    # End CheckVeryWrong()
 
+=head3 _count_tries
+
+=cut
+
   #*****************************************************************************
   sub _count_tries {
 
@@ -318,6 +354,10 @@ it issue a "Too Many Tries" message.
     return $err;
   }
 
+=head3 _write_tries
+
+=cut
+
   #*****************************************************************************
   sub _write_tries {
 
@@ -337,6 +377,10 @@ it issue a "Too Many Tries" message.
     }
     return $err;
   }
+
+=head3 _compare_characters
+
+=cut
 
   #*****************************************************************************
   sub _compare_characters {
@@ -359,6 +403,10 @@ it issue a "Too Many Tries" message.
 
   }
 
+=head3 _get_suffix
+
+=cut
+
   sub _get_suffix {
     my $self = shift;
     my $lt   = localtime();
@@ -368,6 +416,10 @@ it issue a "Too Many Tries" message.
     return $suffix;
   }
 
+=head3 _get_wrong_file
+
+=cut
+
   #*****************************************************************************
   sub _get_wrong_file {
 
@@ -376,18 +428,9 @@ it issue a "Too Many Tries" message.
     return $self->{WRONGFILE};
   }
 
-  #*****************************************************************************
-  sub set_wrong_file {
+=head3 _get_vwrong_file
 
-    #*****************************************************************************
-    my $self = shift;
-    my $stem = shift;
-    if ($stem) {
-      my $s  = $self->_get_suffix;
-      my $vw = $stem . $s . ".log";
-      $self->{WRONGFILE} = $vw;
-    }
-  }
+=cut
 
   #*****************************************************************************
   sub _get_vwrong_file {
@@ -396,6 +439,10 @@ it issue a "Too Many Tries" message.
     my $self = shift;
     return $self->{VWRONGFILE};
   }
+
+=head3 _set_vwrong_file
+
+=cut
 
   #*****************************************************************************
   sub _set_vwrong_file {
@@ -410,21 +457,23 @@ it issue a "Too Many Tries" message.
     }
   }
 
+=head3 set_wrong_file
+
+=cut
+
   #*****************************************************************************
-  sub get_pwd_dir {
+  sub set_wrong_file {
 
     #*****************************************************************************
     my $self = shift;
-    return $self->{PWDDIR};
+    my $stem = shift;
+    if ($stem) {
+      my $s  = $self->_get_suffix;
+      my $vw = $stem . $s . ".log";
+      $self->{WRONGFILE} = $vw;
+    }
   }
 
-  #*****************************************************************************
-  sub set_pwd_dir {
-
-    #*****************************************************************************
-    my $self = shift;
-    $self->{PWDDIR} = shift;
-  }
 
   1;
 }
