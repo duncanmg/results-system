@@ -31,7 +31,11 @@
 
   our @ISA = qw/Fcerror/;
 
-=head2 new
+=head2 External Methods
+
+=cut
+
+=head3 new
 
 Constructor for the ResultsConfiguration object. Optionally accepts the full filename
 of the configuration file as an argument. Does not read the file at this point.
@@ -72,28 +76,7 @@ or
     }
   }
 
-=head2 _trim
-
-Remove the leading and trailing whitespace from a string passed as as argument.
-
-$s = $c->_trim( $s );
-
-=cut
-
-  #***************************************
-  sub _trim {
-
-    #***************************************
-    my $self = shift;
-    my $s    = shift;
-    $s =~ s/$RE{ws}{crop}//g;
-
-    #$s =~ s/^\s*([^\s])/$1/;
-    #$s =~ s/([^\s])\s*$/$1/;
-    return $s;
-  }
-
-=head2 set_full_filename
+=head3 set_full_filename
 
 Sets the full filename of the configuration file. Filters out
 characters other than alphanumeric characters, "_", ".", or "/".
@@ -115,7 +98,7 @@ characters other than alphanumeric characters, "_", ".", or "/".
     return $err;
   }
 
-=head2 get_full_filename
+=head3 get_full_filename
 
 Returns the full filename of the configuration file.
 
@@ -129,22 +112,7 @@ Returns the full filename of the configuration file.
     return $self->{FULL_FILENAME};
   }
 
-=head2 _get_tags
-
-Internal method which gets the full data structure as read
-from the configuration file.
-
-=cut
-
-  #***************************************
-  sub _get_tags {
-
-    #***************************************
-    my $self = shift;
-    return $self->{TAGS};
-  }
-
-=head2 read_file
+=head3 read_file
 
 Read the configuration file. Returns an error if the file doesn't exist or the read fails.
 
@@ -218,109 +186,7 @@ Then the merged xml will be:
     return $err;
   }
 
-=head2 _read_file
-
-Does the hard work for read_file().
-
-=cut
-
-  #***************************************
-  sub _read_file {
-
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    my ( $main_filename, $local_filename, $main_xml, $local_xml );
-
-    ( $main_filename, $local_filename ) = $self->_get_local_and_main_filenames();
-
-    ( $err, $main_xml ) = $self->_load_file($main_filename);
-    return $err if $err;
-
-    $self->{TAGS} = $main_xml;
-    return $err if !$local_filename;
-
-    ( $err, $local_xml ) = $self->_load_file($local_filename);
-    return $err if $err;
-
-    $self->{TAGS} = $self->_merge_files( $local_xml, $main_xml );
-
-    $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
-
-    return $err;
-  }
-
-=head2 _get_local_and_main_filenames
-
-Analyze the full_filename to see if it is a local configuration.
-
-If it is, return both the main filename and the local filename. Otherwise return the main filename and undef.
-
-=cut
-
-  sub _get_local_and_main_filenames {
-    my $self = shift;
-
-    my $full_filename = $self->get_full_filename();
-    my $main          = $full_filename;
-    $main =~ s/_local(\.ini)$/$1/;
-
-    return ( $main eq $full_filename ) ? ( $main, undef ) : ( $main, $full_filename );
-  }
-
-=head2 _merge_files
-
-=cut
-
-  sub _merge_files {
-    my ( $self, $local_xml, $main_xml ) = @_;
-    foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
-      next if !$local_xml->{$k};
-      $main_xml->{$k} = $local_xml->{$k};
-    }
-    return $main_xml;
-  }
-
-=head2 _load_file
-
-Read the configuration file. Returns an error if the file doesn't exist or the read fails.
-
-($err, $xml) = $c->_load_file($full_filename);
-
-=cut
-
-  #***************************************
-  sub _load_file {
-
-    #***************************************
-    my ( $self, $full_filename ) = @_;
-    my $err = 0;
-    my ($tags);
-
-    my $xml = XML::Simple->new();
-    return 1 if !$xml;
-
-    if ( !-f $full_filename ) {
-      $self->logger->error( "_load_file(): File does not exist. " . $full_filename );
-      return 1;
-    }
-
-    eval {
-      $tags = $xml->XMLin(
-        $full_filename,
-        NoAttr        => 1,
-        ForceArray    => 1,
-        SuppressEmpty => ""
-      );
-    };
-    if ($@) { $self->logger->error($@); return 1; }
-
-    $self->logger(1)->debug("File read");
-
-    return ( 0, $tags );
-  }
-
-=head2 get_menu_names
+=head3 get_menu_names
 
 Returns a list of hash references sorted by menu_position. Each hash reference has 3 elements: menu_position, menu_name and csv_file.
 
@@ -368,7 +234,7 @@ Returns a list of hash references sorted by menu_position. Each hash reference h
 
   }
 
-=head2 get_name
+=head3 get_name
 
 This method returns the hash reference for the csv_file or menu_name passed as an argument.
 
@@ -398,47 +264,7 @@ This method returns the hash reference for the csv_file or menu_name passed as a
     return $t;    # Hash ref
   }
 
-=head2 _construct_path
-
-Accepts one argument, which must be a path element. The element can
-be in one of two forms:
-
-It can be a simple string e.g. /a/b/c
-
-or it can be a hash reference:
-
-{ prefix => ( "path" ),
-  value  => ( "/a/b/c" ) }
-  
-The prefix must be the name of a path which can be accessed using get_path.
-This method retrieves the path and prefixes it to the contents of value.
-
-So if "path" is /x/y/z then this method will return /x/y/z/a/b/c.
-
-=cut
-
-  #***************************************
-  sub _construct_path {
-
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $tags = $self->_get_tags;
-    my $path;
-    my $p = $args{-path};
-    if ( defined($p) && ref($p) && $p->{prefix} ) {
-      my $prefix = $self->get_path( '-' . $p->{prefix}[0] => 'Y' );
-      my $value = $p->{value}[0];
-      $path = "$prefix/$value";
-    }
-    else {
-      $path = $p;
-    }
-    $path =~ s://:/:g;    # Change // to /.
-    return $path;
-  }
-
-=head2 get_path
+=head3 get_path
 
 This method accepts one mandatory named parameter and one optional named
 parameter. Returns the appropriate path from the configuration file.
@@ -527,7 +353,7 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
 
   }
 
-=head2 get_code
+=head3 get_code
 
 This method return the password for the user passed as an argument. Returns
 undefined if the user does not exist.
@@ -560,7 +386,7 @@ $pwd = $c->get_code( "fred" );
     return $self->_trim($code);
   }
 
-=head2 get_season
+=head3 get_season
 
 Returns the current season.
 
@@ -575,7 +401,7 @@ Returns the current season.
     return $self->_trim($s);
   }
 
-=head2 get_log_stem
+=head3 get_log_stem
 
 Appends the current season to the string passed as an argument.
 
@@ -608,7 +434,7 @@ Appends the current season to the string passed as an argument.
     return 0;
   }
 
-=head2 get_stylesheet
+=head3 get_stylesheet
 
 Returns a hash ref containing the name of the first stylesheet
 and whether it is to be copied.
@@ -638,7 +464,7 @@ have values of "yes" and "no".
     return { name => $name, copy => $copy };
   }
 
-=head2 get_stylesheets
+=head3 get_stylesheets
 
 Returns a list of stylesheets
 
@@ -660,7 +486,7 @@ Returns a list of stylesheets
     return @s;
   }
 
-=head2 get_return_page
+=head3 get_return_page
 
 The return link on the page will point here. Returns HTML
 within a <p> tag.
@@ -688,7 +514,7 @@ within a <p> tag.
     return ( $self->_trim($l), $self->_trim($t) );
   }
 
-=head2 get_descriptors
+=head3 get_descriptors
 
 Returns a string. $c->get_descriptors( title => "Y" ) or
 $c->get_descriptors( season => "Y" );
@@ -713,7 +539,7 @@ $c->get_descriptors( season => "Y" );
     return $self->_trim($d);
   }
 
-=head2 get_calculation
+=head3 get_calculation
 
 points or average eg $c->get_calculation( -order_by => "Y" );
 
@@ -730,6 +556,188 @@ points or average eg $c->get_calculation( -order_by => "Y" );
       $v = $self->_get_tags->{calculations}[0]{order_by}[0];
     }
     return $self->_trim($v);
+  }
+
+=head2 Internal Methods
+
+=cut
+
+=head3 _trim
+
+Remove the leading and trailing whitespace from a string passed as as argument.
+
+$s = $c->_trim( $s );
+
+=cut
+
+  #***************************************
+  sub _trim {
+
+    #***************************************
+    my $self = shift;
+    my $s    = shift;
+    $s =~ s/$RE{ws}{crop}//g;
+
+    #$s =~ s/^\s*([^\s])/$1/;
+    #$s =~ s/([^\s])\s*$/$1/;
+    return $s;
+  }
+
+=head3 _get_tags
+
+Internal method which gets the full data structure as read
+from the configuration file.
+
+=cut
+
+  #***************************************
+  sub _get_tags {
+
+    #***************************************
+    my $self = shift;
+    return $self->{TAGS};
+  }
+
+=head3 _read_file
+
+Does the hard work for read_file().
+
+=cut
+
+  #***************************************
+  sub _read_file {
+
+    #***************************************
+    my $self = shift;
+    my $err  = 0;
+    my ( $main_filename, $local_filename, $main_xml, $local_xml );
+
+    ( $main_filename, $local_filename ) = $self->_get_local_and_main_filenames();
+
+    ( $err, $main_xml ) = $self->_load_file($main_filename);
+    return $err if $err;
+
+    $self->{TAGS} = $main_xml;
+    return $err if !$local_filename;
+
+    ( $err, $local_xml ) = $self->_load_file($local_filename);
+    return $err if $err;
+
+    $self->{TAGS} = $self->_merge_files( $local_xml, $main_xml );
+
+    $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
+
+    return $err;
+  }
+
+=head3 _get_local_and_main_filenames
+
+Analyze the full_filename to see if it is a local configuration.
+
+If it is, return both the main filename and the local filename. Otherwise return the main filename and undef.
+
+=cut
+
+  sub _get_local_and_main_filenames {
+    my $self = shift;
+
+    my $full_filename = $self->get_full_filename();
+    my $main          = $full_filename;
+    $main =~ s/_local(\.ini)$/$1/;
+
+    return ( $main eq $full_filename ) ? ( $main, undef ) : ( $main, $full_filename );
+  }
+
+=head3 _merge_files
+
+=cut
+
+  sub _merge_files {
+    my ( $self, $local_xml, $main_xml ) = @_;
+    foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
+      next if !$local_xml->{$k};
+      $main_xml->{$k} = $local_xml->{$k};
+    }
+    return $main_xml;
+  }
+
+=head3 _load_file
+
+Read the configuration file. Returns an error if the file doesn't exist or the read fails.
+
+($err, $xml) = $c->_load_file($full_filename);
+
+=cut
+
+  #***************************************
+  sub _load_file {
+
+    #***************************************
+    my ( $self, $full_filename ) = @_;
+    my $err = 0;
+    my ($tags);
+
+    my $xml = XML::Simple->new();
+    return 1 if !$xml;
+
+    if ( !-f $full_filename ) {
+      $self->logger->error( "_load_file(): File does not exist. " . $full_filename );
+      return 1;
+    }
+
+    eval {
+      $tags = $xml->XMLin(
+        $full_filename,
+        NoAttr        => 1,
+        ForceArray    => 1,
+        SuppressEmpty => ""
+      );
+    };
+    if ($@) { $self->logger->error($@); return 1; }
+
+    $self->logger(1)->debug("File read");
+
+    return ( 0, $tags );
+  }
+
+=head3 _construct_path
+
+Accepts one argument, which must be a path element. The element can
+be in one of two forms:
+
+It can be a simple string e.g. /a/b/c
+
+or it can be a hash reference:
+
+{ prefix => ( "path" ),
+  value  => ( "/a/b/c" ) }
+  
+The prefix must be the name of a path which can be accessed using get_path.
+This method retrieves the path and prefixes it to the contents of value.
+
+So if "path" is /x/y/z then this method will return /x/y/z/a/b/c.
+
+=cut
+
+  #***************************************
+  sub _construct_path {
+
+    #***************************************
+    my $self = shift;
+    my %args = (@_);
+    my $tags = $self->_get_tags;
+    my $path;
+    my $p = $args{-path};
+    if ( defined($p) && ref($p) && $p->{prefix} ) {
+      my $prefix = $self->get_path( '-' . $p->{prefix}[0] => 'Y' );
+      my $value = $p->{value}[0];
+      $path = "$prefix/$value";
+    }
+    else {
+      $path = $p;
+    }
+    $path =~ s://:/:g;    # Change // to /.
+    return $path;
   }
 
   1;
