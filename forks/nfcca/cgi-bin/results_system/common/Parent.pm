@@ -54,7 +54,7 @@ This package provides the methods which the objects in the results system inheri
 =head2 initialise
 
 This method is called by the constructors of the child modules. It checks for the -query
-and -config arguments and process them if they are present. 
+and -config arguments and processes them if they are present. 
 
 If the -query argument is present it looks for the division and matchdate parameters of the query
 and calls set_division() and set_week() if necessary.
