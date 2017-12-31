@@ -52,11 +52,34 @@ ok( $err, "Code rejected. All parameters undef" ) || diag( Dumper( $err, $msg ) 
 
 $user = get_user();
 
+# Password is only a little wrong.
+my $count = 0;
+for ( $count = 0; $count < 3; $count++ ) {
+  ( $err, $msg ) = $pwd->check_code( 'banana', 'Banana', $user );
+  ok( $err, "check_code: Code rejected $count" );
+  is( $msg, '<h3>You have entered an incorrect password.</h3>', "msg ok" );
+}
+
+( $err, $msg ) = $pwd->check_code( 'banana', 'Banana', $user );
+ok( $err, "check_code: Code rejected $count" );
+is( $msg, '<h3>You have entered an incorrect password too many times in one day.</h3>',
+  "msg ok" );
+
+( $err, $msg ) = $pwd->check_code( 'banana', 'banana', $user );
+ok( $err, "check_code: Correct code rejected $count" );
+is( $msg, '<h3>You have entered an incorrect password too many times in one day.</h3>',
+  "msg ok" );
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++
+
+$user = get_user();
+
+# Password is a little wrong.
 ( $err, $msg ) = $pwd->check_very_wrong( 'banana', 'banana', $user );
 ok( !$err, "Code accepted" ) || diag( Dumper( $err, $msg ) );
 is( $msg, undef, "msg ok" );
 
-my $count = 0;
+$count = 0;
 for ( $count = 0; $count < 3; $count++ ) {
   ( $err, $msg ) = $pwd->check_very_wrong( 'banana', 'apple', $user );
   ok( $err, "Code rejected $count" );

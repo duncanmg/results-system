@@ -178,34 +178,27 @@ it issues a "Too Many Tries" message. No further attempts will be validated that
     if ( $real_pwd eq undef || $user_pwd eq undef || $teamfile eq undef ) {
       $self->logger->debug(
         "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
-      return ( 1, undef );
+      return ( 1, "<h3>You have entered an incorrect password.</h3>" );
     }
+
+    ( $err, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
+    return ( $err, $msg ) if $err;
 
     ( $err, $msg ) = $self->check_very_wrong( $real_pwd, $user_pwd, $teamfile );
     $self->logger->debug( $err . " returned by check_very_wrong()" );
+    return ( $err, $msg ) if $err;
 
-    if ( $err == 0 ) {
+    if ( $user_pwd ne $real_pwd ) {
 
-      # Loop through file, if it exists, and count the incorrect tries.
-      ( $err, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
-      return ( $err, $msg ) if $err;
+      $self->logger->debug("Incorrect password");
+      $msg = "<h3>You have entered an incorrect password.</h3>";
+      $err = 1;
 
-    }    #err
+      #Log incorrect try in file.
+      $self->_write_tries( $self->_get_wrong_file(), $teamfile );
 
-    if ( $err == 0 ) {
+    }    #pwd
 
-      if ( $user_pwd ne $real_pwd ) {
-
-        $self->logger->debug("Incorrect password");
-        $msg = "<h3>You have entered an incorrect password.</h3>";
-        $err = 1;
-
-        #Log incorrect try in file.
-        $self->_write_tries( $self->_get_wrong_file(), $teamfile );
-
-      }    #pwd
-
-    }    #err
     $self->logger->debug( "Leaving check_code(): " . $err );
     return ( $err, $msg );
   }    # End check_code()
