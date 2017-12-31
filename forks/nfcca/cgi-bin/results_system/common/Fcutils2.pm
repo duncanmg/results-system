@@ -52,33 +52,17 @@ Inherits
   use File::Compare;
   use Time::localtime;
   use Fcerror;
+  use FcLockfile;
 
   our @ISA = qw/Fcerror/;
 
   # Class variables
   $Fcutils2::LOGDIR  = "";
-  $Fcutils2::LOCKDIR = $Fcutils2::LOGDIR;
   $Fcutils2::OLDFILE = "";
-  $Fcutils2::TIMEOUT = 105;
 
 =head2 Functions
 
 =cut
-
-  #***************************************************..***************************
-  # The two global variables and the three functions (signal_handler(), AddToLockList(),
-  # RemoveFromLockList()) are use to delete any lock
-  # files created by the process if the process is killed.
-  # They are functions, not methods, and keep track of all the lock files created by
-  # the process, not just a particular instance.
-  # *****************************************************************************
-
-  # $Fcutils2::g_NumLockFiles = 0;    # The number of lock files in existence.
-  # @Fcutils2::g_LockFileNames;   # The filenames and full paths.
-
-  # $Fcutils2::g_NumUtilsObjects = 0;
-
-  # @Fcutils2::g_UtilsObjects;    # The error objects. NB Potential memory leak here!
 
 =head3 ApacheTime
 
@@ -113,7 +97,7 @@ Inherits
 =head3 Constructor
 
 Create the object and gives it an error object. Binds in the current values of
-the class variables LOGDIR, LOCKDIR, OLDFILE.
+the class variables LOGDIR, OLDFILE.
 
 =cut
 
@@ -129,10 +113,8 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
 
     my $err = 0;
     $self->{OLDFILE}         = $Fcutils2::OLDFILE;
-    $self->{LOCKDIR}         = $Fcutils2::LOCKDIR;
     $self->{LOGDIR}          = $Fcutils2::LOGDIR;
     $self->{LOGFILEREDIRECT} = 0;
-    $self->{LOCKFILETRIES}   = 0;
     $self->{TIMECREATED}     = time();
 
     $self->{APPEND_TO_LOGFILE} = 'N';
@@ -312,147 +294,16 @@ Don't need this any more.
     return $err;
   }    # End CloseLogFile()
 
-=head3 OpenLockFile
-
-Create a file in the directory LOCKDIR with the name lockfile.lock where lockfile
-is the name passed as a parameter.
-
-eg $err=$utils->OpenLockFile("cteam");
-
-The above statement creates the file cteam.lock.
-
-Should really be called CreateLockFile because the file is created then closed.
+=head3 get_locker
 
 =cut
 
-  #*****************************************************************************
-  sub OpenLockFile
-
-    #*****************************************************************************
-  {
-    my $self     = shift;
-    my $err      = 0;
-    my $count    = 0;
-    my $lockfile = shift;
-    $lockfile =~ s/[^A-Za-z0-9._]//g;    # Clean the filename.
-
-    if ( length($lockfile) == 0 ) {
-      $self->logger->error("OpenLockFile(): Parameter was null or invalid.");
-      $err = 1;
+  sub get_locker {
+    my ( $self, %args ) = @_;
+    if ( !$self->{LOCKER} ) {
+      $self->{LOCKER} = FcLockfile->new( %args || () );
     }
-
-    # print $lockfile;
-    if ( $lockfile !~ m/\./ ) { $lockfile = $lockfile . "."; }
-    if ( $lockfile !~ m/\.[a-zA-Z0-9_-]{1,}$/ ) { $lockfile =~ s/\.[^.]*$/\.lock/; }
-    $lockfile = $self->get_lock_dir . "/" . $lockfile;
-    $self->{LOCKFILE} = $lockfile;
-
-    # If the lockfile ends in .lock, use a similar .old file. Otherwise just leave the default.
-    if ( $self->{LOCKFILE} =~ m/\.lock$/ ) {
-      $self->{OLDFILE} = $self->{LOCKFILE};
-      $self->{OLDFILE} =~ s/\.lock$/\.old/;
-    }
-
-    while ( -e $lockfile && $count < $Fcutils2::TIMEOUT ) {
-      $count = $count + 1;
-      sleep 1;
-    }
-
-    if ( $count >= $Fcutils2::TIMEOUT ) {
-      $self->logger->warn(
-        "Unable to create lock file after $Fcutils2::TIMEOUT tries. Overwrite it.");
-    }
-
-    $self->{LOCKFILETRIES} = $count;
-
-    if ( $err == 0 ) {
-      if ( !open( LOCKFILE, ">" . $lockfile ) ) {
-        $err = 1;
-        $self->logger->error( "Unable to open file. $lockfile. " . $! );
-      }
-    }
-
-    if ( $err == 0 ) {
-      print LOCKFILE $lockfile . "\n";
-      close LOCKFILE;
-      $self->logger->debug("Lockfile created. $lockfile");
-      $self->{IOPENEDLOCKFILE} = 1;
-    }
-
-    return $err;
-
-  }    # End OpenLockFile()
-
-=head3 CloseLockFile
-
-Doesn't close or delete the lockfile as such. Moves it to OLDFILE.
-
-Ummm ... looks like it deletes it to me.
-
-=cut
-
-  #*****************************************************************************
-  sub CloseLockFile
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    my $err  = 0;
-    my $ret;
-    my $lockfile    = $self->{LOCKFILE};
-    my $oldlockfile = $self->{OLDFILE};
-    $self->logger->debug("CloseLockFile() called.");
-    if ( !-e $lockfile ) {
-      $self->logger->debug("Lockfile $lockfile does not exist.");
-      return $err;
-    }
-    $ret = unlink $lockfile;
-    if ( $ret != 1 ) {
-      $self->logger->error( "Can not delete lockfile " . $lockfile . " " . $! );
-      $err = 1;
-      $self->{IOPENEDLOCKFILE} = undef;
-    }
-    $self->logger->debug( "Finished CloseLockFile(). " . $err );
-    return $err;
-  }
-
-=head3 get_lock_file
-
-=cut
-
-  #*****************************************************************************
-  sub get_lock_file
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{LOCKFILE};
-  }
-
-=head3 get_lock_dir
-
-=cut
-
-  #*****************************************************************************
-  sub get_lock_dir
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{LOCKDIR};
-  }
-
-=head3 set_lock_dir
-
-=cut
-
-  #*****************************************************************************
-  sub set_lock_dir
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    $self->{LOCKDIR} = shift;
+    return $self->{LOCKER};
   }
 
 =head2 Internal Methods
@@ -642,19 +493,6 @@ returned as well.
       $name =~ s/^.*?([^\/\\]{1,})$/$1/;
     }
     return $name;
-  }
-
-=head3 DESTROY
-
-=cut
-
-  #*****************************************************************************
-  # Close the lock file if this object opened it.
-  sub DESTROY {
-    my $self = shift;
-    $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
-    $self->CloseLockFile() if $self->{IOPENEDLOCKFILE};
-    1;
   }
 
   1;

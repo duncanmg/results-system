@@ -258,9 +258,9 @@ sub main {
 
   $err = $u->SetLogDir($log_path) if !$err;
 
-  $u->set_lock_dir($log_path) if !$err;
+  $u->get_locker()->set_lock_dir($log_path) if !$err;
 
-  $err = $u->OpenLockFile( $log_file . "js" ) if !$err;
+  $err = $u->get_locker()->OpenLockFile( $log_file . "js" ) if !$err;
 
   ( $err, $LOG ) = $u->OpenLogFile( $log_file . "js" ) if !$err;
 
@@ -279,7 +279,7 @@ sub main {
   }
 
   $u->CloseLogFile( $LOG, $err );
-  $u->CloseLockFile;
+  $u->get_locker()->CloseLockFile;
 
 }
 

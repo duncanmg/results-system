@@ -359,11 +359,11 @@ sub main {
     $err = $u->SetLogDir($log_path);
   }
   if ( $err == 0 ) {
-    $u->set_lock_dir($log_path);
+    $u->get_locker()->set_lock_dir($log_path);
   }
 
   if ( $err == 0 ) {
-    $err = $u->OpenLockFile($log_file);
+    $err = $u->get_locker()->OpenLockFile($log_file);
   }
   if ( $err == 0 ) {
     ( $err, $LOG ) = $u->OpenLogFile($log_file);
@@ -398,7 +398,7 @@ sub main {
     }
   }
   $u->CloseLogFile( $LOG, $err );
-  $u->CloseLockFile;
+  $u->get_locker()->CloseLockFile;
 
   #
 }
