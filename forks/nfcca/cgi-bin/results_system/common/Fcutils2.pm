@@ -240,100 +240,6 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     return $err;
   }
 
-=head3 _keep_before_time
-
-=cut
-
-  #*****************************************************************************
-  sub _keep_before_time {
-
-    #*****************************************************************************
-    my $self = shift;
-    my $err  = 0;
-
-    my $tm     = time();
-    my $period = $self->_get_save_seconds;
-    my $t      = $tm - $period;
-
-    return $t;
-
-  }
-
-=head3 _get_save_seconds
-
-=cut
-
-  #*****************************************************************************
-  sub _get_save_seconds {
-
-    #*****************************************************************************
-    my $self = shift;
-    return $self->get_save_days() * 24 * 60 * 60;
-  }
-
-=head3 set_save_days
-
-=cut
-
-  #*****************************************************************************
-  sub set_save_days {
-
-    #*****************************************************************************
-    my $self = shift;
-    $self->{SAVE_DAYS} = shift;
-  }
-
-=head3 get_save_days
-
-=cut
-
-  #*****************************************************************************
-  sub get_save_days {
-
-    #*****************************************************************************
-    my $self = shift;
-    return $self->{SAVE_DAYS};
-  }
-
-=head3 set_append_logfile
-
-=cut
-
-  #*****************************************************************************
-  sub set_append_logfile {
-
-    #*****************************************************************************
-    my $self = shift;
-    my $v    = shift;
-    if ( $v =~ m/^[yn]$/i ) {
-      $self->{APPEND_TO_LOGFILE} = uc($v);
-    }
-  }
-
-=head3 get_append_logfile
-
-=cut
-
-  #*****************************************************************************
-  sub get_append_logfile {
-
-    #*****************************************************************************
-    my $self = shift;
-    return $self->{APPEND_TO_LOGFILE};
-  }
-
-=head3 _get_logfile_stem
-
-=cut
-
-  #*****************************************************************************
-  sub _get_logfile_stem {
-
-    #*****************************************************************************
-    my $self = shift;
-    return $self->{LOGFILE_STEM};
-  }
-
 =head3 set_logfile_stem
 
 =cut
@@ -366,76 +272,6 @@ Set the log directory.
       $err = 1;
     }
     return $err;
-  }
-
-=head3 GetLogDir
-
-=cut
-
-  #*****************************************************************************
-  sub GetLogDir
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{LOGDIR};
-  }
-
-=head3 IsUnix
-
-=cut
-
-  #*****************************************************************************
-  sub IsUnix
-
-    #*****************************************************************************
-  {
-    my $self  = shift;
-    my $opsys = $^O;
-    my $unix  = 0;
-    if ( $opsys !~ m/win/i ) { $unix = 1; }
-    return $unix;
-  }
-
-=head3 _create_suffix
-
-=cut
-
-  #*****************************************************************************
-  # Use a function to calculate the suffix.
-  sub _create_suffix {
-
-    #*****************************************************************************
-    my $self = shift;
-    my $lt   = localtime();
-
-    my $tmp = $lt->yday;
-    while ( length $tmp < 3 ) { $tmp = '0' . $tmp; }
-    my $suffix = $tmp;
-
-    if ( $self->get_append_logfile() eq 'N' ) {
-
-      $tmp = $lt->hour;
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-      $suffix = $suffix . $tmp;
-
-      $tmp = $lt->min;
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-      $suffix = $suffix . $tmp;
-
-      $tmp = $lt->sec;
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-      $suffix = $suffix . $tmp;
-
-      $tmp = int( rand(100) );
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-
-      $suffix = $suffix . $tmp;
-
-    }
-
-    return $suffix;
-
   }
 
 =head3 OpenLogFile
@@ -475,27 +311,6 @@ Don't need this any more.
 
     return $err;
   }    # End CloseLogFile()
-
-=head3 GetLogFileName
-
-Return the name of the open log file. If a parameter is provided then the path is
-returned as well.
-
-=cut
-
-  #*****************************************************************************
-  sub GetLogFileName
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    my $full = shift;
-    my $name = $self->{LOGFILENAME};
-    if ( $full eq undef ) {
-      $name =~ s/^.*?([^\/\\]{1,})$/$1/;
-    }
-    return $name;
-  }
 
 =head3 OpenLockFile
 
@@ -601,19 +416,6 @@ Ummm ... looks like it deletes it to me.
     return $err;
   }
 
-=head3 DESTROY
-
-=cut
-
-  #*****************************************************************************
-  # Close the lock file if this object opened it.
-  sub DESTROY {
-    my $self = shift;
-    $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
-    $self->CloseLockFile() if $self->{IOPENEDLOCKFILE};
-    1;
-  }
-
 =head3 get_lock_file
 
 =cut
@@ -656,6 +458,204 @@ Ummm ... looks like it deletes it to me.
 =head2 Internal Methods
 
 =cut
+
+=head3 _keep_before_time
+
+=cut
+
+  #*****************************************************************************
+  sub _keep_before_time {
+
+    #*****************************************************************************
+    my $self = shift;
+    my $err  = 0;
+
+    my $tm     = time();
+    my $period = $self->_get_save_seconds;
+    my $t      = $tm - $period;
+
+    return $t;
+
+  }
+
+=head3 _get_save_seconds
+
+=cut
+
+  #*****************************************************************************
+  sub _get_save_seconds {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->get_save_days() * 24 * 60 * 60;
+  }
+
+=head3 set_save_days
+
+=cut
+
+  #*****************************************************************************
+  sub set_save_days {
+
+    #*****************************************************************************
+    my $self = shift;
+    $self->{SAVE_DAYS} = shift;
+  }
+
+=head3 get_save_days
+
+=cut
+
+  #*****************************************************************************
+  sub get_save_days {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->{SAVE_DAYS};
+  }
+
+=head3 set_append_logfile
+
+=cut
+
+  #*****************************************************************************
+  sub set_append_logfile {
+
+    #*****************************************************************************
+    my $self = shift;
+    my $v    = shift;
+    if ( $v =~ m/^[yn]$/i ) {
+      $self->{APPEND_TO_LOGFILE} = uc($v);
+    }
+  }
+
+=head3 get_append_logfile
+
+=cut
+
+  #*****************************************************************************
+  sub get_append_logfile {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->{APPEND_TO_LOGFILE};
+  }
+
+=head3 _get_logfile_stem
+
+=cut
+
+  #*****************************************************************************
+  sub _get_logfile_stem {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->{LOGFILE_STEM};
+  }
+
+=head3 GetLogDir
+
+=cut
+
+  #*****************************************************************************
+  sub GetLogDir
+
+    #*****************************************************************************
+  {
+    my $self = shift;
+    return $self->{LOGDIR};
+  }
+
+=head3 IsUnix
+
+=cut
+
+  #*****************************************************************************
+  sub IsUnix
+
+    #*****************************************************************************
+  {
+    my $self  = shift;
+    my $opsys = $^O;
+    my $unix  = 0;
+    if ( $opsys !~ m/win/i ) { $unix = 1; }
+    return $unix;
+  }
+
+=head3 _create_suffix
+
+=cut
+
+  #*****************************************************************************
+  # Use a function to calculate the suffix.
+  sub _create_suffix {
+
+    #*****************************************************************************
+    my $self = shift;
+    my $lt   = localtime();
+
+    my $tmp = $lt->yday;
+    while ( length $tmp < 3 ) { $tmp = '0' . $tmp; }
+    my $suffix = $tmp;
+
+    if ( $self->get_append_logfile() eq 'N' ) {
+
+      $tmp = $lt->hour;
+      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+      $suffix = $suffix . $tmp;
+
+      $tmp = $lt->min;
+      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+      $suffix = $suffix . $tmp;
+
+      $tmp = $lt->sec;
+      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+      $suffix = $suffix . $tmp;
+
+      $tmp = int( rand(100) );
+      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+
+      $suffix = $suffix . $tmp;
+
+    }
+
+    return $suffix;
+
+  }
+
+=head3 GetLogFileName
+
+Return the name of the open log file. If a parameter is provided then the path is
+returned as well.
+
+=cut
+
+  #*****************************************************************************
+  sub GetLogFileName
+
+    #*****************************************************************************
+  {
+    my $self = shift;
+    my $full = shift;
+    my $name = $self->{LOGFILENAME};
+    if ( $full eq undef ) {
+      $name =~ s/^.*?([^\/\\]{1,})$/$1/;
+    }
+    return $name;
+  }
+
+=head3 DESTROY
+
+=cut
+
+  #*****************************************************************************
+  # Close the lock file if this object opened it.
+  sub DESTROY {
+    my $self = shift;
+    $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
+    $self->CloseLockFile() if $self->{IOPENEDLOCKFILE};
+    1;
+  }
 
   1;
 }    # End package Fcutils
