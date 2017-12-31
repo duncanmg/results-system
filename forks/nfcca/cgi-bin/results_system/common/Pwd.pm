@@ -16,6 +16,7 @@
   use Parent;
   use Time::localtime;
   use Slurp;
+  use Data::Dumper;
 
   our @ISA = qw/Parent/;
 
@@ -178,40 +179,29 @@ it issues a "Too Many Tries" message. No further attempts will be validated that
 
     #*****************************************************************************
   {
-    my $self = shift;
-    my $err  = 0;
+    my ( $self, $real_pwd, $user_pwd, $teamfile ) = @_;
+    my $err = 0;
     my $msg;
-    my $pwdfile;
-    my ( $real_pwd, $user_pwd, $teamfile ) = @_;
 
     $real_pwd =~ s/\W//g;
     $user_pwd =~ s/\W//g;
     $teamfile =~ s/\W//g;
 
-    if ( $real_pwd eq undef || $user_pwd eq undef ) {
-      $self->logger->debug("Either real or entered pwd undefined");
-      $err = 1;
-    }
-    if ( $teamfile eq undef ) {
-      $self->logger->debug("Teamfile undefined");
-      $err = 1;
+    if ( $real_pwd eq undef || $user_pwd eq undef || $teamfile eq undef ) {
+      $self->logger->debug(
+        "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
+      return ( 1, undef );
     }
 
-    if ( $err == 0 ) {
-      ( $err, $msg ) = $self->check_very_wrong( $real_pwd, $user_pwd, $teamfile );
-      $self->logger->debug( $err . " returned by check_very_wrong()" );
-    }
+    ( $err, $msg ) = $self->check_very_wrong( $real_pwd, $user_pwd, $teamfile );
+    $self->logger->debug( $err . " returned by check_very_wrong()" );
 
     if ( $err == 0 ) {
 
       # Loop through file, if it exists, and count the incorrect tries.
-      $pwdfile = $self->get_pwd_dir . "/" . $self->_get_wrong_file;
-      my $too_many_tries = $self->_count_tries( $pwdfile, $teamfile, 3 );
-      if ($too_many_tries) {
-        $self->logger->error("Too many incorrect tries.");
-        $msg = "<h3>You have entered an incorrect password too many times in one day.</h3>";
-        $err = 1;
-      }    #tries
+      ( $err, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
+      return ( $err, $msg ) if $err;
+
     }    #err
 
     if ( $err == 0 ) {
@@ -223,7 +213,7 @@ it issues a "Too Many Tries" message. No further attempts will be validated that
         $err = 1;
 
         #Log incorrect try in file.
-        $self->_write_tries( $pwdfile, $teamfile );
+        $self->_write_tries( $self->_get_wrong_file(), $teamfile );
 
       }    #pwd
 
@@ -248,15 +238,13 @@ it issue a "Too Many Tries" message.
 
     #*****************************************************************************
   {
-    my $self = shift;
-    my ( $real_pwd, $user_pwd, $teamfile ) = @_;
+    my ( $self, $real_pwd, $user_pwd, $teamfile ) = @_;
 
     my $vwrong = 0;
     my $err    = 0;
     my $x      = 0;
     my $msg;
-    my $vwrongfile = $self->get_pwd_dir . "/" . $self->_get_vwrong_file;
-    my $count      = 0;
+    my $count = 0;
     $self->logger->debug("In check_very_wrong()");
 
     if ( $teamfile eq undef ) {
@@ -300,20 +288,14 @@ it issue a "Too Many Tries" message.
 
     if ( $vwrong == 1 && $err == 0 ) {
 
-      # Loop through file, if it exists, and count the incorrect tries.
-      my $too_many = $self->_count_tries( $vwrongfile, $teamfile, 3 );
-
-      if ( $too_many == 1 ) {
-        $self->logger->error("Too many incorrect tries (Very wrong) ");
-        $msg = "<h3>You have entered an incorrect password too many times in one day.</h3>";
-        $err = 1;
-      }    #tries
+      ( $err, $msg ) = $self->_too_many_tries( $self->_get_vwrong_file(), $teamfile, 3 );
+      return ( $err, $msg ) if $err;
 
     }    #err
 
     if ( $vwrong == 1 && $err == 0 ) {
 
-      $self->_write_tries( $vwrongfile, $teamfile );
+      $self->_write_tries( $self->_get_vwrong_file(), $teamfile );
       $self->logger->debug("Incorrect password (Very wrong)");
       $msg = "<h3>You have entered an incorrect password.</h3>";
       $err = 1;
@@ -328,6 +310,24 @@ it issue a "Too Many Tries" message.
 
   }    # End check_very_wrong()
 
+=head3 _too_many_tries
+
+Loop through file, if it exists, and count the incorrect tries.
+
+=cut
+
+  sub _too_many_tries {
+    my ( $self, $file, $string, $max_tries ) = @_;
+    my $err = $self->_count_tries( $file, $string, $max_tries );
+    if ($err) {
+      $self->logger->error("Too many incorrect tries $file, $string");
+      return ( $err,
+        "<h3>You have entered an incorrect password too many times in one day.</h3>" );
+
+    }
+    return ( $err, undef );
+  }
+
 =head3 _count_tries
 
 =cut
@@ -336,11 +336,8 @@ it issue a "Too Many Tries" message.
   sub _count_tries {
 
     #*****************************************************************************
-    my $self      = shift;
-    my $file      = shift;
-    my $string    = shift;
-    my $max_tries = shift;
-    my $err       = 0;
+    my ( $self, $file, $string, $max_tries ) = @_;
+    my $err = 0;
     my @lines;
     $self->logger->debug("file=$file string=$string max_tries=$max_tries");
 
@@ -425,7 +422,7 @@ it issue a "Too Many Tries" message.
 
     #*****************************************************************************
     my $self = shift;
-    return $self->{WRONGFILE};
+    return $self->get_pwd_dir . '/' . $self->{WRONGFILE};
   }
 
 =head3 _get_vwrong_file
@@ -437,7 +434,7 @@ it issue a "Too Many Tries" message.
 
     #*****************************************************************************
     my $self = shift;
-    return $self->{VWRONGFILE};
+    return $self->get_pwd_dir . '/' . $self->{VWRONGFILE};
   }
 
 =head3 _set_vwrong_file
