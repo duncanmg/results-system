@@ -133,18 +133,6 @@ It returns an error code (0 for success) and a message.
 
   }
 
-=head3 get_pwd_dir
-
-=cut
-
-  #*****************************************************************************
-  sub get_pwd_dir {
-
-    #*****************************************************************************
-    my $self = shift;
-    return $self->{PWDDIR};
-  }
-
 =head3 set_pwd_dir
 
 =cut
@@ -469,6 +457,18 @@ Loop through file, if it exists, and count the incorrect tries.
       my $vw = $stem . $s . ".log";
       $self->{WRONGFILE} = $vw;
     }
+  }
+
+=head3 get_pwd_dir
+
+=cut
+
+  #*****************************************************************************
+  sub get_pwd_dir {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->{PWDDIR};
   }
 
   1;
