@@ -66,7 +66,7 @@ is( $msg, '<h3>You have entered an incorrect password too many times in one day.
   "msg ok" );
 
 ( $err, $msg ) = $pwd->check_code( 'banana', 'banana', $user );
-ok( $err, "check_code: Correct code rejected $count" );
+ok( $err, "check_code: Correct code rejected." );
 is( $msg, '<h3>You have entered an incorrect password too many times in one day.</h3>',
   "msg ok" );
 
@@ -74,25 +74,36 @@ is( $msg, '<h3>You have entered an incorrect password too many times in one day.
 
 $user = get_user();
 
-# Password is a little wrong.
+# Password is very wrong.
 ( $err, $msg ) = $pwd->check_very_wrong( 'banana', 'banana', $user );
-ok( !$err, "Code accepted" ) || diag( Dumper( $err, $msg ) );
-is( $msg, undef, "msg ok" );
+ok( !$err, "check_very_wrong Code accepted" ) || diag( Dumper( $err, $msg ) );
+is( $msg, undef, "check_very_wrong msg ok" );
 
 $count = 0;
 for ( $count = 0; $count < 3; $count++ ) {
   ( $err, $msg ) = $pwd->check_very_wrong( 'banana', 'apple', $user );
-  ok( $err, "Code rejected $count" );
-  is( $msg, '<h3>You have entered an incorrect password.</h3>', "msg ok" );
+  ok( $err, "check_very_wrong Code rejected $count" );
+  is( $msg, '<h3>You have entered an incorrect password.</h3>', "check_very_wrong msg ok" );
 }
 
 ( $err, $msg ) = $pwd->check_very_wrong( 'banana', 'apple', $user );
-ok( $err, "Code rejected $count" );
-is( $msg, '<h3>You have entered an incorrect password too many times in one day.</h3>',
-  "msg ok" );
+ok( $err, "check_very_wrong Code rejected $count" );
+is( '<h3>You have entered an incorrect password too many times in one day.</h3>',
+  $msg, "check_very_wrong msg ok" );
 
 ( $err, $msg ) = $pwd->check_very_wrong( 'banana', 'banana', $user );
 ok( !$err, "Correct code is accepted." );
-is( $msg, undef, "msg ok" );
+is( undef, $msg, "check_very_wrong msg ok" );
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++
+
+is( $pwd->_compare_characters( '1234', '1234' ), 4, "All characters the same." );
+
+is( $pwd->_compare_characters( '1234', '1224' ), 3, "All characters the same except 1." );
+
+is( $pwd->_compare_characters( '1234', 'x23x' ), 2, "All characters the same except 2." );
+
+is( $pwd->_compare_characters( '1234', '123455555' ),
+  4, "All characters the same. Stops at end of string 1" );
 
 done_testing;

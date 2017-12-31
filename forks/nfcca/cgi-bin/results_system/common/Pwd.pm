@@ -22,8 +22,23 @@
 
 =head1 Pwd
 
-Object which facilitates password handling. Inherits from Parent.pm and uses
-the password methods of the Fcutils2 object.
+Object which facilitates password handling.
+
+=cut
+
+=head2 ISA Parent
+
+Inherits
+
+=over 
+
+=item initialize
+
+=item get_configuration
+
+=item get_query
+
+=back
 
 =cut
 
@@ -158,6 +173,8 @@ It records the number of incorrect tries per team in a file.
 If more than three incorrect tries have been made, and the current attempt is invalid,
 it issues a "Too Many Tries" message. No further attempts will be validated that day.
 
+There is also the concept of the password being wrong or very wrong.
+
 ($err, $msg) = $self->check_code($correct_pwd, $pwd_entered_by_user, $user);
 
 =cut
@@ -205,12 +222,12 @@ it issues a "Too Many Tries" message. No further attempts will be validated that
 
 =head3 check_very_wrong
 
-Accepts two 6 digit numbers and the number of a team. It compare the 2 numbers, and
-if more than 3 digits are different, it returns 1, otherwise it returns 0.
+Accepts two alphanumeric strings and the name of the user. It compare the 2 strings, and
+if at least 3 characters are correct, it returns 0, otherwise it returns 1.
 
 It records the number of incorrect tries per team in the file $self->{VWRONGFILE}.
 If more than three incorrect tries have been made, and the current attempt is invalid,
-it issue a "Too Many Tries" message.
+it issues a "Too Many Tries" message.
 
 =cut
 
@@ -224,70 +241,39 @@ it issue a "Too Many Tries" message.
     my $vwrong = 0;
     my $err    = 0;
     my $x      = 0;
-    my $msg;
-    my $count = 0;
+    my $msg    = "<h3>You have entered an incorrect password.</h3>";
+    my $count  = 0;
     $self->logger->debug("In check_very_wrong()");
 
-    if ( $teamfile eq undef ) {
-      $self->logger->debug("Teamfile is undefined.");
-      $vwrong = 1;
-    }
-    if ( $real_pwd eq undef ) {
-      $self->logger->debug("Real pwd is undefined.");
-      $vwrong = 1;
-    }
-    if ( $user_pwd eq undef ) {
-      $self->logger->debug("User pwd is undefined.");
-      $vwrong = 1;
-    }
-
-    if ( !-d $self->get_pwd_dir ) {
-      $self->logger->debug(
-        "check_very_wrong(): Directory does not exist. " . $self->get_pwd_dir );
-      $vwrong = 1;
+    foreach my $p ( ( $teamfile, $real_pwd, $user_pwd ) ) {
+      if ( !defined $p ) {
+        $self->logger->error( "One or more parameters is undefined. "
+            . Dumper( ( $teamfile, $real_pwd, $user_pwd ) ) );
+        return ( 1, $msg );
+      }
     }
 
     # If password is right then no need to do anything. Test as strings.
-    if ( ( $real_pwd ne $user_pwd ) || $real_pwd eq undef ) {
+    return ( 0, undef ) if ( $real_pwd eq $user_pwd );
 
-      # User entry must be between 3 and 6 alphanumeric characters to be worth considering.
-      # if ($user_pwd !~ m/^\w{3,6}$/) {
-      #   $self->logger->debug( "User entry too short or too long");
-      #   $vwrong = 1;
-      # }
-      # else {
-
-      #Compare each digit in turn. (Compare as characters.)
-      $count = $self->_compare_characters( $real_pwd, $user_pwd );
-
-      #At least three must be correct.
-      if ( $count < 3 && length($real_pwd) >= 3 ) { $vwrong = 1; }
-
-      # $self->logger->debug($count . " characters match.", 0);
-      # }
+    if ( length($real_pwd) < 3 ) {
+      $self->logger->debug( "Do not check short code. " . length($real_pwd) < 3 );
+      return ( 0, undef );
     }
 
-    if ( $vwrong == 1 && $err == 0 ) {
+    my $vwrong_msg;
+    ( $err, $vwrong_msg ) = $self->_too_many_tries( $self->_get_vwrong_file(), $teamfile, 3 );
+    return ( $err, $vwrong_msg ) if $err;
 
-      ( $err, $msg ) = $self->_too_many_tries( $self->_get_vwrong_file(), $teamfile, 3 );
-      return ( $err, $msg ) if $err;
+    #Compare each digit in turn. (Compare as characters.)
+    #At least three must be correct.
+    $count = $self->_compare_characters( $real_pwd, $user_pwd );
+    return ( 0, undef ) if $count >= 3;
 
-    }    #err
+    $self->_write_tries( $self->_get_vwrong_file(), $teamfile );
+    $self->logger->debug("Incorrect password (Very wrong)");
 
-    if ( $vwrong == 1 && $err == 0 ) {
-
-      $self->_write_tries( $self->_get_vwrong_file(), $teamfile );
-      $self->logger->debug("Incorrect password (Very wrong)");
-      $msg = "<h3>You have entered an incorrect password.</h3>";
-      $err = 1;
-
-    }    #err
-
-    if ( $vwrong == 1 ) {
-      $err = 1;
-    }
-
-    return ( $err, $msg );
+    return ( 1, $msg );
 
   }    # End check_very_wrong()
 
@@ -310,6 +296,11 @@ Loop through file, if it exists, and count the incorrect tries.
   }
 
 =head3 _count_tries
+
+Returns true if the number of occurrences of string in file is greater than or equal to
+max_tries.
+
+Returns false if the file is missing or contains less occurrences than max_tries.
 
 =cut
 
@@ -358,6 +349,10 @@ Loop through file, if it exists, and count the incorrect tries.
 
 =head3 _compare_characters
 
+$count = $self->_compare_characters($s1, $s2);
+
+Returns the number of characters in s1 which are in the same position in s2.
+
 =cut
 
   #*****************************************************************************
@@ -383,6 +378,9 @@ Loop through file, if it exists, and count the incorrect tries.
 
 =head3 _get_suffix
 
+Returns the day of the year and a 3 digit string pre-filled with zeroes.
+eg '035'
+
 =cut
 
   sub _get_suffix {
@@ -396,6 +394,8 @@ Loop through file, if it exists, and count the incorrect tries.
 
 =head3 _get_wrong_file
 
+Returns the full filename of the wrong file.
+
 =cut
 
   #*****************************************************************************
@@ -408,6 +408,8 @@ Loop through file, if it exists, and count the incorrect tries.
 
 =head3 _get_vwrong_file
 
+Returns the full filename of the very wrong file.
+
 =cut
 
   #*****************************************************************************
@@ -419,6 +421,8 @@ Loop through file, if it exists, and count the incorrect tries.
   }
 
 =head3 _set_vwrong_file
+
+Sets the name of the wrong file. No path.
 
 =cut
 
@@ -437,6 +441,8 @@ Loop through file, if it exists, and count the incorrect tries.
 
 =head3 set_wrong_file
 
+Sets the name of the very wrong file. No path.
+
 =cut
 
   #*****************************************************************************
@@ -453,6 +459,8 @@ Loop through file, if it exists, and count the incorrect tries.
   }
 
 =head3 get_pwd_dir
+
+Returns the directory which contains the wrong file and the very wrong file.
 
 =cut
 
