@@ -42,7 +42,6 @@ my $html = $list->output_html();
   use FileRenderer;
   use WeekData;
   use Fixtures;
-  use Pwd;
   use Data::Dumper;
 
   our @ISA = qw/FileRenderer/;
