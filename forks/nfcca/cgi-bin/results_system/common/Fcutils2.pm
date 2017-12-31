@@ -17,7 +17,19 @@ Utilities.
 
 =cut
 
-=head1 METHODS
+=head1 ISA Fcerror
+
+Inherits
+
+=over
+
+=item logger
+
+=back
+
+=cut
+
+=head1 METHODS AND FUNCTIONS
 
 =cut
 
@@ -44,10 +56,14 @@ Utilities.
   our @ISA = qw/Fcerror/;
 
   # Class variables
-  $Fcutils2::LOGDIR             = "";
-  $Fcutils2::LOCKDIR            = $Fcutils2::LOGDIR;
-  $Fcutils2::OLDFILE            = "";
-  $Fcutils2::TIMEOUT            = 105;
+  $Fcutils2::LOGDIR  = "";
+  $Fcutils2::LOCKDIR = $Fcutils2::LOGDIR;
+  $Fcutils2::OLDFILE = "";
+  $Fcutils2::TIMEOUT = 105;
+
+=head2 Functions
+
+=cut
 
   #***************************************************..***************************
   # The two global variables and the three functions (signal_handler(), AddToLockList(),
@@ -63,6 +79,10 @@ Utilities.
   # $Fcutils2::g_NumUtilsObjects = 0;
 
   # @Fcutils2::g_UtilsObjects;    # The error objects. NB Potential memory leak here!
+
+=head3 ApacheTime
+
+=cut
 
   #******************************************************************************
   # Function which returns GMT in format DD/Mon/YYYY:HH24:MI:SS
@@ -86,7 +106,11 @@ Utilities.
       . $fullyear;
   }    # End ApacheTime()
 
-=head2 Constructor
+=head2 External Methods
+
+=cut
+
+=head3 Constructor
 
 Create the object and gives it an error object. Binds in the current values of
 the class variables LOGDIR, LOCKDIR, OLDFILE.
@@ -128,6 +152,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
 
   }    # End constructor
 
+=head3 set_auto_clean
+
+=cut
+
   #*****************************************************************************
   sub set_auto_clean {
 
@@ -139,6 +167,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     }
   }
 
+=head3 get_auto_clean
+
+=cut
+
   #*****************************************************************************
   sub get_auto_clean {
 
@@ -146,6 +178,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     my $self = shift;
     return $self->{AUTO_CLEAN};
   }
+
+=head3 auto_clean
+
+=cut
 
   #*****************************************************************************
   sub auto_clean {
@@ -204,6 +240,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     return $err;
   }
 
+=head3 _keep_before_time
+
+=cut
+
   #*****************************************************************************
   sub _keep_before_time {
 
@@ -219,6 +259,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
 
   }
 
+=head3 _get_save_seconds
+
+=cut
+
   #*****************************************************************************
   sub _get_save_seconds {
 
@@ -226,6 +270,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     my $self = shift;
     return $self->get_save_days() * 24 * 60 * 60;
   }
+
+=head3 set_save_days
+
+=cut
 
   #*****************************************************************************
   sub set_save_days {
@@ -235,6 +283,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     $self->{SAVE_DAYS} = shift;
   }
 
+=head3 get_save_days
+
+=cut
+
   #*****************************************************************************
   sub get_save_days {
 
@@ -242,6 +294,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     my $self = shift;
     return $self->{SAVE_DAYS};
   }
+
+=head3 set_append_logfile
+
+=cut
 
   #*****************************************************************************
   sub set_append_logfile {
@@ -254,6 +310,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     }
   }
 
+=head3 get_append_logfile
+
+=cut
+
   #*****************************************************************************
   sub get_append_logfile {
 
@@ -262,6 +322,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     return $self->{APPEND_TO_LOGFILE};
   }
 
+=head3 _get_logfile_stem
+
+=cut
+
   #*****************************************************************************
   sub _get_logfile_stem {
 
@@ -269,6 +333,10 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     my $self = shift;
     return $self->{LOGFILE_STEM};
   }
+
+=head3 set_logfile_stem
+
+=cut
 
   #*****************************************************************************
   sub set_logfile_stem {
@@ -279,7 +347,7 @@ the class variables LOGDIR, LOCKDIR, OLDFILE.
     return 1;
   }
 
-=head2 SetLogDir
+=head3 SetLogDir
 
 Set the log directory.
 
@@ -300,6 +368,10 @@ Set the log directory.
     return $err;
   }
 
+=head3 GetLogDir
+
+=cut
+
   #*****************************************************************************
   sub GetLogDir
 
@@ -308,6 +380,10 @@ Set the log directory.
     my $self = shift;
     return $self->{LOGDIR};
   }
+
+=head3 IsUnix
+
+=cut
 
   #*****************************************************************************
   sub IsUnix
@@ -320,6 +396,10 @@ Set the log directory.
     if ( $opsys !~ m/win/i ) { $unix = 1; }
     return $unix;
   }
+
+=head3 _create_suffix
+
+=cut
 
   #*****************************************************************************
   # Use a function to calculate the suffix.
@@ -358,7 +438,7 @@ Set the log directory.
 
   }
 
-=head2 OpenLogFile
+=head3 OpenLogFile
 
 Not needed any more. Will be removed at some point.
 
@@ -379,7 +459,7 @@ Not needed any more. Will be removed at some point.
     return ( $err, $LOGFILE );
   }    # End OpenLogFile()
 
-=head2 CloseLogFile
+=head3 CloseLogFile
 
 Don't need this any more.
 
@@ -396,7 +476,7 @@ Don't need this any more.
     return $err;
   }    # End CloseLogFile()
 
-=head2 GetLogFileName
+=head3 GetLogFileName
 
 Return the name of the open log file. If a parameter is provided then the path is
 returned as well.
@@ -417,7 +497,7 @@ returned as well.
     return $name;
   }
 
-=head2 OpenLockFile
+=head3 OpenLockFile
 
 Create a file in the directory LOCKDIR with the name lockfile.lock where lockfile
 is the name passed as a parameter.
@@ -488,7 +568,7 @@ Should really be called CreateLockFile because the file is created then closed.
 
   }    # End OpenLockFile()
 
-=head2 CloseLockFile
+=head3 CloseLockFile
 
 Doesn't close or delete the lockfile as such. Moves it to OLDFILE.
 
@@ -521,6 +601,10 @@ Ummm ... looks like it deletes it to me.
     return $err;
   }
 
+=head3 DESTROY
+
+=cut
+
   #*****************************************************************************
   # Close the lock file if this object opened it.
   sub DESTROY {
@@ -529,6 +613,10 @@ Ummm ... looks like it deletes it to me.
     $self->CloseLockFile() if $self->{IOPENEDLOCKFILE};
     1;
   }
+
+=head3 get_lock_file
+
+=cut
 
   #*****************************************************************************
   sub get_lock_file
@@ -539,6 +627,10 @@ Ummm ... looks like it deletes it to me.
     return $self->{LOCKFILE};
   }
 
+=head3 get_lock_dir
+
+=cut
+
   #*****************************************************************************
   sub get_lock_dir
 
@@ -548,6 +640,10 @@ Ummm ... looks like it deletes it to me.
     return $self->{LOCKDIR};
   }
 
+=head3 set_lock_dir
+
+=cut
+
   #*****************************************************************************
   sub set_lock_dir
 
@@ -556,6 +652,10 @@ Ummm ... looks like it deletes it to me.
     my $self = shift;
     $self->{LOCKDIR} = shift;
   }
+
+=head2 Internal Methods
+
+=cut
 
   1;
 }    # End package Fcutils
