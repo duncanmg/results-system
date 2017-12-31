@@ -95,7 +95,7 @@ The id and name attributes are the same and are set to "user" and "code" respect
 This method interrogates the query object and retrieves the user and code parameters.
 It then reads the correct password for the user from the ResultsConfiguration object.
 
-It uses the CheckCode method of the Fcutils2 object to compare the two codes.
+It uses the check_code method of the Fcutils2 object to compare the two codes.
 
 It returns an error code (0 for success) and a message.
 
@@ -125,7 +125,7 @@ It returns an error code (0 for success) and a message.
       $err = 1;
     }
     else {
-      ( $err, $msg ) = $self->CheckCode( $real, $code, $user );
+      ( $err, $msg ) = $self->check_code( $real, $code, $user );
     }
 
     return ( $err, $msg );
@@ -160,7 +160,7 @@ It returns an error code (0 for success) and a message.
 
 =cut
 
-=head3 CheckCode
+=head3 check_code
 
 Accepts two alphanumeric strings and the name of the user. It compares the 2 strings and
 if they do not match, it returns 1, otherwise it returns 0.
@@ -169,12 +169,12 @@ It records the number of incorrect tries per team in a file.
 If more than three incorrect tries have been made, and the current attempt is invalid,
 it issues a "Too Many Tries" message. No further attempts will be validated that day.
 
-($err, $msg) = $self->CheckCode($correct_pwd, $pwd_entered_by_user, $user);
+($err, $msg) = $self->check_code($correct_pwd, $pwd_entered_by_user, $user);
 
 =cut
 
   #*****************************************************************************
-  sub CheckCode
+  sub check_code
 
     #*****************************************************************************
   {
@@ -198,8 +198,8 @@ it issues a "Too Many Tries" message. No further attempts will be validated that
     }
 
     if ( $err == 0 ) {
-      ( $err, $msg ) = $self->CheckVeryWrong( $real_pwd, $user_pwd, $teamfile );
-      $self->logger->debug( $err . " returned by CheckVeryWrong()" );
+      ( $err, $msg ) = $self->check_very_wrong( $real_pwd, $user_pwd, $teamfile );
+      $self->logger->debug( $err . " returned by check_very_wrong()" );
     }
 
     if ( $err == 0 ) {
@@ -228,11 +228,11 @@ it issues a "Too Many Tries" message. No further attempts will be validated that
       }    #pwd
 
     }    #err
-    $self->logger->debug( "Leaving CheckCode(): " . $err );
+    $self->logger->debug( "Leaving check_code(): " . $err );
     return ( $err, $msg );
-  }    # End CheckCode()
+  }    # End check_code()
 
-=head3 CheckVeryWrong
+=head3 check_very_wrong
 
 Accepts two 6 digit numbers and the number of a team. It compare the 2 numbers, and
 if more than 3 digits are different, it returns 1, otherwise it returns 0.
@@ -244,7 +244,7 @@ it issue a "Too Many Tries" message.
 =cut
 
   #*****************************************************************************
-  sub CheckVeryWrong
+  sub check_very_wrong
 
     #*****************************************************************************
   {
@@ -257,7 +257,7 @@ it issue a "Too Many Tries" message.
     my $msg;
     my $vwrongfile = $self->get_pwd_dir . "/" . $self->_get_vwrong_file;
     my $count      = 0;
-    $self->logger->debug("In CheckVeryWrong()");
+    $self->logger->debug("In check_very_wrong()");
 
     if ( $teamfile eq undef ) {
       $self->logger->debug("Teamfile is undefined.");
@@ -273,7 +273,8 @@ it issue a "Too Many Tries" message.
     }
 
     if ( !-d $self->get_pwd_dir ) {
-      $self->logger->debug( "CheckVeryWrong(): Directory does not exist. " . $self->get_pwd_dir );
+      $self->logger->debug(
+        "check_very_wrong(): Directory does not exist. " . $self->get_pwd_dir );
       $vwrong = 1;
     }
 
@@ -325,7 +326,7 @@ it issue a "Too Many Tries" message.
 
     return ( $err, $msg );
 
-  }    # End CheckVeryWrong()
+  }    # End check_very_wrong()
 
 =head3 _count_tries
 
