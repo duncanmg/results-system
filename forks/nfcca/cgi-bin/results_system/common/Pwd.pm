@@ -162,12 +162,14 @@ It returns an error code (0 for success) and a message.
 
 =head3 CheckCode
 
-Accepts two 6 digit numbers and the number of a team. It compare the 2 numbers and
+Accepts two alphanumeric strings and the name of the user. It compares the 2 strings and
 if they do not match, it returns 1, otherwise it returns 0.
 
 It records the number of incorrect tries per team in a file.
 If more than three incorrect tries have been made, and the current attempt is invalid,
-it issue a "Too Many Tries" message. No further attempts will be validated that day.
+it issues a "Too Many Tries" message. No further attempts will be validated that day.
+
+($err, $msg) = $self->CheckCode($correct_pwd, $pwd_entered_by_user, $user);
 
 =cut
 
@@ -180,9 +182,7 @@ it issue a "Too Many Tries" message. No further attempts will be validated that 
     my $err  = 0;
     my $msg;
     my $pwdfile;
-    my $real_pwd = $_[0];
-    my $user_pwd = $_[1];
-    my $teamfile = $_[2];
+    my ( $real_pwd, $user_pwd, $teamfile ) = @_;
 
     $real_pwd =~ s/\W//g;
     $user_pwd =~ s/\W//g;
@@ -248,13 +248,12 @@ it issue a "Too Many Tries" message.
 
     #*****************************************************************************
   {
-    my $self     = shift;
-    my $real_pwd = $_[0];    # The correct password.
-    my $user_pwd = $_[1];    # The password entered by the user.
-    my $teamfile = $_[2];    # A string which identifies the user.
-    my $vwrong   = 0;
-    my $err      = 0;
-    my $x        = 0;
+    my $self = shift;
+    my ( $real_pwd, $user_pwd, $teamfile ) = @_;
+
+    my $vwrong = 0;
+    my $err    = 0;
+    my $x      = 0;
     my $msg;
     my $vwrongfile = $self->get_pwd_dir . "/" . $self->_get_vwrong_file;
     my $count      = 0;
@@ -473,7 +472,6 @@ it issue a "Too Many Tries" message.
       $self->{WRONGFILE} = $vw;
     }
   }
-
 
   1;
 }
