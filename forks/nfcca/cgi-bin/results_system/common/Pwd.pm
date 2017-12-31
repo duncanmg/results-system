@@ -63,7 +63,8 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
 
     $self->initialise( \%args );
 
-    $self->set_pwd_dir( $self->get_configuration->get_path( -log_dir => "Y" ) );
+    $self->set_pwd_dir( $self->get_configuration->get_path( -log_dir => "Y" ) )
+      if $self->get_configuration->get_path( -log_dir => "Y" );
     $self->set_wrong_file("wrong");
     $self->_set_vwrong_file("vwrong");
 
