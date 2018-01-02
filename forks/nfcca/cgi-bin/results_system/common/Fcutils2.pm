@@ -60,36 +60,6 @@ Inherits
   $Fcutils2::LOGDIR  = "";
   $Fcutils2::OLDFILE = "";
 
-=head2 Functions
-
-=cut
-
-=head3 ApacheTime
-
-=cut
-
-  #******************************************************************************
-  # Function which returns GMT in format DD/Mon/YYYY:HH24:MI:SS
-  #******************************************************************************
-  sub ApacheTime
-
-    #******************************************************************************
-  {
-    my $t;
-    if   ( !$_[0] ) { $t = time(); }
-    else            { $t = $_[0]; }
-    my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = gmtime($t);
-    my $monname  = (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec))[$mon];
-    my $wdname   = (qw(Sun Mon Tue Wed Thu Fri Sat))[$wday];
-    my $fullyear = $year + 1900;
-    if ( length $sec < 2 )  { $sec  = "0" . $sec; }
-    if ( length $min < 2 )  { $min  = "0" . $min; }
-    if ( length $hour < 2 ) { $hour = "0" . $hour; }
-    if ( length $mday < 2 ) { $mday = " " . $mday; }
-    return $wdname . " " . $monname . " " . $mday . " " . $hour . ":" . $min . ":" . $sec . " "
-      . $fullyear;
-  }    # End ApacheTime()
-
 =head2 External Methods
 
 =cut
@@ -415,22 +385,6 @@ Don't need this any more.
   {
     my $self = shift;
     return $self->{LOGDIR};
-  }
-
-=head3 IsUnix
-
-=cut
-
-  #*****************************************************************************
-  sub IsUnix
-
-    #*****************************************************************************
-  {
-    my $self  = shift;
-    my $opsys = $^O;
-    my $unix  = 0;
-    if ( $opsys !~ m/win/i ) { $unix = 1; }
-    return $unix;
   }
 
 =head3 _create_suffix
