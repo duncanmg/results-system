@@ -366,7 +366,7 @@ sub main {
     $err = $u->get_locker()->OpenLockFile($log_file);
   }
   if ( $err == 0 ) {
-    ( $err, $LOG ) = $u->OpenLogFile($log_file);
+    ( $err, $LOG ) = $u->open_log_file($log_file);
   }
   if ( $err == 0 ) {
     $u->set_logfile_stem('rs');
@@ -397,7 +397,7 @@ sub main {
       $err = 1;
     }
   }
-  $u->CloseLogFile( $LOG, $err );
+  $u->close_log_file( $LOG, $err );
   $u->get_locker()->CloseLockFile;
 
   #

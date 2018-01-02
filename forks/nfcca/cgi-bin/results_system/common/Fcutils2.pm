@@ -226,14 +226,14 @@ Set the log directory.
     return $err;
   }
 
-=head3 OpenLogFile
+=head3 open_log_file
 
 Not needed any more. Will be removed at some point.
 
 =cut
 
   #*****************************************************************************
-  sub OpenLogFile
+  sub open_log_file
 
     #*****************************************************************************
   {
@@ -242,19 +242,19 @@ Not needed any more. Will be removed at some point.
     my $count = 0;
     my $LOGFILE;
 
-    $self->logger(1)->debug("OpenLogFile called()");
+    $self->logger(1)->debug("open_log_file called()");
 
     return ( $err, $LOGFILE );
-  }    # End OpenLogFile()
+  }    # End open_log_file()
 
-=head3 CloseLogFile
+=head3 close_log_file
 
 Don't need this any more.
 
 =cut
 
   #*****************************************************************************
-  sub CloseLogFile
+  sub close_log_file
 
     #*****************************************************************************
   {
@@ -262,7 +262,7 @@ Don't need this any more.
     my $err  = 0;
 
     return $err;
-  }    # End CloseLogFile()
+  }    # End close_log_file()
 
 =head3 get_locker
 

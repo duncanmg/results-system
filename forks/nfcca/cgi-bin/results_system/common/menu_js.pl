@@ -262,7 +262,7 @@ sub main {
 
   $err = $u->get_locker()->OpenLockFile( $log_file . "js" ) if !$err;
 
-  ( $err, $LOG ) = $u->OpenLogFile( $log_file . "js" ) if !$err;
+  ( $err, $LOG ) = $u->open_log_file( $log_file . "js" ) if !$err;
 
   return $err if $err;
 
@@ -278,7 +278,7 @@ sub main {
     week_fixtures( -config => $c, -query => $q, -util => $u );
   }
 
-  $u->CloseLogFile( $LOG, $err );
+  $u->close_log_file( $LOG, $err );
   $u->get_locker()->CloseLockFile;
 
 }
