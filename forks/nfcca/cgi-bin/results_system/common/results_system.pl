@@ -356,7 +356,7 @@ sub main {
   }
 
   if ( $err == 0 ) {
-    $err = $u->SetLogDir($log_path);
+    $err = $u->set_log_dir($log_path);
   }
   if ( $err == 0 ) {
     $u->get_locker()->set_lock_dir($log_path);

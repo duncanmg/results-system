@@ -256,7 +256,7 @@ sub main {
 
   $log_file = $c->get_log_stem($system) if !$err;
 
-  $err = $u->SetLogDir($log_path) if !$err;
+  $err = $u->set_log_dir($log_path) if !$err;
 
   $u->get_locker()->set_lock_dir($log_path) if !$err;
 

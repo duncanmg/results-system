@@ -152,7 +152,7 @@ the class variables LOGDIR, OLDFILE.
       return $err;
     }
 
-    my $d = $self->GetLogDir;
+    my $d = $self->get_log_dir;
     if ( !opendir( $FP, $d ) ) {
       $self->logger->error("auto_clean(): Unable to open log dir $d.");
       $err = 1;
@@ -205,22 +205,22 @@ the class variables LOGDIR, OLDFILE.
     return 1;
   }
 
-=head3 SetLogDir
+=head3 set_log_dir
 
 Set the log directory.
 
 =cut
 
   #*****************************************************************************
-  sub SetLogDir
+  sub set_log_dir
 
     #*****************************************************************************
   {
     my $self = shift;
     my $err  = 0;
     $self->{LOGDIR} = shift;
-    if ( !-d $self->GetLogDir ) {
-      $self->logger->error( "Log directory does not exist. " . $self->GetLogDir );
+    if ( !-d $self->get_log_dir ) {
+      $self->logger->error( "Log directory does not exist. " . $self->get_log_dir );
       $err = 1;
     }
     return $err;
@@ -374,12 +374,12 @@ Don't need this any more.
     return $self->{LOGFILE_STEM};
   }
 
-=head3 GetLogDir
+=head3 get_log_dir
 
 =cut
 
   #*****************************************************************************
-  sub GetLogDir
+  sub get_log_dir
 
     #*****************************************************************************
   {
@@ -428,7 +428,7 @@ Don't need this any more.
 
   }
 
-=head3 GetLogFileName
+=head3 get_log_file_name
 
 Return the name of the open log file. If a parameter is provided then the path is
 returned as well.
@@ -436,7 +436,7 @@ returned as well.
 =cut
 
   #*****************************************************************************
-  sub GetLogFileName
+  sub get_log_file_name
 
     #*****************************************************************************
   {
