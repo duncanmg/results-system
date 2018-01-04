@@ -27,8 +27,6 @@
   use Data::Dumper;
   use Fcerror;
 
-  use Fcutils2;
-
   our @ISA = qw/Fcerror/;
 
 =head2 External Methods

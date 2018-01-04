@@ -112,8 +112,6 @@ The id and name attributes are the same and are set to "user" and "code" respect
 This method interrogates the query object and retrieves the user and code parameters.
 It then reads the correct password for the user from the ResultsConfiguration object.
 
-It uses the check_code method of the Fcutils2 object to compare the two codes.
-
 It returns an error code (0 for success) and a message.
 
  ( $err, $msg ) = $p->check_pwd();
