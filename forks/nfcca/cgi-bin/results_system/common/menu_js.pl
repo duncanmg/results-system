@@ -16,6 +16,8 @@ use ResultsConfiguration;
 use Fcutils2;
 use Fixtures;
 
+my $logger;
+
 =head1 menu_js.pl
 
 =cut
@@ -64,7 +66,7 @@ sub menu {
   print $line;
 
   # print "alert( 'Bang! Bang!' );";
-  $u->logger->debug($line);
+  $logger->debug($line);
 
   # print "alert( \"Hello\" );\n";
   # print "alert( menu_names[0] );\n";
@@ -161,7 +163,7 @@ sub week_fixtures {
      }
   /;
   print $line;
-  $u->logger->debug($line);
+  $logger->debug($line);
 
 }
 
@@ -189,15 +191,15 @@ sub get_all_dates_by_division {
 
   my @x = $c->get_menu_names;
   my $path = $c->get_path( -csv_files => 'Y' ) . '/' . $c->get_season;
-  $u->logger->debug($path);
+  $logger->debug($path);
 
   foreach my $div (@x) {
     my $f = Fixtures->new( -full_filename => $path . '/' . $div->{csv_file} );
-    $u->logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$f;
+    $logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$f;
     next if !$f;
     $dates->{ $div->{csv_file} } = $f->get_date_list;
   }
-  $u->logger->debug( Dumper $dates);
+  $logger->debug( Dumper $dates);
   return $dates;
 }
 
@@ -224,7 +226,7 @@ sub get_all_dates_by_division_as_json {
     push @lines, $line;
   }
   my $out = '{' . join( ",\n", @lines ) . '}';
-  $u->logger->debug( Dumper $out);
+  $logger->debug( Dumper $out);
   return $out;
 }
 
@@ -250,19 +252,20 @@ sub main {
   $c->read_file();
 
   my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
-  $u->logger->debug("In menu_js.pl page=$page system=$system");
+  $logger = $u->get_logger->logger;
+  $logger->debug("In menu_js.pl page=$page system=$system");
 
   $log_path = $c->get_path( -log_dir => "Y" ) if !$err;
 
   $log_file = $c->get_log_stem($system) if !$err;
 
-  $err = $u->set_log_dir($log_path) if !$err;
+  $err = $u->get_logger->set_log_dir($log_path) if !$err;
 
   $u->get_locker()->set_lock_dir($log_path) if !$err;
 
   $err = $u->get_locker()->OpenLockFile( $log_file . "js" ) if !$err;
 
-  ( $err, $LOG ) = $u->open_log_file( $log_file . "js" ) if !$err;
+  ( $err, $LOG ) = $u->get_logger->open_log_file( $log_file . "js" ) if !$err;
 
   return $err if $err;
 
@@ -278,7 +281,7 @@ sub main {
     week_fixtures( -config => $c, -query => $q, -util => $u );
   }
 
-  $u->close_log_file( $LOG, $err );
+  $u->get_logger->close_log_file( $LOG, $err );
   $u->get_locker()->CloseLockFile;
 
 }

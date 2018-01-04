@@ -121,20 +121,20 @@ sub output_frame {
   my $ff = "$dir/common/results.htm";
 
   if ( !-f $ff ) {
-    $u->logger->debug("$ff does not exist.");
+    $logger->debug("$ff does not exist.");
     $err = 1;
   }
 
   my $cgi_path = $c->get_path( "-cgi_dir" => "Y", -allow_not_exists => 1 );
   $cgi_path = "$cgi_path/common";
   if ( !-d "$root$cgi_path" ) {
-    $u->logger->debug("output_frame() $root$cgi_path does not exist.");
+    $logger->debug("output_frame() $root$cgi_path does not exist.");
     $err = 1;
   }
 
   if ( $err == 0 ) {
     @file_lines = slurp($ff);
-    $u->logger->debug( scalar(@file_lines) . " lines read from $ff" );
+    $logger->debug( scalar(@file_lines) . " lines read from $ff" );
     $cgi_path = $cgi_path . "/results_system.pl?system=" . $q->param("system") . "&page=";
     foreach my $f (@file_lines) {
       my $p = "menu";
@@ -148,7 +148,7 @@ sub output_frame {
   print $q->header( -expires => "+2d" );
   print $line;
 
-  # $u->logger->debug( $line);
+  # $logger->debug( $line);
   return $err;
 }
 
@@ -197,7 +197,7 @@ sub output_page {
   $params->{-html5} = 1 if $html5->{$page};
 
   print $q->start_html(%$params);
-  $u->logger->debug( "page=$page", Dumper($params) );
+  $logger->debug( "page=$page", Dumper($params) );
 
   my $save_results = sub {
     my $obj = WeekFixtures->new( -query => $q, -config => $c );
@@ -229,16 +229,16 @@ sub output_page {
         sub { output_html( "FixturesIndex", { -query => $q, -config => $c }, {} ); },
       "fixture_list" =>
         sub { output_html( "FixtureList", { -query => $q, -config => $c }, {} ); },
-      "blank" => sub { $u->logger->debug("Blank page called"); },
+      "blank" => sub { $logger->debug("Blank page called"); },
     };
 
     $err =
         $dispatch_table->{$page}
       ? $dispatch_table->{$page}->()
-      : $u->logger->error( "Page parameter not recognised. " . $page );
+      : $logger->error( "Page parameter not recognised. " . $page );
   };
   if ($@) {
-    $u->logger->debug($@);
+    $logger->debug($@);
     $err = 1;
   }
 
@@ -285,7 +285,7 @@ sub output_csv {
   my $err  = 0;
   my $line;
 
-  $u->logger->debug("page=$page");
+  $logger->debug("page=$page");
 
   eval {
 
@@ -298,12 +298,12 @@ sub output_csv {
     }
 
     else {
-      $u->logger->debug( "Page parameter not recognised. " . $page );
+      $logger->debug( "Page parameter not recognised. " . $page );
     }
 
   };
   if ($@) {
-    $u->logger->debug($@);
+    $logger->debug($@);
     $err = 1;
   }
 
@@ -329,7 +329,7 @@ sub main {
 
   # Logs go to standard error until configuration is properly loaded.
   my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
-  $logger = $u->logger;
+  $logger = $u->get_logger->logger;
 
   my $system = $q->param("system");
   my $page   = $q->param("page");
@@ -337,11 +337,11 @@ sub main {
   eval {
     my $f = "../custom/$system/$system.ini" if $system;
 
-    # $u->logger->debug("Configuration file <$f> for system <$system>.");
+    # $logger->debug("Configuration file <$f> for system <$system>.");
     $c = ResultsConfiguration->new( -full_filename => $f );
     if ( !$c ) {
       $err = 1;
-      $u->logger->debug($ResultsConfiguration::create_errmsg);
+      $logger->debug($ResultsConfiguration::create_errmsg);
     }
     $err = $c->read_file;
     if ( $err == 0 ) {
@@ -351,12 +351,12 @@ sub main {
   };
   if ($@) {
     print STDERR $@ . "\n";
-    $u->logger->debug($@);
+    $logger->debug($@);
     $err = 1;
   }
 
   if ( $err == 0 ) {
-    $err = $u->set_log_dir($log_path);
+    $err = $u->get_logger->set_log_dir($log_path);
   }
   if ( $err == 0 ) {
     $u->get_locker()->set_lock_dir($log_path);
@@ -366,18 +366,18 @@ sub main {
     $err = $u->get_locker()->OpenLockFile($log_file);
   }
   if ( $err == 0 ) {
-    ( $err, $LOG ) = $u->open_log_file($log_file);
+    ( $err, $LOG ) = $u->get_logger->open_log_file($log_file);
   }
   if ( $err == 0 ) {
-    $u->set_logfile_stem('rs');
-    $u->auto_clean;
+    $u->get_logger->set_logfile_stem('rs');
+    $u->get_logger->auto_clean;
   }
   if ( $err != 0 ) {
     return $err;
   }
 
-  $u->logger->debug("system=$system page=$page");
-  $u->logger->debug( "division="
+  $logger->error("system=$system page=$page");
+  $logger->error( "division="
       . $q->param("division")
       . " matchdate="
       . $q->param("matchdate")
@@ -393,11 +393,11 @@ sub main {
   else {
     eval { $err = output_frame( -query => $q, -config => $c, -util => $u, -page => $page ); };
     if ($@) {
-      $u->logger->debug($@);
+      $logger->error($@);
       $err = 1;
     }
   }
-  $u->close_log_file( $LOG, $err );
+  $u->get_logger->close_log_file( $LOG, $err );
   $u->get_locker()->CloseLockFile;
 
   #
