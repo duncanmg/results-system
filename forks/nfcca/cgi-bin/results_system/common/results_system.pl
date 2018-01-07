@@ -341,7 +341,7 @@ sub main {
     $c = ResultsConfiguration->new( -full_filename => $f );
     if ( !$c ) {
       $err = 1;
-      $logger->debug($ResultsConfiguration::create_errmsg);
+      $logger->debug("Unable to create ResultsConfiguration object.");
     }
     $err = $c->read_file;
     if ( $err == 0 ) {
@@ -364,7 +364,7 @@ sub main {
   }
 
   if ( $err == 0 ) {
-    $err = $u->get_locker()->OpenLockFile($log_file);
+    $err = $u->get_locker()->open_lock_file($log_file);
   }
   if ( $err == 0 ) {
     ( $err, $LOG ) = $u->get_logger->open_log_file($log_file);
@@ -399,7 +399,7 @@ sub main {
     }
   }
   $u->get_logger->close_log_file( $LOG, $err );
-  $u->get_locker()->CloseLockFile;
+  $u->get_locker()->close_lock_file;
 
   #
 }

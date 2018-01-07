@@ -263,7 +263,7 @@ sub main {
 
   $u->get_locker()->set_lock_dir($log_path) if !$err;
 
-  $err = $u->get_locker()->OpenLockFile( $log_file . "js" ) if !$err;
+  $err = $u->get_locker()->open_lock_file( $log_file . "js" ) if !$err;
 
   ( $err, $LOG ) = $u->get_logger->open_log_file( $log_file . "js" ) if !$err;
 
@@ -282,7 +282,7 @@ sub main {
   }
 
   $u->get_logger->close_log_file( $LOG, $err );
-  $u->get_locker()->CloseLockFile;
+  $u->get_locker()->close_lock_file;
 
 }
 

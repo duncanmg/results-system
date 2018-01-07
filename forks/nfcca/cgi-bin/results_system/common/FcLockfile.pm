@@ -79,12 +79,12 @@ the class variables LOCKDIR, OLDFILE.
 
   }    # End constructor
 
-=head3 OpenLockFile
+=head3 open_lock_file
 
 Create a file in the directory LOCKDIR with the name lockfile.lock where lockfile
 is the name passed as a parameter.
 
-eg $err=$utils->OpenLockFile("cteam");
+eg $err=$utils->open_lock_file("cteam");
 
 The above statement creates the file cteam.lock.
 
@@ -93,7 +93,7 @@ Should really be called CreateLockFile because the file is created then closed.
 =cut
 
   #*****************************************************************************
-  sub OpenLockFile
+  sub open_lock_file
 
     #*****************************************************************************
   {
@@ -104,7 +104,7 @@ Should really be called CreateLockFile because the file is created then closed.
     $lockfile =~ s/[^A-Za-z0-9._]//g;    # Clean the filename.
 
     if ( length($lockfile) == 0 ) {
-      $self->logger->error("OpenLockFile(): Parameter was null or invalid.");
+      $self->logger->error("open_lock_file(): Parameter was null or invalid.");
       $err = 1;
     }
 
@@ -148,9 +148,9 @@ Should really be called CreateLockFile because the file is created then closed.
 
     return $err;
 
-  }    # End OpenLockFile()
+  }    # End open_lock_file()
 
-=head3 CloseLockFile
+=head3 close_lock_file
 
 Doesn't close or delete the lockfile as such. Moves it to OLDFILE.
 
@@ -159,7 +159,7 @@ Ummm ... looks like it deletes it to me.
 =cut
 
   #*****************************************************************************
-  sub CloseLockFile
+  sub close_lock_file
 
     #*****************************************************************************
   {
@@ -168,7 +168,7 @@ Ummm ... looks like it deletes it to me.
     my $ret;
     my $lockfile    = $self->{LOCKFILE};
     my $oldlockfile = $self->{OLDFILE};
-    $self->logger->debug("CloseLockFile() called.");
+    $self->logger->debug("close_lock_file() called.");
     if ( !-e $lockfile ) {
       $self->logger->debug("Lockfile $lockfile does not exist.");
       return $err;
@@ -179,7 +179,7 @@ Ummm ... looks like it deletes it to me.
       $err = 1;
       $self->{IOPENEDLOCKFILE} = undef;
     }
-    $self->logger->debug( "Finished CloseLockFile(). " . $err );
+    $self->logger->debug( "Finished close_lock_file(). " . $err );
     return $err;
   }
 
@@ -236,7 +236,7 @@ Close the lock file if this object opened it.
   sub DESTROY {
     my $self = shift;
     $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
-    $self->CloseLockFile() if $self->{IOPENEDLOCKFILE};
+    $self->close_lock_file() if $self->{IOPENEDLOCKFILE};
     1;
   }
 
