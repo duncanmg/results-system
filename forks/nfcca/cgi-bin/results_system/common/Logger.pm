@@ -20,20 +20,14 @@
   use File::Copy;
   use File::Compare;
   use Time::localtime;
+  use DateTime::Tiny;
+  use File::Basename;
 
   our @ISA = qw/ Exporter /;
 
   our @EXPORT_OK = qw/ get_logger /;
 
-  my $conf = {
-    "log4perl.rootLogger"             => "INFO , Screen",
-    "log4perl.logger.xxxx"            => "INFO, Screen",
-    "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
-    "log4perl.appender.Screen.stderr" => 1,
-    "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
-    "log4perl.appender.Screen.layout.ConversionPattern" =>
-      "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
-  };
+  our $CONF_FILE = "./logger.conf";
 
 =head2 ISA Exporter
 
@@ -42,6 +36,48 @@
 =head2 Functions
 
 =cut
+
+=head3 default_conf
+
+Default configuration
+
+=cut
+
+  sub default_conf {
+    return {
+      "log4perl.rootLogger"             => "INFO , Screen",
+      "log4perl.logger.xxxx"            => "INFO, Screen",
+      "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
+      "log4perl.appender.Screen.stderr" => 1,
+      "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
+      "log4perl.appender.Screen.layout.ConversionPattern" =>
+        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
+    };
+  }
+
+=head3 conf_with_logfile
+
+Used when a valid log file has been provided, but there is no configuration
+file.
+
+=cut
+
+  sub conf_with_logfile {
+    my $file = shift;
+    return {
+      "log4perl.rootLogger"                    => "INFO , LOGFILE",
+      "log4perl.category.ResultsConfiguration" => "INFO , LOGFILE",
+      "log4perl.category.Fixtures"             => "INFO , LOGFILE",
+      "log4perl.category.WeekFixtures"         => "INFO , LOGFILE",
+      "log4perl.category.WeekData"             => "INFO , LOGFILE",
+      "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
+      "log4perl.appender.LOGFILE.filename"     => $file,
+      "log4perl.appender.LOGFILE.mode"         => "append",
+      "log4perl.appender.LOGFILE.layout"       => "Log::Log4perl::Layout::PatternLayout",
+      "log4perl.appender.LOGFILE.layout.ConversionPattern" =>
+        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n",
+    };
+  }
 
 =head3 get_logger
 
@@ -63,27 +99,7 @@ If that doesn't exist then a set of defaults are used.
     my ( $category, $file ) = validate_pos( @_, 1, 0 );
 
     $category = 'Default' if !$category;
-
-    if ($file) {
-      $conf                                             = {};
-      $conf->{"log4perl.rootLogger"}                    = "INFO , LOGFILE";
-      $conf->{"log4perl.category.ResultsConfiguration"} = "INFO , LOGFILE";
-      $conf->{"log4perl.category.Fixtures"}             = "INFO , LOGFILE";
-      $conf->{"log4perl.category.WeekFixtures"}         = "INFO , LOGFILE";
-      $conf->{"log4perl.category.WeekData"}             = "INFO , LOGFILE";
-      $conf->{"log4perl.appender.LOGFILE"}              = "Log::Log4perl::Appender::File";
-      $conf->{"log4perl.appender.LOGFILE.filename"}     = $file;
-      $conf->{"log4perl.appender.LOGFILE.mode"}         = "append";
-      $conf->{"log4perl.appender.LOGFILE.layout"}       = "Log::Log4perl::Layout::PatternLayout";
-      $conf->{"log4perl.appender.LOGFILE.layout.ConversionPattern"} =
-        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n";
-
-      my $conf_file = "./logger.conf";
-      if ( -f $conf_file ) {
-        $ENV{LOGFILENAME} = $file;
-        $conf = $conf_file;
-      }
-    }
+    my $conf = get_conf($file);
 
     Log::Log4perl::init($conf);
 
@@ -91,6 +107,20 @@ If that doesn't exist then a set of defaults are used.
 
     return $logger;
 
+  }
+
+  sub get_conf {
+    my $file = shift;
+
+    return default_conf() if !$file;
+
+    my ( $name, $path, $suffix ) = fileparse($file);
+    return default_conf() if !-d $path;
+
+    return conf_with_logfile($file) if !-f $CONF_FILE;
+
+    $ENV{LOGFILENAME} = $file;
+    return $CONF_FILE;
   }
 
 =head2 External Methods
@@ -135,24 +165,28 @@ the class variables LOGDIR, OLDFILE.
 
   }    # End constructor
 
-=head2 logger
+=head3 logger
 
 $self->logger->debug( "Use the existing logger if there is one." );
 
-$self->logger(1)->debug( "Always use a new logger." );
+$self->logger(undef, 1)->debug( "Always use a new logger. Write to STDERR" );
+
+$self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" );
 
 =cut
 
   sub logger {
-    my ( $self, $force ) = @_;
+    my ( $self, $dir, $force ) = @_;
+
     if ( $force || !$self->{logger} ) {
       my $class = ref($self);
-      $self->{logger} = Logger::get_logger( $class, $self->logfile_name );
+      $self->{logger} = Logger::get_logger( $class, $self->logfile_name($dir) );
+
     }
     return $self->{logger};
   }
 
-=head2 logfile_name
+=head3 logfile_name
 
 Return the existing logfile_name or undef:
 
