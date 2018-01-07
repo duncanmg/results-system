@@ -356,6 +356,7 @@ sub main {
   }
 
   if ( $err == 0 ) {
+    $logger = $u->get_logger->logger( $log_path, 1 );
     $err = $u->get_logger->set_log_dir($log_path);
   }
   if ( $err == 0 ) {
