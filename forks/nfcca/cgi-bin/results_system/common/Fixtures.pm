@@ -90,6 +90,8 @@ error returned if the processing fails. This must be inferred from the messages 
     my $err  = 0;
     $Fixtures::create_errmsg = "";
 
+    $self->initialise( \%args );
+
     if ( $args{-full_filename} ) {
       $self->set_full_filename( $args{-full_filename} );
       $err = $self->_read_file();

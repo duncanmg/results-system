@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
+use Helper qw/get_config get_logger/;
 
 use_ok('LeagueTable');
 use_ok('ResultsConfiguration');
@@ -15,13 +16,11 @@ ok(
 ) || die "Unable to continue.";
 my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
 
-my $config;
-ok( $config = ResultsConfiguration->new( -full_filename => $file ), "Object created." );
-isa_ok( $config, 'ResultsConfiguration' );
-ok( !$config->read_file, "Read file" );
+my $config = get_config;
 
 my $lt;
-ok( $lt = LeagueTable->new( -config => $config ), "Created a LeagueTable object." );
+ok( $lt = LeagueTable->new( -config => $config, -logger => get_logger($config) ),
+  "Created a LeagueTable object." );
 
 is( $lt->_sort_table, 1, "Returns an error because nothing is initialised." );
 

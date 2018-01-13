@@ -4,7 +4,7 @@ use Test::More;
 use Test::Exception;
 use Data::Dumper;
 
-use Helper qw/ get_config/;
+use Helper qw/ get_config get_logger/;
 
 sub get_user {
   return 'TESTING' . sprintf( "%06d", int( rand() * 1000000 ) );
@@ -15,7 +15,7 @@ use_ok('Pwd');
 
 my $config = get_config;
 
-my $pwd = Pwd->new( -config => $config );
+my $pwd = Pwd->new( -config => $config, -logger => get_logger($config) );
 isa_ok( $pwd, 'Pwd' );
 
 my ( $err, $msg ) = $pwd->check_code( 'banana', 'banana', $user );

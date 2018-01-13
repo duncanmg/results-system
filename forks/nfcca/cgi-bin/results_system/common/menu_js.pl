@@ -194,7 +194,7 @@ sub get_all_dates_by_division {
   $logger->debug($path);
 
   foreach my $div (@x) {
-    my $f = Fixtures->new( -full_filename => $path . '/' . $div->{csv_file} );
+    my $f = Fixtures->new( -full_filename => $path . '/' . $div->{csv_file}, -logger => $logger );
     $logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$f;
     next if !$f;
     $dates->{ $div->{csv_file} } = $f->get_date_list;
@@ -247,12 +247,14 @@ sub main {
   my $page   = $q->param("page") || "";
   my $f      = "../custom/$system/$system.ini" if $system;
 
-  my $c = ResultsConfiguration->new( -full_filename => $f );
+  my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y', -logger => $logger );
+  $logger = $u->get_logger->logger;
+
+  my $c = ResultsConfiguration->new( -full_filename => $f, -logger => $logger );
 
   $c->read_file();
 
-  my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
-  $logger = $u->get_logger->logger;
+  $logger = $u->get_logger()->logger( $c->get_path( -log_dir => "Y" ), 1 );
   $logger->debug("In menu_js.pl page=$page system=$system");
 
   $log_path = $c->get_path( -log_dir => "Y" ) if !$err;
@@ -261,7 +263,7 @@ sub main {
 
   $err = $u->get_logger->set_log_dir($log_path) if !$err;
 
-  $u->get_locker()->set_lock_dir($log_path) if !$err;
+  $u->get_locker( -logger => $logger )->set_lock_dir($log_path) if !$err;
 
   $err = $u->get_locker()->open_lock_file( $log_file . "js" ) if !$err;
 

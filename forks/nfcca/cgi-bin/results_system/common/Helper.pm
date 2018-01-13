@@ -46,7 +46,7 @@ sub get_config {
 
 sub get_logger {
   my $config = shift;
-  return Logger->new( -log_dir => ( $config->get_path( -log_dir => 1 ) ) );
+  return Logger->new( -log_dir => ( $config->get_path( -log_dir => 1 ) ) )->logger;
 }
 
 1;

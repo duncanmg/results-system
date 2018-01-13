@@ -25,12 +25,7 @@ This package provides the methods which the objects in the results system inheri
   use strict;
   use CGI;
   use Regexp::Common;
-  use DateTime;
-  use Logger;
   use ResultsConfiguration;
-  use Fcerror;
-
-  our @ISA = qw/Fcerror/;
 
   #***************************************
   sub new {
@@ -61,18 +56,18 @@ and calls set_division() and set_week() if necessary.
 
 The -query or -config are not present then default objects are created.
 
+-logger sets the logger.
+
 =cut
 
   #***************************************
   sub initialise {
 
     #***************************************
-    my $self = shift;
-    my $ref  = shift;
-    my %args = %$ref;
+    my ( $self, $args ) = @_;
 
-    if ( $args{-query} ) {
-      $self->set_query( $args{-query} );
+    if ( $args->{-query} ) {
+      $self->set_query( $args->{-query} );
       my $q = $self->get_query;
       if ( $q->param("division") ) {
         $self->set_division( $q->param("division") );
@@ -85,9 +80,8 @@ The -query or -config are not present then default objects are created.
       $self->set_query( CGI->new() );
     }
 
-    if ( $args{-config} ) {
-      $self->set_configuration( $args{-config} );
-      $self->logfile_name( $self->get_configuration->get_path( -log_dir => 'Y' ) );
+    if ( $args->{-config} ) {
+      $self->set_configuration( $args->{-config} );
     }
     else {
       my $c = ResultsConfiguration->new();
@@ -96,6 +90,26 @@ The -query or -config are not present then default objects are created.
       }
     }
 
+    die "No logger" if ! $args->{-logger};
+    $self->set_logger( $args->{-logger} );
+  }
+
+=head2 set_logger
+
+=cut
+
+  sub set_logger {
+    my ( $self, $logger ) = @_;
+    $self->{LOGGER} = $logger;
+  }
+
+=head2 logger 
+
+=cut
+
+  sub logger {
+    my $self = shift;
+    return $self->{LOGGER};
   }
 
 =head2 set_query

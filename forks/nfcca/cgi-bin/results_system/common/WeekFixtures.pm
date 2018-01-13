@@ -17,14 +17,13 @@
   use strict;
   use CGI;
 
-  use ResultsConfiguration;
   use FileRenderer;
   use WeekData;
   use Fixtures;
   use Pwd;
   use Data::Dumper;
 
-  our @ISA =qw/FileRenderer/;
+  our @ISA = qw/FileRenderer/;
 
 =head1 Public Methods
 
@@ -173,8 +172,10 @@ Parameters:
       }
       ) . "\n";
 
+    $DB::single = 1;
     if ( $args{-form} ) {
-      my $p = Pwd->new( -query => $q );
+      my $p =
+        Pwd->new( -query => $q, -logger => $self->logger, -config => $self->get_configuration );
       $line = $line . $p->get_pwd_fields . "<br/>";
       $line = $line . $q->input( { -type => "submit", -value => "Save Changes" } ) . "<br/>\n";
       $line = $line . "</form>\n";
@@ -208,7 +209,8 @@ but don't save.
     my $q    = $self->get_query;
     my $type = "home";
 
-    my $p = Pwd->new( -query => $q, -config => $self->get_configuration );
+    my $p =
+      Pwd->new( -query => $q, -config => $self->get_configuration, -logger => $self->logger );
     my ( $err, $line ) = $p->check_pwd();
 
     if ( $err == 0 ) {
@@ -481,7 +483,8 @@ Returns a WeekData object for the week and division.
       $self->{WEEK_DATA} = WeekData->new(
         -week     => $self->get_week,
         -division => $self->get_division,
-        -config   => $self->get_configuration
+        -config   => $self->get_configuration,
+        -logger   => $self->logger
       );
       my $err = $self->{WEEK_DATA}->read_file;
       if ( $err != 0 ) {
@@ -566,10 +569,6 @@ accesses the fixture list and returns the team name from there.
     }
     my $week_ref = $f->get_week_fixtures( -date => $self->get_week );
     my @week = @$week_ref;
-    eval {
-      # print "Append<br/>\n";
-      # print $f->eDump . "<br/>\n";
-    };
     $self->logger->debug($@);
 
     $self->logger->debug(
@@ -621,7 +620,7 @@ and a fixtures object on success.
       my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $d;
       $self->logger->debug( "Path to csv files=" . $c->get_path( -csv_files => 'Y' ) );
 
-      $self->{FIXTURES} = Fixtures->new( -full_filename => $ff );
+      $self->{FIXTURES} = Fixtures->new( -full_filename => $ff, -logger => $self->logger );
       if ( !$self->{FIXTURES} ) {
         $err = 1;
         $self->logger->error("get_fixtures() unable to create Fixtures object.");

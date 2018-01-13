@@ -9,7 +9,7 @@ use Helper qw/get_config get_logger/;
 my $config = get_config();
 my $lock_dir = $config->get_path( '-log_dir' => 'Y' );
 
-my $locker = FcLockfile->new( -lock_dir => $lock_dir,-logger=>get_logger($config)->logger );
+my $locker = FcLockfile->new( -lock_dir => $lock_dir, -logger => get_logger($config) );
 
 is( $locker->get_lock_dir, $lock_dir, "Lock dir set. " . $lock_dir );
 
@@ -33,7 +33,7 @@ ok( !$locker->close_lock_file, "Closed lock file" );
 ok( !lock_file_exists($lock_file), "Lock file no longer exists" );
 
 ok( !$locker->open_lock_file('test'), "Lock file re-created" );
-ok( lock_file_exists($lock_file),   "Lock file exists" );
+ok( lock_file_exists($lock_file),     "Lock file exists" );
 
 $FcLockfile::TIMEOUT = 5;
 

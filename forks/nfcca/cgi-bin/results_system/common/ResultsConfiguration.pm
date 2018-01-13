@@ -25,9 +25,6 @@
   use List::MoreUtils qw/ first_value any /;
   use Regexp::Common qw /whitespace/;
   use Data::Dumper;
-  use Fcerror;
-
-  our @ISA = qw/Fcerror/;
 
 =head2 External Methods
 
@@ -48,17 +45,20 @@ or
   $c = ResultsConfiguration->new();
   $c->set_full_filename("/custom/config.ini");
 
+Requires -logger
+
 =cut
 
   #***************************************
   sub new {
 
     #***************************************
-    my $class = shift;
-    my $self  = {};
+    my ( $class, %args ) = @_;
+    my $self = {};
     bless $self, $class;
-    my %args = (@_);
-    my $err  = 0;
+    my $err = 0;
+
+    $self->set_logger( $args{-logger} );
 
     # $self->set_full_filename("../custom/results_system.ini");
     if ( $args{-full_filename} ) {
@@ -556,9 +556,28 @@ points or average eg $c->get_calculation( -order_by => "Y" );
     return $self->_trim($v);
   }
 
+=head3 set_logger
+
+=cut
+
+  sub set_logger {
+    my ( $self, $logger ) = @_;
+    $self->{LOGGER} = $logger;
+    return $self;
+  }
+
 =head2 Internal Methods
 
 =cut
+
+=head3 logger
+
+=cut
+
+  sub logger {
+    my $self = shift;
+    return $self->{LOGGER};
+  }
 
 =head3 _trim
 

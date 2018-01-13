@@ -69,7 +69,7 @@ the class variables LOGDIR, OLDFILE.
   sub get_locker {
     my ( $self, %args ) = @_;
     if ( !$self->{LOCKER} ) {
-      $self->{LOCKER} = FcLockfile->new( %args || () );
+      $self->{LOCKER} = FcLockfile->new(%args);
     }
     return $self->{LOCKER};
   }
