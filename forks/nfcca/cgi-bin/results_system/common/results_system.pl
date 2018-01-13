@@ -200,11 +200,11 @@ sub output_page {
   $logger->debug( "page=$page", Dumper($params) );
 
   my $save_results = sub {
-    my $obj = WeekFixtures->new( -query => $q, -config => $c );
+    my $obj = WeekFixtures->new( -query => $q, -config => $c, -logger => $logger );
     ( $err, $line ) = $obj->save_results( -save_html => 1 );
     print $line . "\n";
     if ( $err == 0 ) {
-      my $l = LeagueTable->new( -query => $q, -config => $c );
+      my $l = LeagueTable->new( -query => $q, -config => $c, -logger => $logger );
       $err = $l->create_league_table_file;
     }
     return $err;
@@ -213,22 +213,32 @@ sub output_page {
   eval {
 
     my $dispatch_table = {
-      "menu"          => sub { output_html( "Menu", { -query => $q, -config => $c }, {} ); },
+      "menu" =>
+        sub { output_html( "Menu", { -query => $q, -config => $c, -logger => $logger }, {} ); },
       "week_fixtures" => sub {
-        output_html( "WeekFixtures", { -query => $q, -config => $c }, { "-form" => 1 } );
+        output_html(
+          "WeekFixtures",
+          { -query  => $q, -config => $c, -logger => $logger },
+          { "-form" => 1 }
+        );
       },
-      "week_results" =>
-        sub { output_html( "WeekFixtures", { -query => $q, -config => $c }, {} ); },
-      "save_results" => sub { $save_results->(); },
-      "results_index" =>
-        sub { output_html( "ResultsIndex", { -query => $q, -config => $c }, {} ); },
-      "tables_index" =>
-        sub { output_html( "TablesIndex", { -query => $q, -config => $c }, {} ); },
+      "week_results" => sub {
+        output_html( "WeekFixtures", { -query => $q, -config => $c, -logger => $logger }, {} );
+      },
+      "save_results"  => sub { $save_results->(); },
+      "results_index" => sub {
+        output_html( "ResultsIndex", { -query => $q, -config => $c, -logger => $logger }, {} );
+      },
+      "tables_index" => sub {
+        output_html( "TablesIndex", { -query => $q, -config => $c, -logger => $logger }, {} );
+      },
 
-      "fixtures_index" =>
-        sub { output_html( "FixturesIndex", { -query => $q, -config => $c }, {} ); },
-      "fixture_list" =>
-        sub { output_html( "FixtureList", { -query => $q, -config => $c }, {} ); },
+      "fixtures_index" => sub {
+        output_html( "FixturesIndex", { -query => $q, -config => $c, -logger => $logger }, {} );
+      },
+      "fixture_list" => sub {
+        output_html( "FixtureList", { -query => $q, -config => $c, -logger => $logger }, {} );
+      },
       "blank" => sub { $logger->debug("Blank page called"); },
     };
 
@@ -291,7 +301,7 @@ sub output_csv {
 
     if ( $page eq "ground_markings" ) {
 
-      my $p = GroundMarkings->new( -query => $q, -config => $c );
+      my $p = GroundMarkings->new( -query => $q, -config => $c, -logger => $logger );
       ( $err, $line ) = $p->output_csv;
       print $line;
 
@@ -328,7 +338,7 @@ sub main {
   # my $line;
 
   # Logs go to standard error until configuration is properly loaded.
-  my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y' );
+  my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y', -logger => $logger );
   $logger = $u->get_logger->logger;
 
   my $system = $q->param("system");
@@ -338,7 +348,7 @@ sub main {
     my $f = "../custom/$system/$system.ini" if $system;
 
     # $logger->debug("Configuration file <$f> for system <$system>.");
-    $c = ResultsConfiguration->new( -full_filename => $f );
+    $c = ResultsConfiguration->new( -full_filename => $f, -logger => $logger );
     if ( !$c ) {
       $err = 1;
       $logger->debug("Unable to create ResultsConfiguration object.");
@@ -360,7 +370,7 @@ sub main {
     $err = $u->get_logger->set_log_dir($log_path);
   }
   if ( $err == 0 ) {
-    $u->get_locker()->set_lock_dir($log_path);
+    $u->get_locker( -logger => $logger )->set_lock_dir($log_path);
   }
 
   if ( $err == 0 ) {
