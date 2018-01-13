@@ -3,10 +3,11 @@ package Helper;
 use strict;
 use warnings;
 use ResultsConfiguration;
+use Logger;
 
 use parent qw/Exporter/;
 
-our @EXPORT_OK = qw/get_config/;
+our @EXPORT_OK = qw/get_config get_logger/;
 
 =head1 Helper
 
@@ -35,11 +36,17 @@ sub get_config {
   }
   my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
 
-  my $config = ResultsConfiguration->new( -full_filename => $file );
+  my $config =
+    ResultsConfiguration->new( -full_filename => $file, -logger => Logger->new()->get_logger );
   die "Unable to create ResultsConfiguration object" if !$config;
   die "Unable to read file" if $config->read_file;
 
   return $config;
+}
+
+sub get_logger {
+  my $config = shift;
+  return Logger->new( -log_dir => ( $config->get_path( -log_dir => 1 ) ) );
 }
 
 1;

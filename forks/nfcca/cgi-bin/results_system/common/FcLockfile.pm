@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 FcLockfile Package
@@ -44,9 +45,7 @@ Inherits
   use File::Copy;
   use File::Compare;
   use Time::localtime;
-  use Fcerror;
-
-  our @ISA = qw/Fcerror/;
+  use Carp;
 
   # Class variables
   $FcLockfile::TIMEOUT = 105;
@@ -67,14 +66,15 @@ the class variables LOCKDIR, OLDFILE.
 
     #*****************************************************************************
   {
-    my ($class,%args) = @_;
+    my ( $class, %args ) = @_;
     my $self = {};
     bless $self, $class;
 
     my $err = 0;
-    $self->set_lock_dir($args{-lock_dir}) if $args{-lock_dir};
-    $self->{LOCKFILETRIES}   = 0;
-
+    $self->set_lock_dir( $args{-lock_dir} ) if $args{-lock_dir};
+    $self->{LOCKFILETRIES} = 0;
+    croak "Need a logger. -logger not set." if !$args{-logger};
+    $self->{LOGGER} = $args{-logger};
     return $self;
 
   }    # End constructor
@@ -225,6 +225,12 @@ Ummm ... looks like it deletes it to me.
 =head2 Internal Methods
 
 =cut
+
+=head3 logger
+
+=cut
+
+  sub logger { my $self = shift; return $self->{LOGGER}; }
 
 =head3 DESTROY
 
