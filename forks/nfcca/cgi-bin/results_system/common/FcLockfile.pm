@@ -11,18 +11,6 @@ Lock file functionality.
 
 =cut
 
-=head1 ISA Fcerror
-
-Inherits
-
-=over
-
-=item logger
-
-=back
-
-=cut
-
 =head1 METHODS
 
 =cut
