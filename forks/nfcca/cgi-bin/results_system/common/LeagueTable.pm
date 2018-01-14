@@ -159,6 +159,7 @@ It returns an error code.
       my $wd = WeekData->new(
         -config   => $self->get_configuration,
         -query    => $self->get_query,
+        -logger   => $self->logger,
         -division => $self->get_division,
         -week     => $wk
       );
