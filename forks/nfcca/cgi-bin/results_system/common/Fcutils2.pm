@@ -80,7 +80,7 @@ the class variables LOGDIR, OLDFILE.
 
   sub get_logger {
     my ( $self, %args ) = @_;
-    $self->{LOGGER} = Logger->new( %args || () );
+    $self->{LOGGER} = Logger->new(%args);
     return $self->{LOGGER};
   }
 
