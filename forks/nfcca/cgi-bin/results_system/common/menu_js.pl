@@ -12,8 +12,10 @@ use warnings;
 use CGI;
 use Data::Dumper;
 
+use FcLockfile;
+use Logger;
+
 use ResultsConfiguration;
-use Fcutils2;
 use Fixtures;
 
 my $logger;
@@ -44,7 +46,6 @@ sub menu {
   my %args = (@_);
   my $c    = $args{-config};
   my $q    = $args{-query};
-  my $u    = $args{-util};
   my $line;
 
   my @x = $c->get_menu_names;
@@ -87,7 +88,6 @@ sub week_fixtures {
 
   my $q = $args{-query};
   my $line;
-  my $u = $args{-util};
   $line = qq/
   
      function validate_menu_form() {
@@ -185,7 +185,6 @@ sub get_all_dates_by_division {
   my %args = (@_);
   my $c    = $args{-config};
   my $q    = $args{-query};
-  my $u    = $args{-util};
 
   my $dates = {};
 
@@ -239,7 +238,6 @@ sub main {
 
   # *********************************************
 
-  my $err = 0;
   my ( $log_path, $log_dir, $log_file, $LOG );
 
   my $q      = CGI->new();
@@ -247,45 +245,62 @@ sub main {
   my $page   = $q->param("page") || "";
   my $f      = "../custom/$system/$system.ini" if $system;
 
-  my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y', -logger => $logger );
-  $logger = $u->get_logger->logger;
+  my ( $err, $c ) = read_configuration( $system, Logger->new()->screen_logger );
 
-  my $c = ResultsConfiguration->new( -full_filename => $f, -logger => $logger );
+  $log_path = $c->get_path( -log_dir => "Y" );
 
-  $c->read_file();
-
-  $logger = $u->get_logger()->logger( $c->get_path( -log_dir => "Y" ), 1 );
-  $logger->debug("In menu_js.pl page=$page system=$system");
-
-  $log_path = $c->get_path( -log_dir => "Y" ) if !$err;
+  $logger = Logger->new(
+    -append_to_logfile => 'Y',
+    -auto_clean        => 'Y',
+    -log_dir           => $log_path
+  )->logger($log_path);
+  $logger->info("In menu_js.pl page=$page system=$system");
 
   $log_file = $c->get_log_stem($system) if !$err;
 
-  $err = $u->get_logger->set_log_dir($log_path) if !$err;
+  my $locker = FcLockfile->new( -logger => $logger );
+  $locker->set_lock_dir($log_path) if !$err;
 
-  $u->get_locker( -logger => $logger )->set_lock_dir($log_path) if !$err;
-
-  $err = $u->get_locker()->open_lock_file( $log_file . "js" ) if !$err;
-
-  ( $err, $LOG ) = $u->get_logger->open_log_file( $log_file . "js" ) if !$err;
+  $err = $locker->open_lock_file( $log_file . "js" ) if !$err;
 
   return $err if $err;
 
   print $q->header( -type => "text/javascript", -expires => "+1m" );
 
   if ( $q->param("page") ne "week_fixtures" ) {
-    menu( -config => $c, -query => $q, -util => $u );
+    menu( -config => $c, -query => $q );
 
     print "all_dates = \n"
-      . get_all_dates_by_division_as_json( -config => $c, -query => $q, -util => $u ) . ";\n";
+      . get_all_dates_by_division_as_json( -config => $c, -query => $q ) . ";\n";
   }
   else {
-    week_fixtures( -config => $c, -query => $q, -util => $u );
+    week_fixtures( -config => $c, -query => $q );
   }
 
-  $u->get_logger->close_log_file( $LOG, $err );
-  $u->get_locker()->close_lock_file;
+  $locker->close_lock_file;
 
 }
 
+=head2 read_configuration
+
+=cut
+
+sub read_configuration {
+  my ( $system, $logger ) = @_;
+  my $err = 0;
+  my $f = "../custom/$system/$system.ini" if $system;
+
+  my $c = ResultsConfiguration->new( -full_filename => $f, -logger => $logger );
+  if ( !$c ) {
+    $logger->error("Unable to create ResultsConfiguration object.");
+    return ( 1, undef );
+  }
+  if ( $c->read_file ) {
+    $logger->error("Unable to read configuration file");
+    return ( 1, undef );
+  }
+  return ( 0, $c );
+}
+
 main;
+

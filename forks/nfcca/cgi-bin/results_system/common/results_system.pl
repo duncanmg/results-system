@@ -71,7 +71,8 @@ use FcCGI qw/meta/;
 use Slurp;
 use Params::Validate qw/:all/;
 
-use Fcutils2;
+use FcLockfile;
+use Logger;
 
 use Menu;
 use WeekFixtures;
@@ -110,7 +111,6 @@ sub output_frame {
   my %args = (@_);
   my $q    = $args{-query};
   my $c    = $args{-config};
-  my $u    = $args{-util};
   my $err  = 0;
   my $line;
   my @file_lines;
@@ -172,7 +172,6 @@ sub output_page {
   my %args = (@_);
   my $q    = $args{-query};
   my $c    = $args{-config};
-  my $u    = $args{-util};
   my $page = $args{-page};
   my $err  = 0;
   my $line;
@@ -290,7 +289,6 @@ sub output_csv {
   my %args = (@_);
   my $q    = $args{-query};
   my $c    = $args{-config};
-  my $u    = $args{-util};
   my $page = $args{-page};
   my $err  = 0;
   my $line;
@@ -320,6 +318,27 @@ sub output_csv {
   return $err;
 }
 
+=head2 read_configuration
+
+=cut
+
+sub read_configuration {
+  my ( $system, $logger ) = @_;
+  my $err = 0;
+  my $f = "../custom/$system/$system.ini" if $system;
+
+  my $c = ResultsConfiguration->new( -full_filename => $f, -logger => $logger );
+  if ( !$c ) {
+    $logger->error("Unable to create ResultsConfiguration object.");
+    return ( 1, undef );
+  }
+  if ( $c->read_file ) {
+    $logger->error("Unable to read configuration file");
+    return ( 1, undef );
+  }
+  return ( 0, $c );
+}
+
 =head2 main
 
 =cut
@@ -334,55 +353,37 @@ sub main {
   my $log_file = "results_system";
   my $log_path = "/usr/home/sehca/public_html/sehca_logs";
   my $c;
+  my $locker;
 
   # my $line;
-
-  # Logs go to standard error until configuration is properly loaded.
-  my $u = Fcutils2->new( -append_to_logfile => 'Y', -auto_clean => 'Y', -logger => $logger );
-  $logger = $u->get_logger->logger;
 
   my $system = $q->param("system");
   my $page   = $q->param("page");
 
-  eval {
-    my $f = "../custom/$system/$system.ini" if $system;
+  ( $err, $c ) = read_configuration( $system, Logger->new()->screen_logger );
 
-    # $logger->debug("Configuration file <$f> for system <$system>.");
-    $c = ResultsConfiguration->new( -full_filename => $f, -logger => $logger );
-    if ( !$c ) {
-      $err = 1;
-      $logger->debug("Unable to create ResultsConfiguration object.");
-    }
-    $err = $c->read_file;
-    if ( $err == 0 ) {
-      $log_path = $c->get_path( -log_dir => "Y" );
-      $log_file = $c->get_log_stem($system);
-    }
-  };
-  if ($@) {
-    print STDERR $@ . "\n";
-    $logger->debug($@);
-    $err = 1;
+  if ( $err == 0 ) {
+    $log_path = $c->get_path( -log_dir => "Y" );
+    $log_file = $c->get_log_stem($system);
   }
 
   if ( $err == 0 ) {
-    $logger = $u->get_logger->logger( $log_path, 1 );
-    $err = $u->get_logger->set_log_dir($log_path);
-  }
-  if ( $err == 0 ) {
-    $u->get_locker( -logger => $logger )->set_lock_dir($log_path);
+    my $logger_object = Logger->new(
+      -append_to_logfile => 'Y',
+      -auto_clean        => 'Y',
+      -log_dir           => $log_path,
+      -logfile_stem      => 'rs'
+    );
+    $logger = $logger_object->logger( $log_path, 1 );
+    $logger_object->auto_clean;
   }
 
   if ( $err == 0 ) {
-    $err = $u->get_locker()->open_lock_file($log_file);
+    $locker = FcLockfile->new( -logger => $logger );
+    $locker->set_lock_dir($log_path);
+    $err = $locker->open_lock_file($log_file);
   }
-  if ( $err == 0 ) {
-    ( $err, $LOG ) = $u->get_logger->open_log_file($log_file);
-  }
-  if ( $err == 0 ) {
-    $u->get_logger->set_logfile_stem('rs');
-    $u->get_logger->auto_clean;
-  }
+
   if ( $err != 0 ) {
     return $err;
   }
@@ -396,20 +397,19 @@ sub main {
       . $q->param("user") );
 
   if ( $page eq 'ground_markings' ) {
-    $err = output_csv( -query => $q, -config => $c, -util => $u, -page => $page );
+    $err = output_csv( -query => $q, -config => $c, -page => $page );
   }
   elsif ( $page !~ m/frame/i ) {
-    $err = output_page( -query => $q, -config => $c, -util => $u, -page => $page );
+    $err = output_page( -query => $q, -config => $c, -page => $page );
   }
   else {
-    eval { $err = output_frame( -query => $q, -config => $c, -util => $u, -page => $page ); };
+    eval { $err = output_frame( -query => $q, -config => $c, -page => $page ); };
     if ($@) {
       $logger->error($@);
       $err = 1;
     }
   }
-  $u->get_logger->close_log_file( $LOG, $err );
-  $u->get_locker()->close_lock_file;
+  $locker->close_lock_file;
 
   #
 }
