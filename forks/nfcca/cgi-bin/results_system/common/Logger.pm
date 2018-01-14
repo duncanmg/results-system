@@ -75,6 +75,10 @@ the class variables LOGDIR, OLDFILE.
     $self->{SAVE_DAYS}    = 30;
     $self->{LOGFILE_STEM} = "_NONE_";
 
+    $self->set_log_dir( $args{-log_dir} ) if $args{-log_dir};
+
+    $self->set_logfile_stem( $args{-logfile_stem} ) if $args{-logfile_stem};
+
     return $self;
 
   }    # End constructor
@@ -192,14 +196,14 @@ will set $logfile_name to "/tmp/rs28.log"
     my $num_matches = 0;
     my $num_too_old = 0;
 
-    $self->logger->debug( "Start auto_clean. " . $self->get_auto_clean );
+    $self->{logger}->debug( "Start auto_clean. " . $self->get_auto_clean );
     if ( $self->get_auto_clean ne 'Y' ) {
       return $err;
     }
 
     my $d = $self->get_log_dir;
     if ( !opendir( $FP, $d ) ) {
-      $self->logger->error("auto_clean(): Unable to open log dir $d.");
+      $self->{logger}->error("auto_clean(): Unable to open log dir $d.");
       $err = 1;
     }
     else {
@@ -223,16 +227,19 @@ will set $logfile_name to "/tmp/rs28.log"
           $num_matches++;
           if ( $st->mtime < $t ) {
             $num_too_old++;
-            $self->logger->debug("Delete old log file $ff");
+            $self->{logger}->debug("Delete old log file $ff");
             unlink($ff)
-              || do { $self->logger->error( "Unable to delete old log file $ff. " . $! ); $err = 1; }
+              || do {
+              $self->{logger}->error( "Unable to delete old log file $ff. " . $! );
+              $err = 1;
+              }
           }
         }
 
       }
 
     }
-    $self->logger->debug("$num_files files $num_matches match $stem $num_too_old too old.");
+    $self->{logger}->debug("$num_files files $num_matches match $stem $num_too_old too old.");
     close $FP;
     return $err;
   }
@@ -265,7 +272,7 @@ Set the log directory.
     my $err  = 0;
     $self->{LOGDIR} = shift;
     if ( !-d $self->get_log_dir ) {
-      $self->logger->error( "Log directory does not exist. " . $self->get_log_dir );
+      $self->{logger}->error( "Log directory does not exist. " . $self->get_log_dir );
       $err = 1;
     }
     return $err;
@@ -287,7 +294,7 @@ Not needed any more. Will be removed at some point.
     my $count = 0;
     my $LOGFILE;
 
-    $self->logger(1)->debug("open_log_file called()");
+    $self->{logger}->debug("open_log_file called()");
 
     return ( $err, $LOGFILE );
   }    # End open_log_file()
@@ -579,4 +586,4 @@ returned as well.
   }
 
   1;
-}    # End package Fcutils
+}
