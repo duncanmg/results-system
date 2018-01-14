@@ -37,7 +37,7 @@ sub get_config {
   my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
 
   my $config =
-    ResultsConfiguration->new( -full_filename => $file, -logger => Logger->new()->get_logger );
+    ResultsConfiguration->new( -full_filename => $file, -logger => Logger->new()->logger );
   die "Unable to create ResultsConfiguration object" if !$config;
   die "Unable to read file" if $config->read_file;
 

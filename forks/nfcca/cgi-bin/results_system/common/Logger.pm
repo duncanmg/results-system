@@ -37,92 +37,6 @@
 
 =cut
 
-=head3 default_conf
-
-Default configuration
-
-=cut
-
-  sub default_conf {
-    return {
-      "log4perl.rootLogger"             => "INFO , Screen",
-      "log4perl.logger.xxxx"            => "INFO, Screen",
-      "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
-      "log4perl.appender.Screen.stderr" => 1,
-      "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
-      "log4perl.appender.Screen.layout.ConversionPattern" =>
-        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
-    };
-  }
-
-=head3 conf_with_logfile
-
-Used when a valid log file has been provided, but there is no configuration
-file.
-
-=cut
-
-  sub conf_with_logfile {
-    my $file = shift;
-    return {
-      "log4perl.rootLogger"                    => "INFO , LOGFILE",
-      "log4perl.category.ResultsConfiguration" => "INFO , LOGFILE",
-      "log4perl.category.Fixtures"             => "INFO , LOGFILE",
-      "log4perl.category.WeekFixtures"         => "INFO , LOGFILE",
-      "log4perl.category.WeekData"             => "INFO , LOGFILE",
-      "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
-      "log4perl.appender.LOGFILE.filename"     => $file,
-      "log4perl.appender.LOGFILE.mode"         => "append",
-      "log4perl.appender.LOGFILE.layout"       => "Log::Log4perl::Layout::PatternLayout",
-      "log4perl.appender.LOGFILE.layout.ConversionPattern" =>
-        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n",
-    };
-  }
-
-=head3 get_logger
-
-$logger = get_logger($category, $file);
-
-category: Log4perl category
-
-file: File messages will be logged to.
-
-If $file is undefined then messages are logged to the screen.
-
-If file is provided then it tries to read the rest of the configuration from a file called logger.conf in the current directory.
-
-If that doesn't exist then a set of defaults are used.
-
-=cut
-
-  sub get_logger {
-    my ( $category, $file ) = validate_pos( @_, 1, 0 );
-
-    $category = 'Default' if !$category;
-    my $conf = get_conf($file);
-
-    Log::Log4perl::init($conf);
-
-    my $logger = Log::Log4perl::get_logger($category);
-
-    return $logger;
-
-  }
-
-  sub get_conf {
-    my $file = shift;
-
-    return default_conf() if !$file;
-
-    my ( $name, $path, $suffix ) = fileparse($file);
-    return default_conf() if !-d $path;
-
-    return conf_with_logfile($file) if !-f $CONF_FILE;
-
-    $ENV{LOGFILENAME} = $file;
-    return $CONF_FILE;
-  }
-
 =head2 External Methods
 
 =cut
@@ -180,7 +94,7 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
 
     if ( $force || !$self->{logger} ) {
       my $class = ref($self);
-      $self->{logger} = Logger::get_logger( $class, $self->logfile_name($dir) );
+      $self->{logger} = $self->get_logger( $class, $self->logfile_name($dir) );
 
     }
     return $self->{logger};
@@ -376,6 +290,99 @@ Don't need this any more.
 =head2 Internal Methods
 
 =cut
+
+=head3 default_conf
+
+Default configuration
+
+=cut
+
+  sub default_conf {
+    my $self = shift;
+    return {
+      "log4perl.rootLogger"             => "DEBUG , Screen",
+      "log4perl.logger.xxxx"            => "DEBUG, Screen",
+      "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
+      "log4perl.appender.Screen.stderr" => 1,
+      "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
+      "log4perl.appender.Screen.layout.ConversionPattern" =>
+        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
+    };
+  }
+
+=head3 conf_with_logfile
+
+Used when a valid log file has been provided, but there is no configuration
+file.
+
+=cut
+
+  sub conf_with_logfile {
+    my $self = shift;
+    my $file = shift;
+    return {
+      "log4perl.rootLogger"                    => "DEBUG , LOGFILE",
+      "log4perl.category.ResultsConfiguration" => "DEBUG , LOGFILE",
+      "log4perl.category.Fixtures"             => "DEBUG , LOGFILE",
+      "log4perl.category.WeekFixtures"         => "DEBUG , LOGFILE",
+      "log4perl.category.WeekData"             => "DEBUG , LOGFILE",
+      "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
+      "log4perl.appender.LOGFILE.filename"     => $file,
+      "log4perl.appender.LOGFILE.mode"         => "append",
+      "log4perl.appender.LOGFILE.layout"       => "Log::Log4perl::Layout::PatternLayout",
+      "log4perl.appender.LOGFILE.layout.ConversionPattern" =>
+        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n",
+    };
+  }
+
+=head3 get_logger
+
+$logger = get_logger($category, $file);
+
+category: Log4perl category
+
+file: File messages will be logged to.
+
+If $file is undefined then messages are logged to the screen.
+
+If file is provided then it tries to read the rest of the configuration from a file called logger.conf in the current directory.
+
+If that doesn't exist then a set of defaults are used.
+
+=cut
+
+  sub get_logger {
+    my ( $self, $category, $file ) = validate_pos( @_, 1, 1, 0 );
+
+    $category = 'Default' if !$category;
+    my $conf = $self->get_conf($file);
+
+    Log::Log4perl::init($conf);
+
+    my $logger = Log::Log4perl::get_logger($category);
+
+    return $logger;
+
+  }
+
+=head3 get_conf
+
+=cut
+
+  sub get_conf {
+    my $self = shift;
+    my $file = shift;
+
+    return $self->default_conf() if !$file;
+
+    my ( $name, $path, $suffix ) = fileparse($file);
+    return $self->default_conf() if !-d $path;
+
+    return $self->conf_with_logfile($file) if !-f $CONF_FILE;
+
+    $ENV{LOGFILENAME} = $file;
+    return $CONF_FILE;
+  }
 
 =head3 _keep_before_time
 
