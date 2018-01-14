@@ -188,7 +188,7 @@ Searches the directory returned by get_log_dir. It then deletes any files which
 match a given pattern and are older than the time returned by _keep_after_time.
 
 The pattern is th t the file name should begin with the string returned by 
-_get_logfile_stem and end with ".log".
+get_logfile_stem and end with ".log".
 
 =cut
 
@@ -219,7 +219,7 @@ _get_logfile_stem and end with ".log".
       my @files = readdir $FP;
 
       my $t = $self->_keep_after_time;
-      $stem = $self->_get_logfile_stem;
+      $stem = $self->get_logfile_stem;
 
       foreach my $f (@files) {
 
@@ -323,6 +323,18 @@ Don't need this any more.
 
     return $err;
   }    # End close_log_file()
+
+=head3 get_logfile_stem
+
+=cut
+
+  #*****************************************************************************
+  sub get_logfile_stem {
+
+    #*****************************************************************************
+    my $self = shift;
+    return $self->{LOGFILE_STEM};
+  }
 
 =head2 Internal Methods
 
@@ -512,18 +524,6 @@ Return the number of days to save a log file. Defaults to 30.
     #*****************************************************************************
     my $self = shift;
     return $self->{APPEND_TO_LOGFILE};
-  }
-
-=head3 _get_logfile_stem
-
-=cut
-
-  #*****************************************************************************
-  sub _get_logfile_stem {
-
-    #*****************************************************************************
-    my $self = shift;
-    return $self->{LOGFILE_STEM};
   }
 
 =head3 get_log_dir
