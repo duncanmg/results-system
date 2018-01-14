@@ -182,6 +182,14 @@ will set $logfile_name to "/tmp/rs28.log"
 
 =head3 auto_clean
 
+Does nothing unless get_auto_clean() returns "Y".
+
+Searches the directory returned by get_log_dir. It then deletes any files which
+match a given pattern and are older than the time returned by _keep_after_time.
+
+The pattern is th t the file name should begin with the string returned by 
+_get_logfile_stem and end with ".log".
+
 =cut
 
   #*****************************************************************************
@@ -210,7 +218,7 @@ will set $logfile_name to "/tmp/rs28.log"
 
       my @files = readdir $FP;
 
-      my $t = $self->_keep_before_time;
+      my $t = $self->_keep_after_time;
       $stem = $self->_get_logfile_stem;
 
       foreach my $f (@files) {
@@ -416,12 +424,15 @@ Otherwise return undef.
     return $CONF_FILE;
   }
 
-=head3 _keep_before_time
+=head3 _keep_after_time
+
+Returns the current time in seconds minus the number of seconds which a log file
+should be kept for. Uses _get_save_seconds.
 
 =cut
 
   #*****************************************************************************
-  sub _keep_before_time {
+  sub _keep_after_time {
 
     #*****************************************************************************
     my $self = shift;
@@ -436,6 +447,9 @@ Otherwise return undef.
   }
 
 =head3 _get_save_seconds
+
+Return to number of seconds to save a log file. Converts the figure returned by
+get_save_days.
 
 =cut
 
@@ -460,6 +474,8 @@ Otherwise return undef.
   }
 
 =head3 get_save_days
+
+Return the number of days to save a log file. Defaults to 30.
 
 =cut
 
