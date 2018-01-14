@@ -172,10 +172,8 @@ Parameters:
       }
       ) . "\n";
 
-    $DB::single = 1;
     if ( $args{-form} ) {
-      my $p =
-        Pwd->new( -query => $q, -logger => $self->logger, -config => $self->get_configuration );
+      my $p = $self->_get_pwd($q);
       $line = $line . $p->get_pwd_fields . "<br/>";
       $line = $line . $q->input( { -type => "submit", -value => "Save Changes" } ) . "<br/>\n";
       $line = $line . "</form>\n";
@@ -209,8 +207,7 @@ but don't save.
     my $q    = $self->get_query;
     my $type = "home";
 
-    my $p =
-      Pwd->new( -query => $q, -config => $self->get_configuration, -logger => $self->logger );
+    my $p = $self->_get_pwd;
     my ( $err, $line ) = $p->check_pwd();
 
     if ( $err == 0 ) {
@@ -776,6 +773,16 @@ Returns an HTML string with a heading in it.
 
     return $err;
 
+  }
+
+=head3 _get_pwd
+
+=cut
+
+  sub _get_pwd {
+    my ( $self, $q ) = @_;
+    return Pwd->new( -query => $q, -logger => $self->logger,
+      -config => $self->get_configuration );
   }
 
   1;
