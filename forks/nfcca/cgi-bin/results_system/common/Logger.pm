@@ -100,6 +100,28 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
     return $self->{logger};
   }
 
+=head3 screen_logger
+
+Log to screen (STDERR) using the default configuration.
+
+$logger = $self->screen_logger();
+
+=cut
+
+  sub screen_logger {
+    my ( $self, $category ) = validate_pos( @_, 1, 0 );
+
+    $category = 'Default' if !$category;
+    my $conf = $self->default_conf();
+
+    Log::Log4perl::init($conf);
+
+    my $logger = Log::Log4perl::get_logger($category);
+
+    return $logger;
+
+  }
+
 =head3 logfile_name
 
 Return the existing logfile_name or undef:
@@ -300,8 +322,7 @@ Default configuration
   sub default_conf {
     my $self = shift;
     return {
-      "log4perl.rootLogger"             => "DEBUG , Screen",
-      "log4perl.logger.xxxx"            => "DEBUG, Screen",
+      "log4perl.rootLogger"             => "INFO , Screen",
       "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
       "log4perl.appender.Screen.stderr" => 1,
       "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
@@ -321,11 +342,11 @@ file.
     my $self = shift;
     my $file = shift;
     return {
-      "log4perl.rootLogger"                    => "DEBUG , LOGFILE",
-      "log4perl.category.ResultsConfiguration" => "DEBUG , LOGFILE",
-      "log4perl.category.Fixtures"             => "DEBUG , LOGFILE",
-      "log4perl.category.WeekFixtures"         => "DEBUG , LOGFILE",
-      "log4perl.category.WeekData"             => "DEBUG , LOGFILE",
+      "log4perl.rootLogger"                    => "INFO , LOGFILE",
+      "log4perl.category.ResultsConfiguration" => "INFO , LOGFILE",
+      "log4perl.category.Fixtures"             => "INFO , LOGFILE",
+      "log4perl.category.WeekFixtures"         => "INFO , LOGFILE",
+      "log4perl.category.WeekData"             => "INFO , LOGFILE",
       "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
       "log4perl.appender.LOGFILE.filename"     => $file,
       "log4perl.appender.LOGFILE.mode"         => "append",
@@ -341,13 +362,11 @@ $logger = get_logger($category, $file);
 
 category: Log4perl category
 
-file: File messages will be logged to.
+file: Full file messages will be logged to.
 
-If $file is undefined then messages are logged to the screen.
+If $file is undefined or the directory does not exist then undefined is returned.
 
-If file is provided then it tries to read the rest of the configuration from a file called logger.conf in the current directory.
-
-If that doesn't exist then a set of defaults are used.
+If the configuration file does not exists, undefined is returned.
 
 =cut
 
@@ -356,6 +375,7 @@ If that doesn't exist then a set of defaults are used.
 
     $category = 'Default' if !$category;
     my $conf = $self->get_conf($file);
+    return if !$conf;
 
     Log::Log4perl::init($conf);
 
@@ -367,18 +387,23 @@ If that doesn't exist then a set of defaults are used.
 
 =head3 get_conf
 
+Return the log configuration file if it exists and if the log directory
+exists. The log file does not have to exist.
+
+Otherwise return undef.
+
 =cut
 
   sub get_conf {
     my $self = shift;
     my $file = shift;
 
-    return $self->default_conf() if !$file;
+    return if !$file;
 
     my ( $name, $path, $suffix ) = fileparse($file);
-    return $self->default_conf() if !-d $path;
+    return if !-d $path;
 
-    return $self->conf_with_logfile($file) if !-f $CONF_FILE;
+    return if !-f $CONF_FILE;
 
     $ENV{LOGFILENAME} = $file;
     return $CONF_FILE;
