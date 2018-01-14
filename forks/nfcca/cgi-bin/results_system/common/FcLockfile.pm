@@ -29,7 +29,7 @@ Inherits
 
 #***********************************************************************
 #
-# Name Fcutils.pm
+# Name FcLockfile.pm
 #
 #***********************************************************************
 
@@ -247,4 +247,4 @@ Close the lock file if this object opened it.
   }
 
   1;
-}    # End package Fcutils
+}    # End package FcLockfile
