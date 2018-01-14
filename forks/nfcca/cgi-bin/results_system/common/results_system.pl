@@ -339,6 +339,22 @@ sub read_configuration {
   return ( 0, $c );
 }
 
+=head2
+
+Run auto_clean on files beginning with "rs", "wrong" or "vwrong" and ending in ".log".
+
+=cut
+
+sub auto_clean {
+  my $logger_object = shift;
+  my $original      = $logger_object->get_logfile_stem;
+  foreach my $stem ( "rs", "wrong", "vwrong" ) {
+    $logger_object->set_logfile_stem($stem);
+    $logger_object->auto_clean;
+  }
+  $logger_object->set_logfile_stem($original);
+}
+
 =head2 main
 
 =cut
@@ -375,7 +391,7 @@ sub main {
       -logfile_stem      => 'rs'
     );
     $logger = $logger_object->logger( $log_path, 1 );
-    $logger_object->auto_clean;
+    auto_clean($logger_object);
   }
 
   if ( $err == 0 ) {
@@ -388,8 +404,8 @@ sub main {
     return $err;
   }
 
-  $logger->error("system=$system page=$page");
-  $logger->error( "division="
+  $logger->info("system=$system page=$page");
+  $logger->info( "division="
       . $q->param("division")
       . " matchdate="
       . $q->param("matchdate")
