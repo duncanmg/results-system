@@ -1,11 +1,11 @@
 
-=head1 Logger
+=head1 ResultsSystem::Logger
 
 =cut
 
 {
 
-  package Logger;
+  package ResultsSystem::Logger;
 
   use strict;
   use warnings;
@@ -27,7 +27,7 @@
 
   our @EXPORT_OK = qw/ get_logger /;
 
-  our $CONF_FILE = "./logger.conf";
+  our $CONF_FILE = "../logger.conf";
 
 =head2 ISA Exporter
 

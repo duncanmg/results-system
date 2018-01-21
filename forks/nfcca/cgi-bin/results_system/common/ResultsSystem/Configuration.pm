@@ -1,13 +1,13 @@
 # *******************************************************
 #
-# Name: ResultsConfiguration.pm
+# Name: ResultsSystem::Configuration.pm
 #
 # 0.1  - 25 Jun 08 - POD added.
 # 0.2  - 20 Jul 08 - get_calculation added. 000004.
 #
 # *******************************************************
 
-=head1 ResultsConfiguration.pm
+=head1 ResultsSystem::Configuration.pm
 
 =cut
 
@@ -17,7 +17,7 @@
 
 {
 
-  package ResultsConfiguration;
+  package ResultsSystem::Configuration;
 
   use XML::Simple;
   use Sort::Maker;
@@ -32,17 +32,17 @@
 
 =head3 new
 
-Constructor for the ResultsConfiguration object. Optionally accepts the full filename
+Constructor for the ResultsSystem::Configuration object. Optionally accepts the full filename
 of the configuration file as an argument. Does not read the file at this point.
 
 If -full_filename is not provided, then it must be set explicitly before the file 
 can be read.
 
-  $c = ResultsConfiguration->new( -full_filename => "/custom/config.ini" );
+  $c = ResultsSystem::Configuration->new( -full_filename => "/custom/config.ini" );
 
 or 
 
-  $c = ResultsConfiguration->new();
+  $c = ResultsSystem::Configuration->new();
   $c->set_full_filename("/custom/config.ini");
 
 Requires -logger
@@ -107,7 +107,31 @@ Returns the full filename of the configuration file.
 
     #***************************************
     my $self = shift;
+    return $self->{FULL_FILENAME} if $self->{FULL_FILENAME};
+    my $system = $self->get_system;
+    if ( $system ) {
+      $self->set_full_filename("../custom/$system/$system.ini");
+    }
     return $self->{FULL_FILENAME};
+  }
+
+=head3 set_system
+
+=cut
+
+  sub set_system {
+    my ( $self, $system ) = @_;
+    $self->{system} = $system;
+    return $self;
+  }
+
+=head3 get_system
+
+=cut
+
+  sub get_system {
+    my $self = shift;
+    return $self->{system};
   }
 
 =head3 read_file

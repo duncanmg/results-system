@@ -1,13 +1,56 @@
+package ResultsSystem::View::Frame;
+
+use strict;
+use warnings;
+
+use ResultsSystem::View;
+use parent qw/ ResultsSystem::View/;
+
+sub new {
+  my ( $class, $args ) = @_;
+  my $self = {};
+  bless $self, $class;
+  $self->{logger} = $args->{-logger} if $args->{-logger};
+  return $self;
+}
+
+sub logger {
+  my $self = shift;
+  return $self->{logger};
+}
+
+# TODO print $q->header( -expires => "+2d" );
+
+sub run {
+  my ( $self, $args ) = @_;
+  my $data = $args->{-data};
+
+  my $html = $self->get_html;
+
+  foreach my $k ( keys %$data ) {
+    $html =~ s/$k/$data->{$k}/xmsg;
+  }
+
+  $self->render({-data=>$html});
+}
+
+=head2 get_html
+
+=cut
+
+sub get_html {
+
+  my $output = qq{
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-	   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
 
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
 <head>
 <!--***************************************************************
 *
-* Name:	results.htm
+* Name: results.htm
 *
 * Function:
 *
@@ -22,7 +65,7 @@
 <title>TITLE</title>
 <style type='text/css'>
 <!--
-@import url(gen_styles.css);
+\@import url(gen_styles.css);
 -->
 </style>
 
@@ -43,3 +86,7 @@
   </frameset>
 
 </html>
+};
+
+}
+1;
