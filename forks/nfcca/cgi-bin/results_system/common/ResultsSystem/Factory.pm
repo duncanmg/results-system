@@ -11,10 +11,13 @@ use ResultsSystem::Router;
 use ResultsSystem::Configuration;
 
 use ResultsSystem::Controller::Frame;
+use ResultsSystem::Controller::Menu;
 
 use ResultsSystem::Model::Frame;
+use ResultsSystem::Model::Menu;
 
 use ResultsSystem::View::Frame;
+use ResultsSystem::View::Menu;
 
 sub new {
   my ( $class, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
@@ -93,6 +96,20 @@ sub get_frame_controller {
   );
 }
 
+=head3 get_menu_controller
+
+=cut
+
+sub get_menu_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::Menu->new(
+    { -logger     => $self->get_logger()->logger,
+      -menu_model => $self->get_menu_model,
+      -menu_view  => $self->get_menu_view
+    }
+  );
+}
+
 =head2 Models
 
 =cut
@@ -104,7 +121,20 @@ sub get_frame_controller {
 sub get_frame_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Frame->new(
-    { -logger => $self->get_logger()->logger,
+    { -logger        => $self->get_logger()->logger,
+      -configuration => $self->get_configuration
+    }
+  );
+}
+
+=head3 get_menu_model
+
+=cut
+
+sub get_menu_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::Menu->new(
+    { -logger        => $self->get_logger()->logger,
       -configuration => $self->get_configuration
     }
   );
@@ -121,6 +151,15 @@ sub get_frame_model {
 sub get_frame_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Frame->new( { -logger => $self->get_logger()->logger } );
+}
+
+=head3 get_menu_view
+
+=cut
+
+sub get_menu_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::Menu->new( { -logger => $self->get_logger()->logger } );
 }
 
 1;

@@ -24,19 +24,105 @@ sub render {
   my ( $self, $args ) = @_;
   my $data = $args->{-data};
 
-  my $q = CGI->new();
-
   my $response = HTTP::Response->new( HTTP_OK,
     status_message(HTTP_OK),
     [ 'Content-Type' => 'text/html; charset=ISO-8859-1',
       'Status'       => HTTP_OK . " " . status_message(HTTP_OK)
     ],
-    $q->start_html . "\n" . $data . "\n" . $q->end_html
+    $data
   );
 
   print $response->headers->as_string . "\n\n";
   print $response->content . "\n";
 
+}
+
+=head2 merge_content
+
+=cut
+
+sub merge_content {
+  my ( $self, $html, $data ) = @_;
+
+  foreach my $k ( keys %$data ) {
+
+    # $html =~ s/[% $k %]/$data->{$k}/xmsg;
+    $html =~ s/\[%\s$k\s%\]/$data->{$k}/xmsg;
+  }
+
+  return $html;
+}
+
+sub html_frame_wrapper {
+  my $self = shift;
+
+  my $output = q{
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+<head>
+<!--***************************************************************
+*
+*       Copyright Duncan Garland Consulting Ltd 2003-2008. All rights reserved.
+*       Copyright Duncan Garland 2008-2018. All rights reserved.
+*
+****************************************************************-->
+
+<title>PAGETITLE</title>
+<style type='text/css'>
+<!--
+\@import url(gen_styles.css);
+-->
+</style>
+
+<script language="JavaScript" type="text/javascript" src="/results_system/common/common.js"></script>
+
+</head>
+  [% CONTENT %]
+</html>
+};
+  return $output;
+}
+
+sub html_wrapper {
+  my $self = shift;
+
+  my $q = CGI->new();
+
+  my $output = q{
+<!DOCTYPE html
+  	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<!--***************************************************************
+*
+*       Copyright Duncan Garland Consulting Ltd 2003-2008. All rights reserved.
+*       Copyright Duncan Garland 2008-2018. All rights reserved.
+*
+****************************************************************-->
+
+<title>[% PAGETITLE %]</title>
+<style type='text/css'>
+<!--
+\@import url(gen_styles.css);
+-->
+</style>
+
+<script language="JavaScript" type="text/javascript" src="/results_system/common/common.js"></script>
+
+</head>
+  <body>
+  [% CONTENT %]
+  </body>
+</html>
+} ;
+
+  return $output;
 }
 
 1;

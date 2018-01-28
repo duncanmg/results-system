@@ -12,11 +12,28 @@ sub new {
   return $self;
 }
 
+=head2 route
+
+=cut
+
+=head3 Routes
+
+=over 
+
+=item frame
+
+=item menu
+
+=back
+
+=cut
+
 sub route {
   my ( $self, $query ) = @_;
 
   my $pages = {
-    'frame' => sub { $self->get_factory->get_frame_controller->run($query) }
+    'frame' => sub { $self->get_factory->get_frame_controller->run($query) },
+    'menu'  => sub { $self->get_factory->get_menu_controller->run($query) }
   };
 
   my $page = $query->param('page');
