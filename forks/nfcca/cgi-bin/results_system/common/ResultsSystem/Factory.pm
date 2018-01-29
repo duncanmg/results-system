@@ -110,6 +110,19 @@ sub get_menu_controller {
   );
 }
 
+=head3 get_blank_controller
+
+=cut
+
+sub get_blank_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::Blank->new(
+    { -logger     => $self->get_logger()->logger,
+      -blank_view  => $self->get_blank_view
+    }
+  );
+}
+
 =head2 Models
 
 =cut
@@ -160,6 +173,15 @@ sub get_frame_view {
 sub get_menu_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Menu->new( { -logger => $self->get_logger()->logger } );
+}
+
+=head3 get_blank_view
+
+=cut
+
+sub get_blank_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::Blank->new( { -logger => $self->get_logger()->logger } );
 }
 
 1;
