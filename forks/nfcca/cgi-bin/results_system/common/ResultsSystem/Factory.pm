@@ -12,12 +12,15 @@ use ResultsSystem::Configuration;
 
 use ResultsSystem::Controller::Frame;
 use ResultsSystem::Controller::Menu;
+use ResultsSystem::Controller::Blank;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
+use ResultsSystem::Model::Fixtures;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
+use ResultsSystem::View::Blank;
 
 sub new {
   my ( $class, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
@@ -147,6 +150,19 @@ sub get_frame_model {
 sub get_menu_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Menu->new(
+    { -logger        => $self->get_logger()->logger,
+      -configuration => $self->get_configuration
+    }
+  );
+}
+
+=head3 get_fixtures_model
+
+=cut
+
+sub get_fixtures_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::Fixtures->new(
     { -logger        => $self->get_logger()->logger,
       -configuration => $self->get_configuration
     }

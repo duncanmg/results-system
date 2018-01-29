@@ -49,21 +49,16 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
 
 =cut
 
-{
+  package ResultsSystem::Model::Fixtures;
 
-  package Fixtures;
-
-  use XML::Simple;
-  use Sort::Maker;
   use strict;
   use warnings;
+
   use Slurp;
-  use Regexp::Common qw/ whitespace /;
   use Data::Dumper;
 
-  use Parent;
-
-  our @ISA = qw/Parent/;
+  use ResultsSystem::Model;
+  use parent qw/ResultsSystem::Model/;
 
 =head1 Public Methods
 
@@ -83,22 +78,22 @@ error returned if the processing fails. This must be inferred from the messages 
   sub new {
 
     #***************************************
+    my $class = shift;
     my $self = {};
-    bless $self;
-    shift;
+    bless $self, $class;
     my %args = (@_);
     my $err  = 0;
-    $Fixtures::create_errmsg = "";
-
-    $self->initialise( \%args );
 
     if ( $args{-full_filename} ) {
       $self->set_full_filename( $args{-full_filename} );
-      $err = $self->_read_file();
+      $err = $self->read_file();
     }
+
+    $self->{logger} = $args{-logger} if $args{-logger};
+    $self->set_configuration($args{-configuration}) if $args{-configuration};
+
     $self->logger->debug("Fixtures object created.") if !$err;
     return $self if $err == 0;
-    $Fixtures::create_errmsg = "Error";
     return undef;
   }
 
@@ -300,6 +295,57 @@ Returns an array reference containing a sorted hash list of teams in the divisio
 
   }
 
+=head2 read_file
+
+Internal method which reads the fixtures file and loads it into an internal data structure.
+
+Returns 0 if the file is successfully loaded and validated.
+
+=cut
+
+  #***************************************
+  sub read_file {
+
+    #***************************************
+    my $self = shift;
+    my @lines;
+    my $err = 0;
+
+    if ( -f $self->get_full_filename ) {
+      @lines = slurp( $self->get_full_filename );
+      $self->logger->debug(
+        scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
+    }
+    else {
+      $self->logger->warn( "Fixtures file " . $self->get_full_filename . " does not exist." );
+      $err = 1;
+    }
+
+    foreach my $l (@lines) {
+
+      last if $err;
+
+      $l = $self->_trim($l);
+      if ( $self->_is_date($l) ) {
+        $err = $self->_add_date($l);
+      }
+
+      elsif ( $self->_is_fixture($l) && $err == 0 ) {
+        if ( $self->_get_last_date ) {
+          $self->_add_fixture( $self->_get_last_date, $l );
+        }
+        else {
+          $err = 1;
+        }
+      }
+      else {
+        $self->logger->debug("read_file <$l> is not a date or a fixture.");
+      }
+      $self->logger->debug("read_file One line processed. err=$err");
+    }
+    return $err;
+  }
+
 =head1 Private Methods
 
 =cut
@@ -467,57 +513,6 @@ Returns 0 on success.
 
   }
 
-=head2 _read_file
-
-Internal method which reads the fixtures file and loads it into an internal data structure.
-
-Returns 0 if the file is successfully loaded and validated.
-
-=cut
-
-  #***************************************
-  sub _read_file {
-
-    #***************************************
-    my $self = shift;
-    my @lines;
-    my $err = 0;
-
-    if ( -f $self->get_full_filename ) {
-      @lines = slurp( $self->get_full_filename );
-      $self->logger->debug(
-        scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
-    }
-    else {
-      $self->logger->warn( "Fixtures file " . $self->get_full_filename . " does not exist." );
-      $err = 1;
-    }
-
-    foreach my $l (@lines) {
-
-      last if $err;
-
-      $l = $self->_trim($l);
-      if ( $self->_is_date($l) ) {
-        $err = $self->_add_date($l);
-      }
-
-      elsif ( $self->_is_fixture($l) && $err == 0 ) {
-        if ( $self->_get_last_date ) {
-          $self->_add_fixture( $self->_get_last_date, $l );
-        }
-        else {
-          $err = 1;
-        }
-      }
-      else {
-        $self->logger->debug("_read_file <$l> is not a date or a fixture.");
-      }
-      $self->logger->debug("_read_file One line processed. err=$err");
-    }
-    return $err;
-  }
-
 =head2 _get_fixture_hash
 
 Internal method which accepts a date and an index and returns a hash
@@ -562,5 +557,3 @@ print $fh{home} . $fh{away} . "\n";
   }
 
   1;
-
-}
