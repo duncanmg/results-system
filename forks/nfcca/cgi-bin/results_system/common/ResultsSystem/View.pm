@@ -15,10 +15,18 @@ sub new {
   return $self;
 }
 
+=head2 logger
+
+=cut
+
 sub logger {
   my $self = shift;
   return $self->{logger};
 }
+
+=head2 render
+
+=cut
 
 sub render {
   my ( $self, $args ) = @_;
@@ -53,6 +61,26 @@ sub merge_content {
   return $html;
 }
 
+=head2 merge_array
+
+=cut
+
+sub merge_array {
+  my ( $self, $row_html, $data_list ) = @_;
+
+  my $html="";
+  foreach my $row ( @$data_list ) {
+
+    $html .= $self->merge_content($row_html, $row);
+  }
+
+  return $html;
+}
+
+=head2 html_frame_wrapper
+
+=cut
+
 sub html_frame_wrapper {
   my $self = shift;
 
@@ -86,6 +114,10 @@ sub html_frame_wrapper {
 };
   return $output;
 }
+
+=head2 html_wrapper
+
+=cut
 
 sub html_wrapper {
   my $self = shift;
