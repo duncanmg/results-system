@@ -30,13 +30,15 @@ function set_up() {
 
     }
 
-    //alert( 2 );
+    // alert( 2 );
     add_dates();
-    //alert( 3 );
+    // alert( 3 );
 
 }
 
+// **************************************************
      function validate_menu_form() {
+// **************************************************
        var i = 0;
        var f = document.menu_form;
 
@@ -52,7 +54,7 @@ function set_up() {
 
        var validate_won_lost = function(i) {
            if ( f["homeresult"+i].value == f["awayresult"+i].value ) {
-             if ( f["homeresult"+i].value.search( \/[WL]\/ ) >= 0 ) {
+             if ( f["homeresult"+i].value.search( /[WL]/ ) >= 0 ) {
                alert( "If one team won, surely the other lost! Match: " + i );
                return false;
              }  
@@ -85,21 +87,23 @@ function set_up() {
        return true;
      }
      
+// **************************************************
      function calculate_points( obj, i ) {
+// **************************************************
 
        var ok = true;
        var check_int = function(i,m) { if (! Number.isInteger(parseInt(i))) { alert(m + " must be an integer. " + i ); ok=false; } };
 
        var name = obj.name;
        var venue;
-       if ( name.search( \/^home\/ ) >= 0 ) {
+       if ( name.search( /^home/ ) >= 0 ) {
          venue = "home";
        }
        else {
          venue = "away";
        }
        if ( document.menu_form[venue+"played"+i].value == "N" 
-           && ( obj.value.search( \/^[0-9]\/ ) >= 0 ) 
+           && ( obj.value.search( /^[0-9]/ ) >= 0 ) 
            && obj.value > 0 ) {
          obj.value = "";
          alert( "This match has not been played!" );

@@ -7,6 +7,8 @@ use CGI;
 use HTTP::Response;
 use HTTP::Status qw/:constants status_message/;
 
+use JSON::Tiny qw(decode_json encode_json);
+
 sub new {
   my ( $class, $args ) = @_;
   my $self = {};
@@ -45,6 +47,51 @@ sub render {
 
 }
 
+=head2 render_javascript
+
+=cut
+
+sub render_javascript {
+  my ( $self, $args ) = @_;
+  my $data = $args->{-data};
+
+  my $response = HTTP::Response->new( HTTP_OK,
+    status_message(HTTP_OK),
+    [ 'Content-Type' => 'text/javascript; charset=ISO-8859-1',
+      'Status'       => HTTP_OK . " " . status_message(HTTP_OK)
+    ],
+    $data
+  );
+
+  print $response->headers->as_string . "\n\n";
+  print $response->content . "\n";
+
+}
+
+=head2 render_json
+
+=cut
+
+sub render_json {
+  my ( $self, $hash_ref ) = @_;
+
+  # print $q->header( -type => "text/javascript", -expires => "+1m" );
+
+  encode_json( { 'all_dates' => $hash_ref } );
+
+  my $response = HTTP::Response->new( HTTP_OK,
+    status_message(HTTP_OK),
+    [ 'Content-Type' => 'text/javascript; charset=ISO-8859-1',
+      'Status'       => HTTP_OK . " " . status_message(HTTP_OK)
+    ],
+    encode_json($hash_ref)
+  );
+
+  print $response->headers->as_string . "\n\n";
+  print $response->content . "\n";
+
+}
+
 =head2 merge_content
 
 =cut
@@ -68,10 +115,10 @@ sub merge_content {
 sub merge_array {
   my ( $self, $row_html, $data_list ) = @_;
 
-  my $html="";
-  foreach my $row ( @$data_list ) {
+  my $html = "";
+  foreach my $row (@$data_list) {
 
-    $html .= $self->merge_content($row_html, $row);
+    $html .= $self->merge_content( $row_html, $row );
   }
 
   return $html;
@@ -152,7 +199,7 @@ sub html_wrapper {
   [% CONTENT %]
   </body>
 </html>
-} ;
+};
 
   return $output;
 }

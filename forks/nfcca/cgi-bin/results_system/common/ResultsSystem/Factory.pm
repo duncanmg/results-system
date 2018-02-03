@@ -13,14 +13,21 @@ use ResultsSystem::Configuration;
 use ResultsSystem::Controller::Frame;
 use ResultsSystem::Controller::Menu;
 use ResultsSystem::Controller::Blank;
+use ResultsSystem::Controller::MenuJs;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
 use ResultsSystem::Model::Fixtures;
+use ResultsSystem::Model::MenuJs;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
 use ResultsSystem::View::Blank;
+use ResultsSystem::View::MenuJs;
+
+=head2 new
+
+=cut
 
 sub new {
   my ( $class, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
@@ -29,9 +36,40 @@ sub new {
   return bless $self, $class;
 }
 
+=head2 Logger
+
+=cut
+
+=head3 get_logger
+
+=cut
+
 sub get_logger {
   my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
   return ResultsSystem::Logger->new(%$args);
+}
+
+=head3 get_screen_logger
+
+=cut
+
+sub get_screen_logger {
+  my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
+  return $self->get_logger($args)->screen_logger();
+}
+
+=head3 get_file_logger
+
+=cut
+
+sub get_file_logger {
+  my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
+  if ( !( $args->{-log_dir} && $args->{-logfile_stem} ) ) {
+    my $c = $self->get_configuration;
+    $args->{-log_dir} = $c->get_path( -log_dir => 1 );
+    $args->{-logfile_stem} = $c->get_log_stem;
+  }
+  return $self->get_logger($args)->logger();
 }
 
 sub get_starter {
@@ -92,7 +130,7 @@ sub get_full_filename {
 sub get_frame_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::Frame->new(
-    { -logger      => $self->get_logger()->logger,
+    { -logger      => $self->get_file_logger(),
       -frame_model => $self->get_frame_model,
       -frame_view  => $self->get_frame_view
     }
@@ -106,7 +144,7 @@ sub get_frame_controller {
 sub get_menu_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::Menu->new(
-    { -logger     => $self->get_logger()->logger,
+    { -logger     => $self->get_file_logger(),
       -menu_model => $self->get_menu_model,
       -menu_view  => $self->get_menu_view
     }
@@ -120,8 +158,22 @@ sub get_menu_controller {
 sub get_blank_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::Blank->new(
-    { -logger     => $self->get_logger()->logger,
-      -blank_view  => $self->get_blank_view
+    { -logger     => $self->get_file_logger(),
+      -blank_view => $self->get_blank_view
+    }
+  );
+}
+
+=head3 get_menu_js_controller
+
+=cut
+
+sub get_menu_js_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::MenuJs->new(
+    { -logger        => $self->get_file_logger(),
+      -menu_js_view  => $self->get_menu_js_view,
+      -menu_js_model => $self->get_menu_js_model
     }
   );
 }
@@ -137,7 +189,7 @@ sub get_blank_controller {
 sub get_frame_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Frame->new(
-    { -logger        => $self->get_logger()->logger,
+    { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration
     }
   );
@@ -150,7 +202,7 @@ sub get_frame_model {
 sub get_menu_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Menu->new(
-    { -logger        => $self->get_logger()->logger,
+    { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration
     }
   );
@@ -163,8 +215,22 @@ sub get_menu_model {
 sub get_fixtures_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Fixtures->new(
-    { -logger        => $self->get_logger()->logger,
+    { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration
+    }
+  );
+}
+
+=head3 get_menu_js_model
+
+=cut
+
+sub get_menu_js_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::MenuJs->new(
+    { -logger        => $self->get_file_logger(),
+      -configuration => $self->get_configuration,
+      -fixtures      => $self->get_fixtures_model,
     }
   );
 }
@@ -179,7 +245,7 @@ sub get_fixtures_model {
 
 sub get_frame_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Frame->new( { -logger => $self->get_logger()->logger } );
+  return ResultsSystem::View::Frame->new( { -logger => $self->get_file_logger() } );
 }
 
 =head3 get_menu_view
@@ -188,7 +254,7 @@ sub get_frame_view {
 
 sub get_menu_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Menu->new( { -logger => $self->get_logger()->logger } );
+  return ResultsSystem::View::Menu->new( { -logger => $self->get_file_logger() } );
 }
 
 =head3 get_blank_view
@@ -197,7 +263,16 @@ sub get_menu_view {
 
 sub get_blank_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Blank->new( { -logger => $self->get_logger()->logger } );
+  return ResultsSystem::View::Blank->new( { -logger => $self->get_file_logger() } );
+}
+
+=head3 get_menu_js_view
+
+=cut
+
+sub get_menu_js_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::MenuJs->new( { -logger => $self->get_file_logger() } );
 }
 
 1;

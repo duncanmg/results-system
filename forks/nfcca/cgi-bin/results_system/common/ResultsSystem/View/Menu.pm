@@ -27,7 +27,6 @@ sub run {
 
   my $html = $self->get_html;
 
-  $DB::single = 1;
   $html = $self->merge_content( $html, $data );
 
   $html = $self->merge_content( $self->html_wrapper, { CONTENT => $html } );
@@ -53,7 +52,7 @@ sub get_html {
   my $self = shift;
 
   my $html = q{
-    <script language="JavaScript" type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]"></script>
+    <script language="JavaScript" type="text/javascript" src="results_system.pl?system=[% SYSTEM %]&page=menu_js"></script>
     <script language="JavaScript" type="text/javascript" src="[% HTDOCS %]/menu.js"></script>
 
     <h1>Results System</h1>
