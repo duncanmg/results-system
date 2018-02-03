@@ -20,20 +20,20 @@
     my $self = {};
     bless $self, $class;
     $self->{logger}     = $args->{logger} if $args->{logger};
-    $self->{menu_view}  = $args->{-menu_view};
+    $self->{blank_view}  = $args->{-blank_view};
     return $self;
   }
 
   sub run {
     my ( $self, $args ) = @_;
 
-    $self->get_menu_view->run( { -data => {} } );
+    $self->get_blank_view->run( { -data => {} } );
 
   }
 
-  sub get_menu_view {
+  sub get_blank_view {
     my $self = shift;
-    return $self->{menu_view};
+    return $self->{blank_view};
   }
 
   1;

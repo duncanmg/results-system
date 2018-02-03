@@ -35,8 +35,8 @@ sub route {
 
   my $pages = {
     'frame' => sub { $self->get_factory->get_frame_controller->run($query) },
-    'menu'  => sub { $self->get_factory->get_menu_controller->run($query) }
-    'blank'  => sub { $self->get_factory->get_blank_controller->run($query) }
+    'menu'  => sub { $self->get_factory->get_menu_controller->run($query) },
+    'blank' => sub { $self->get_factory->get_blank_controller->run($query) }
   };
 
   my $page = $query->param('page');
