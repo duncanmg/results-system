@@ -185,6 +185,92 @@ Parameters:
 
   }
 
+  #***************************************
+  sub get_html {
+
+    #***************************************
+    my $self = shift;
+
+    my $html = q!
+      <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
+      <h1>[% TITLE %] [% SEASON %]</h1>
+      <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]<h1>
+      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1>
+      <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
+
+      <form id="menu_form" name="menu_form" method="post" action="results_system.pl"
+      onsubmit="return validate_menu_form();"
+      target = "f_detail">
+
+      <table class='week_fixtures'>
+      <tr>
+      <th class="teamcol">Team</th>
+      <th>Result</th>
+      <th>Runs</th>
+      <th>Wickets</th>
+      <th class="performances">Performances</th>
+      <th>Result Pts</th>
+      <th>Batting Pts</th>
+      <th>Bowling Pts</th>
+      <th>Penalty Pts</th>
+      <th>Total Pts</th>
+      </tr>
+
+      [% ROWS %]
+
+      </table>
+
+      <input type="hidden" id="division" name="division" value="[% DIVISION %]"/>
+      <input type="hidden" id="matchdate" name="matchdate" value="[% MATCHDATE %]"/>
+      <input type="hidden" id="page" name="page" value="save_results"/>
+      <input type="hidden" id="system" name="system" value="[% SYSTEM %]"/>
+
+      <input type="submit" value="Save Changes"/>
+      </form>
+!;
+
+
+    for ( my $x = 0; $x < 10; $x++ ) {
+
+      $line = $line
+        . $self->_fixture_line(
+        -index => $x,
+        -type  => "home",
+        -query => $q,
+        -form  => $args{-form}
+        );
+      $line = $line
+        . $self->_fixture_line(
+        -index => $x,
+        -type  => "away",
+        -query => $q,
+        -form  => $args{-form}
+        );
+      $line = $line . $self->_blank_line( -index => $x, -type => "blank", -query => $q );
+
+    }
+
+    if ( $args{-form} ) {
+      my $p = $self->_get_pwd($q);
+      $line = $line . $p->get_pwd_fields . "<br/>";
+      $line = $line . $q->input( { -type => "submit", -value => "Save Changes" } ) . "<br/>\n";
+      $line = $line . "</form>\n";
+    }
+
+    return ( $err, $line );
+
+  }
+
+=head2 get_row_html
+
+=cut
+
+sub get_row_html {
+
+return q!
+!;
+}
+
 =head2 save_results
 
 Check the password and save the results if the password is correct.
@@ -389,79 +475,32 @@ Returns an HTML string containing a table row.
 
     #***************************************
     my $self = shift;
-    my %args = (@_);
-    my $line;
-    my $q = $args{-query};
-    my $i = $args{-index};
-    my $v;
 
-    my @elements = (
-      { "name" => "team",   "size" => 32, "readonly" => "readonly" },
-      { "name" => "played", "size" => 2,  "readonly" => undef },
-      { "name" => "result", "size" => 2,  "readonly" => undef },
-      { "name"         => "runs",
-        "readonly"     => undef,
-        "element_type" => "number",
-        "min"          => 0
-      },
-      { "name"         => "wickets",
-        "readonly"     => undef,
-        "element_type" => "number",
-        "min"          => 0
-      },
-      { "name" => "performances", "readonly" => undef },
-      { "name"         => "resultpts",
-        "readonly"     => undef,
-        "element_type" => "number",
-        "min"          => 0
-      },
-      { "name"         => "battingpts",
-        "readonly"     => undef,
-        "element_type" => "number",
-        "min"          => 0
-      },
-      { "name"         => "bowlingpts",
-        "readonly"     => undef,
-        "element_type" => "number",
-        "min"          => 0
-      },
-      { "name"         => "penaltypts",
-        "readonly"     => undef,
-        "element_type" => "number",
-        "min"          => 0
-      },
-      { "name" => "totalpts", "size" => 2, "readonly" => undef, "element_type" => "number" },
-
-      # { "name" => "pitchmks",     "size" => 2,  "readonly" => undef },
-      # { "name" => "groundmks",    "size" => 2,  "readonly" => undef },
-      # { "name" => "facilitiesmks", "size" => 2, "readonly" => undef }
-    );
-
-    $self->logger->debug("fixture_line() called.");
-
-    foreach my $e (@elements) {
-
-      $v = $self->_get_value_string( $args{-type}, $i, $e->{name} );
-      if ( ( !defined($v) ) && ( !$args{-form} ) ) {
-        $v = "&nbsp;";
-      }
-      $line = $line
-        . $self->_format_element(
-        -form         => $args{-form},
-        -index        => $i,
-        -value        => $v,
-        -size         => $e->{size},
-        -readonly     => $e->{readonly},
-        -type         => $args{-type},
-        -name         => $e->{name},
-        -element_type => $e->{element_type},
-        -min          => $e->{min},
-        );
-
-    }
-    $line = $q->Tr($line) . "\n";
-
-    return $line;
+    return q!
+    <tr>
+    <td> <input type="text" name="[% TEAM %]" id="[%TEAM %] size="32" readonly="readonly"/> </td>
+    <td> <select name="[% PLAYED %]" size="2" selected="[% SELECTED_PLAYED %]">
+      <option value="Y">Y</option>
+      <option value="N">N</option>
+      <option value="A">A</option>
+      </select>
+    </td>
+    <td> <select name="[% RESULT %]" size="2" selected="[% SELECTED_RESULT %]">
+      <option value="W">W</option>
+      <option value="L">L</option>
+      <option value="T">T</option>
+      </select>
+    </td>
+    <td> <input name="[% RUNS %]" id="[$ RUNS %]" type="number" min="0"/></td>
+    <td> <input name="[% WICKETS %]" id="[% WICKETS %]" type="number" min="0"/></td>
+    <td> <input type="text"  name="[% PERFORMANCES %]" id="[% PERFORMANCES %]"/></td>
+    <td> <input  name="[% RESULTPTS %]" id="[% RESULTPTS %]" type="number" min="0"/></td>
+    <td> <input name="[% BATTINGPTS %]" id="[% BATTINGPTS %]" type="number" min="0"/></td>
+    <td> <input name="[% BOWLINGPTS %]" id="[% BOWLINGPTS %]" type="number" min="0"/></td>
+    <td> <input name="[% PENALTYPTS %]" id="[% PENALTYPTS %]" type="number" min="0"/></td>
+    <td> <input name="[% TOTALPTS %]" id="[% TOTALPTS %]" type="number"/></td>
+    </tr>
+!;
 
   }
 
@@ -627,44 +666,6 @@ and a fixtures object on success.
 
     }
     return $self->{FIXTURES};
-  }
-
-=head2 _get_heading
-
-Returns an HTML string with a heading in it.
-
-=cut
-
-  #***************************************
-  sub get_heading {
-
-    #***************************************
-    my $self = shift;
-    my $q    = $self->get_query;
-    my $line;
-    my %args = (@_);
-
-    my $c = $self->get_configuration;
-    my $name = $c->get_name( -csv_file => $self->get_division );
-    $line =
-        $line . "<h1>"
-      . $c->get_descriptors( -title  => "Y" ) . " "
-      . $c->get_descriptors( -season => "Y" ) . "</h1>";
-
-    my $f = "Results";
-    if ( $args{-form} ) {
-      $f = "Fixtures";
-    }
-
-    $line =
-        $line
-      . "<h1>$f For Division "
-      . $name->{menu_name}
-      . " Week "
-      . $self->get_week
-      . "</h1>\n";
-
-    return $line;
   }
 
 =head2 _save_line
