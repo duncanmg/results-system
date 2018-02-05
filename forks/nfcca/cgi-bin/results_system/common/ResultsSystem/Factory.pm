@@ -19,6 +19,9 @@ use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
 use ResultsSystem::Model::Fixtures;
 use ResultsSystem::Model::MenuJs;
+use ResultsSystem::Model::WeekData;
+use ResultsSystem::Model::WeekFixtures;
+use ResultsSystem::Model::Pwd;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
@@ -231,6 +234,46 @@ sub get_menu_js_model {
     { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration,
       -fixtures      => $self->get_fixtures_model,
+    }
+  );
+}
+
+=head3 get_week_data_model
+
+=cut
+
+sub get_week_data_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::WeekData->new(
+    { -logger        => $self->get_file_logger(),
+      -configuration => $self->get_configuration,
+    }
+  );
+}
+
+=head3 get_week_fixtures_model
+
+=cut
+
+sub get_week_fixtures_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::WeekFixtures->new(
+    { -logger        => $self->get_file_logger(),
+      -configuration => $self->get_configuration,
+      -week_data => $self->get_week_data_model,
+    }
+  );
+}
+
+=head3 get_pwd_model
+
+=cut
+
+sub get_pwd_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::Pwd->new(
+    { -logger        => $self->get_file_logger(),
+      -configuration => $self->get_configuration,
     }
   );
 }
