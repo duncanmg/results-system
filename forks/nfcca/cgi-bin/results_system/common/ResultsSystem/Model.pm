@@ -39,4 +39,20 @@ sub set_configuration {
   return $self;
 }
 
+=head3 set_arguments
+
+$self->set_arguments( qw/ logger configuration week_data fixtures / );
+
+=cut
+
+sub set_arguments {
+my ($self, @args)=@_;
+    foreach my $a ( @args ) {
+      my $m = 'set_' . $a;
+      my $k = '-'.$a;
+      $self->$m($args->{$k});
+    }
+return 1;
+}
+
 1;
