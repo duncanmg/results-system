@@ -140,7 +140,7 @@ Returns the fixtures for the week as an array ref.
 
       my $c=$self->get_configuration;
       my $season = $c->get_season;
-      my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $d;
+      my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
     $fixtures->set_full_filename($ff);
     my $fixtures_for_week= $fixtures->get_week_fixtures( -date => $self->get_week );
 

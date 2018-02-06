@@ -47,6 +47,7 @@ $self->set_arguments( qw/ logger configuration week_data fixtures / );
 
 sub set_arguments {
 my ($self, @args)=@_;
+    my $args=\@args;
     foreach my $a ( @args ) {
       my $m = 'set_' . $a;
       my $k = '-'.$a;
