@@ -3,9 +3,6 @@ package ResultsSystem::Controller::MenuJs;
 use strict;
 use warnings;
 
-use ResultsSystem::View;
-use parent qw/ ResultsSystem::View/;
-
 sub new {
   my ( $class, $args ) = @_;
   my $self = {};

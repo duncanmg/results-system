@@ -1,10 +1,10 @@
-# **************************************************************
-#
-# Name: WeekData.pm
-#
-# 0.1  - 27 Jun 08 - POD added.
-#
-# **************************************************************
+  # **************************************************************
+  #
+  # Name: WeekData.pm
+  #
+  # 0.1  - 27 Jun 08 - POD added.
+  #
+  # **************************************************************
 
   package ResultsSystem::Model::WeekData;
 
@@ -36,20 +36,20 @@ Can also accept -division, -week, -full_filename
   sub new {
 
     #***************************************
-    my ($class, $args) = @_;
-    my $self;
+    my ( $class, $args ) = @_;
+    my $self = {};
     bless $self, $class;
     my %args = %$args;
 
-    $self->set_configuration($args{-configuration}) if $args{-configuration};
+    $self->set_configuration( $args{-configuration} ) if $args{-configuration};
 
-    $self->set_logger($args{-logger}) if $args{-logger};
+    $self->set_logger( $args{-logger} ) if $args{-logger};
 
     $self->set_division( $args{-division} ) if $args{-division};
 
-    $self->set_week( $args{-week} ) if ( $args{-week};
+    $self->set_week( $args{-week} ) if ( $args{-week} );
 
-    $self->set_full_filename($args{-full_filename}) if $args{-full_filename};
+    $self->set_full_filename( $args{-full_filename} ) if $args{-full_filename};
 
     return $self;
   }
@@ -428,57 +428,57 @@ This writes the current contents of the data structure to the results file for t
 
 =cut
 
-sub set_full_filename {
-  my ($self, $ff) = @_;
-  $self->{full_filename}=$ff;
-  return $self;
-}
+  sub set_full_filename {
+    my ( $self, $ff ) = @_;
+    $self->{full_filename} = $ff;
+    return $self;
+  }
 
 =head2 get_full_filename
 
 =cut
 
-sub get_full_filename {
-  my $self = shift;
-  return $self->{full_filename};
-}
+  sub get_full_filename {
+    my $self = shift;
+    return $self->{full_filename};
+  }
 
 =head2 set_division
 
 =cut
 
-sub set_division {
-  my ($self,$v)=@_;
-  $self->{division} = $v;
-  return $self;
-}
+  sub set_division {
+    my ( $self, $v ) = @_;
+    $self->{division} = $v;
+    return $self;
+  }
 
 =head2 get_division
 
 =cut
 
-sub get_division {
-  my $self = shift;
-  return $self->{division};
-}
+  sub get_division {
+    my $self = shift;
+    return $self->{division};
+  }
 
 =head2 set_week
 
 =cut
 
-sub set_week {
-  my ($self,$v)=@_;
-  $self->{week} = $v;
-  return $self;
-}
+  sub set_week {
+    my ( $self, $v ) = @_;
+    $self->{week} = $v;
+    return $self;
+  }
 
 =head2 get_week
 
 =cut
 
-sub get_week {
-  my ($self,$v)=@_;
-  return $self->{week};
-}
+  sub get_week {
+    my ( $self, $v ) = @_;
+    return $self->{week};
+  }
 
   1;

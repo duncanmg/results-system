@@ -26,6 +26,16 @@ sub logger {
   return $self->{logger};
 }
 
+=head2 set_logger
+
+=cut
+
+sub set_logger {
+  my $self = shift;
+  $self->{logger} = shift;
+  return $self;
+}
+
 =head2 render
 
 =cut

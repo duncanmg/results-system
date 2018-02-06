@@ -13,7 +13,6 @@
   use strict;
   use warnings;
 
-  use Parent;
   use Time::localtime;
   use Slurp;
   use Data::Dumper;
@@ -40,14 +39,14 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
   sub new {
 
     #***************************************
-    my ($class, $args) = @_;
+    my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
     my %args = %$args;
 
-    if ($args{-configuration}){
-       $self->set_configuration($args{-configuration});
-       $self->set_pwd_dir( $self->get_configuration->get_path( -log_dir => "Y" ) );
+    if ( $args{-configuration} ) {
+      $self->set_configuration( $args{-configuration} );
+      $self->set_pwd_dir( $self->get_configuration->get_path( -log_dir => "Y" ) );
     }
 
     $self->set_wrong_file("wrong");

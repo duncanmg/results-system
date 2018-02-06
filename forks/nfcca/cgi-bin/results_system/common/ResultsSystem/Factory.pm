@@ -14,6 +14,7 @@ use ResultsSystem::Controller::Frame;
 use ResultsSystem::Controller::Menu;
 use ResultsSystem::Controller::Blank;
 use ResultsSystem::Controller::MenuJs;
+use ResultsSystem::Controller::WeekFixtures;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
@@ -27,6 +28,7 @@ use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
 use ResultsSystem::View::Blank;
 use ResultsSystem::View::MenuJs;
+use ResultsSystem::View::WeekFixtures;
 
 =head2 new
 
@@ -181,6 +183,20 @@ sub get_menu_js_controller {
   );
 }
 
+=head3 get_week_fixtures_controller
+
+=cut
+
+sub get_week_fixtures_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::WeekFixtures->new(
+    { -logger              => $self->get_file_logger(),
+      -week_fixtures_view  => $self->get_week_fixtures_view,
+      -week_fixtures_model => $self->get_week_fixtures_model
+    }
+  );
+}
+
 =head2 Models
 
 =cut
@@ -260,7 +276,7 @@ sub get_week_fixtures_model {
   return ResultsSystem::Model::WeekFixtures->new(
     { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration,
-      -week_data => $self->get_week_data_model,
+      -week_data     => $self->get_week_data_model,
     }
   );
 }
@@ -316,6 +332,15 @@ sub get_blank_view {
 sub get_menu_js_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::MenuJs->new( { -logger => $self->get_file_logger() } );
+}
+
+=head3 get_week_fixtures_view
+
+=cut
+
+sub get_week_fixtures_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::WeekFixtures->new( { -logger => $self->get_file_logger() } );
 }
 
 1;

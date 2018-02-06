@@ -10,14 +10,14 @@
 
 =cut
 
-  package ResultsSystem::Model::WeekFixtures;
+package ResultsSystem::Model::WeekFixtures;
 
-  use strict;
-  use warnings;
+use strict;
+use warnings;
 
-  use Data::Dumper;
+use Data::Dumper;
 
-  use parent qw/ ResultsSystem::Model /;
+use parent qw/ ResultsSystem::Model /;
 
 =head1 Public Methods
 
@@ -27,20 +27,30 @@
 
 =cut
 
+#***************************************
+sub new {
+
   #***************************************
-  sub new {
+  my ( $class, $args ) = @_;
+  my $self = {};
+  bless $self, $class;
 
-    #***************************************
-    my ($class, $args)=@_;
-    my $self = {};
-    bless $self, $class;
+  $self->set_arguments( [qw/ logger configuration week_data fixtures /], $args );
 
-    $self->set_arguments(qw/ logger configuration week_data fixtures /);
+  $self->logger->debug("WeekFixtures object created.");
 
-    $self->logger->debug("WeekFixtures object created.");
+  return $self;
+}
 
-    return $self;
-  }
+=head1 run
+
+=cut
+
+sub run {
+  my ( $self, $args ) = @_;
+  $DB::single = 1;
+  return {};
+}
 
 =head1 Private Methods
 
@@ -60,38 +70,38 @@ retrieved from the fixture list.
 
 =cut
 
+#***************************************
+sub _get_value_string {
+
   #***************************************
-  sub _get_value_string {
+  my $self = shift;
+  my $t    = shift;
+  my $l    = shift;
+  my $f    = shift;
+  my $obj  = $self->_get_week_data;
+  my $v;
 
-    #***************************************
-    my $self = shift;
-    my $t    = shift;
-    my $l    = shift;
-    my $f    = shift;
-    my $obj  = $self->_get_week_data;
-    my $v;
+  $self->logger->debug("get_value_string called() $t $l $f");
+  if ($obj) {
 
-    $self->logger->debug("get_value_string called() $t $l $f");
-    if ($obj) {
-
-      $v = $obj->get_field(
-        -type   => "match",
-        -lineno => $l,
-        -field  => $f,
-        -team   => $t
-      );
-    }
-
-    if ( ( $obj->file_not_found ) && ( $f eq "team" ) ) {
-      $v = $self->_get_team_name( -type => "match", -lineno => $l, -team => $t );
-    }
-
-    if ($v) {
-      $self->logger->debug("Leaving get_value_string(): $v");
-      return $v;
-    }
-
+    $v = $obj->get_field(
+      -type   => "match",
+      -lineno => $l,
+      -field  => $f,
+      -team   => $t
+    );
   }
+
+  if ( ( $obj->file_not_found ) && ( $f eq "team" ) ) {
+    $v = $self->_get_team_name( -type => "match", -lineno => $l, -team => $t );
+  }
+
+  if ($v) {
+    $self->logger->debug("Leaving get_value_string(): $v");
+    return $v;
+  }
+
+}
 
 =head2 _get_team_name
 
@@ -104,24 +114,24 @@ accesses the fixture list and returns the team name from there.
 
 =cut
 
+#***************************************
+sub _get_team_name {
+
   #***************************************
-  sub _get_team_name {
+  my $self = shift;
+  my %args = (@_);
+  my $n;
+  $self->logger->debug("get_team_name() called.");
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $n;
-    $self->logger->debug("get_team_name() called.");
+  my $week = $self->get_fixtures_for_division_and_week;
 
-    my $week = $self->get_fixtures_for_division_and_week;
+  return if $args{-type} ne "match";
 
-    return if $args{-type} ne "match";
+  my $i = $args{-lineno};
+  return if !$i;
 
-    my $i = $args{-lineno};
-    return if ! $i;
-
-    return ( $args{-team} eq "away" ) ? $week->[$i]->{away} : $week->[$i]->{home};
-  }
+  return ( $args{-team} eq "away" ) ? $week->[$i]->{away} : $week->[$i]->{home};
+}
 
 =head2 get_fixtures_for_division_and_week
 
@@ -129,31 +139,31 @@ Returns the fixtures for the week as an array ref.
 
 =cut
 
+#***************************************
+sub get_fixtures_for_division_and_week {
+
   #***************************************
-  sub get_fixtures_for_division_and_week {
+  my $self = shift;
 
-    #***************************************
-    my $self = shift;
+  my $fixtures = $self->get_fixtures;
+  $fixtures->set_division( $self->get_division );
 
-    my $fixtures = $self->get_fixtures;
-    $fixtures->set_division($self->get_division);
+  my $c      = $self->get_configuration;
+  my $season = $c->get_season;
+  my $ff     = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
+  $fixtures->set_full_filename($ff);
+  my $fixtures_for_week = $fixtures->get_week_fixtures( -date => $self->get_week );
 
-      my $c=$self->get_configuration;
-      my $season = $c->get_season;
-      my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
-    $fixtures->set_full_filename($ff);
-    my $fixtures_for_week= $fixtures->get_week_fixtures( -date => $self->get_week );
-
-    return $fixtures_for_week;
-  }
+  return $fixtures_for_week;
+}
 
 =head3 set_week_data
 
 =cut
 
 sub set_week_data {
-  my ($self,$v)=@_;
-  $self->{WEEK_DATA}=$v;
+  my ( $self, $v ) = @_;
+  $self->{WEEK_DATA} = $v;
   return $self;
 }
 
@@ -162,7 +172,7 @@ sub set_week_data {
 =cut
 
 sub get_week_data {
-  my $self=shift;
+  my $self = shift;
   return $self->{WEEK_DATA};
 }
 
@@ -171,8 +181,8 @@ sub get_week_data {
 =cut
 
 sub set_fixtures {
-  my ($self,$v)=@_;
-  $self->{FIXTURES}=$v;
+  my ( $self, $v ) = @_;
+  $self->{FIXTURES} = $v;
   return $self;
 }
 
@@ -181,9 +191,9 @@ sub set_fixtures {
 =cut
 
 sub get_fixtures {
-  my $self=shift;
+  my $self = shift;
   return $self->{FIXTURES};
 }
 
-  1;
+1;
 

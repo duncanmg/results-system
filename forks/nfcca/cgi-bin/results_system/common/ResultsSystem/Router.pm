@@ -26,6 +26,10 @@ sub new {
 
 =item blank
 
+=item menu_js
+
+=item week_fixtures
+
 =back
 
 =cut
@@ -34,10 +38,11 @@ sub route {
   my ( $self, $query ) = @_;
 
   my $pages = {
-    'frame'   => sub { $self->get_factory->get_frame_controller->run($query) },
-    'menu'    => sub { $self->get_factory->get_menu_controller->run($query) },
-    'blank'   => sub { $self->get_factory->get_blank_controller->run($query) },
-    'menu_js' => sub { $self->get_factory->get_menu_js_controller->run($query) }
+    'frame'         => sub { $self->get_factory->get_frame_controller->run($query) },
+    'menu'          => sub { $self->get_factory->get_menu_controller->run($query) },
+    'blank'         => sub { $self->get_factory->get_blank_controller->run($query) },
+    'menu_js'       => sub { $self->get_factory->get_menu_js_controller->run($query) },
+    'week_fixtures' => sub { $self->get_factory->get_week_fixtures_controller->run($query) }
   };
 
   my $page = $query->param('page');
