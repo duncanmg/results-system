@@ -20,7 +20,8 @@ use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
 use ResultsSystem::Model::Fixtures;
 use ResultsSystem::Model::MenuJs;
-use ResultsSystem::Model::WeekData;
+use ResultsSystem::Model::WeekData::Reader;
+use ResultsSystem::Model::WeekData::Writer;
 use ResultsSystem::Model::WeekFixtures;
 use ResultsSystem::Model::Pwd;
 
@@ -254,13 +255,26 @@ sub get_menu_js_model {
   );
 }
 
-=head3 get_week_data_model
+=head3 get_week_data_reader_model
 
 =cut
 
-sub get_week_data_model {
+sub get_week_data_reader_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::WeekData->new(
+  return ResultsSystem::Model::WeekData::Reader->new(
+    { -logger        => $self->get_file_logger(),
+      -configuration => $self->get_configuration,
+    }
+  );
+}
+
+=head3 get_week_data_writer_model
+
+=cut
+
+sub get_week_data_writer_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::WeekData::Writer->new(
     { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration,
     }
@@ -276,7 +290,7 @@ sub get_week_fixtures_model {
   return ResultsSystem::Model::WeekFixtures->new(
     { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration,
-      -week_data     => $self->get_week_data_model,
+      -week_data     => $self->get_week_data_reader_model,
     }
   );
 }
