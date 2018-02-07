@@ -22,7 +22,8 @@ Usage:
 
   my $wd = ResultsSystem::Model::WeekData->new( { -logger => $logger, $configuration => $configuration } );
 
-  $wd->set_full_filename($ff);
+  $wd->set_week('1-May');
+  $wd->set_division('U9S.csv');
 
   $wd->read_file();
 
@@ -53,7 +54,7 @@ There is also get_lines().
 
 ResultsSystem::Model::WeekData->new( { -logger => $logger, $configuration => $configuration } );
 
-Can also accept -division, -week, -full_filename
+Can also accept -division, -week
 
 =cut
 
@@ -73,8 +74,6 @@ Can also accept -division, -week, -full_filename
     $self->set_division( $args{-division} ) if $args{-division};
 
     $self->set_week( $args{-week} ) if ( $args{-week} );
-
-    $self->set_full_filename( $args{-full_filename} ) if $args{-full_filename};
 
     return $self;
   }
@@ -96,7 +95,7 @@ The full filename must have been defined.
     my $err  = 0;
     my @lines;
 
-    my $ff = $self->get_full_filename;
+    my $ff = $self->get_full_dat_filename;
     if ( !$ff ) {
       $self->logger->error("Full filename is not defined");
       $err = 1;
@@ -532,6 +531,48 @@ This writes the current contents of the data structure to the results file for t
     }
 
     return $err;
+  }
+
+=head2 get_filename
+
+Returns the .dat filename for the week.
+
+=cut
+
+  #***************************************
+  sub get_dat_filename {
+
+    #***************************************
+    my $self = shift;
+    my $err  = 0;
+    my $f;
+    my $w = $self->get_week;
+    my $d = $self->get_division;
+
+    $d =~ s/\..*$//g;    # Remove extension
+    $f = $d . "_" . $w . ".dat";
+    $f =~ s/\s//g;
+
+    return $f;
+  }
+
+=head2 get_full_dat_filename
+
+Returns the .dat filename for the week complete with the csv path.
+
+=cut
+
+  #***************************************
+  sub get_full_dat_filename {
+
+    #***************************************
+    my $self = shift;
+    my $f    = $self->get_dat_filename;
+
+    my $path = $self->get_configuration->get_path( -csv_files => 'Y' );
+    my $season = $self->get_configuration->get_season;
+
+    return $path . "/$season/" . $f;
   }
 
   1;

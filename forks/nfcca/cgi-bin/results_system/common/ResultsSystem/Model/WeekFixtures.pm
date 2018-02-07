@@ -58,7 +58,8 @@ sub run {
 
   my $wd = $self->get_week_data;
 
-  $wd->set_full_filename($args->{-full_filename});
+  $wd->set_division($args->{-division});
+  $wd->set_week($args->{-week});
 
   $self->set_division($args->{-division});
   $self->set_week($args->{-week});
@@ -111,13 +112,23 @@ sub get_fixtures_for_division_and_week {
   my $fixtures = $self->get_fixtures;
   $fixtures->set_division( $self->get_division );
 
-  my $c      = $self->get_configuration;
-  my $season = $c->get_season;
-  my $ff     = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
+  my $ff     = $self->build_fixtures_full_filename();
   $fixtures->set_full_filename($ff);
   my $fixtures_for_week = $fixtures->get_week_fixtures( -date => $self->get_week );
 
   return $fixtures_for_week;
+}
+
+=head build_fixtures_full_filename
+
+=cut
+
+sub build_fixtures_full_filename {
+  my ($self)=@_;
+  my $c      = $self->get_configuration;
+  my $season = $c->get_season;
+  my $ff     = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
+  return $ff;
 }
 
 =head3 set_week_data
