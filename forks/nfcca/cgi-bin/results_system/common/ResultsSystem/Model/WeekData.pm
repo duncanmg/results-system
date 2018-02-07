@@ -37,6 +37,8 @@ Usage:
 
 Can also use get_field to return a named field from a given line.
 
+There is also get_lines().
+
 =cut
 
 =head1 Methods
@@ -201,6 +203,17 @@ $wd->get_line($line_no);
     my $lineno = shift;
     return $self->{LINES}[$lineno];
   }
+
+=head3 get_lines
+
+Return all the lines as an array.
+
+=cut
+
+sub get_lines {
+  my $self = shift;
+  return $self->{LINES};
+}
 
 =head3 set_full_filename
 
