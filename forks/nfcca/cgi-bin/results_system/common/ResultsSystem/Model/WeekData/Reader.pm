@@ -65,15 +65,14 @@ Can also accept -division, -week
     my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
-    my %args = %$args;
 
-    $self->set_configuration( $args{-configuration} ) if $args{-configuration};
+    $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
 
-    $self->set_logger( $args{-logger} ) if $args{-logger};
+    $self->set_logger( $args->{-logger} ) if $args->{-logger};
 
-    $self->set_division( $args{-division} ) if $args{-division};
+    $self->set_division( $args->{-division} ) if $args->{-division};
 
-    $self->set_week( $args{-week} ) if ( $args{-week} );
+    $self->set_week( $args->{-week} ) if ( $args->{-week} );
 
     return $self;
   }
