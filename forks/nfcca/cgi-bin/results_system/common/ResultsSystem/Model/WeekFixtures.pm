@@ -8,6 +8,13 @@
 
 =head1 WeekFixtures.pm
 
+Usage:
+
+  my $wf = ResultsSystem::Model::WeekFixtures->new( 
+    { -logger => $logger, -configuration => -configuration });
+
+  $wf->run({-full_filename => $ff, -division => $d, -week => $matchdate });
+
 =cut
 
 package ResultsSystem::Model::WeekFixtures;
@@ -48,89 +55,45 @@ sub new {
 
 sub run {
   my ( $self, $args ) = @_;
-  $DB::single = 1;
-  return {};
+
+  my $wd = $self->get_week_data;
+
+  $wd->set_full_filename($args->{-full_filename});
+
+  $self->set_division($args->{-division});
+  $self->set_week($args->{-week});
+  
+  $wd->read_file;
+
+  return $wd->get_lines if scalar $wd->get_lines;
+
+  return @{ $self->_get_team_names };
 }
 
 =head1 Private Methods
 
 =cut
 
-=head2 _get_value_string
-
-This attempts to retrieve the value from the WeekFixtures object. If no data has been saved
-for the current week then it returns undefined for all fields except the team name, which is
-retrieved from the fixture list.
-
- Called with 3 parameters: type, lineno and field.
- e.g. $w->get_value_string( "home", 0, "team" );
- 
- Returns a string of the form "xxxxxxxxxxxx".
- Returns undef if the value is not found.
-
-=cut
-
-#***************************************
-sub _get_value_string {
-
-  #***************************************
-  my $self = shift;
-  my $t    = shift;
-  my $l    = shift;
-  my $f    = shift;
-  my $obj  = $self->_get_week_data;
-  my $v;
-
-  $self->logger->debug("get_value_string called() $t $l $f");
-  if ($obj) {
-
-    $v = $obj->get_field(
-      -type   => "match",
-      -lineno => $l,
-      -field  => $f,
-      -team   => $t
-    );
-  }
-
-  if ( ( $obj->file_not_found ) && ( $f eq "team" ) ) {
-    $v = $self->_get_team_name( -type => "match", -lineno => $l, -team => $t );
-  }
-
-  if ($v) {
-    $self->logger->debug("Leaving get_value_string(): $v");
-    return $v;
-  }
-
-}
-
-=head2 _get_team_name
+=head2 _get_team_names
 
 This function is called when there aren't any results for the division/week. It
 accesses the fixture list and returns the team name from there.
 
- -team    : home or away
- -lineno  : The number of the fixture in the list. Zero based.
- -type    : match 
-
 =cut
 
 #***************************************
-sub _get_team_name {
+sub _get_team_names {
 
   #***************************************
   my $self = shift;
-  my %args = (@_);
-  my $n;
   $self->logger->debug("get_team_name() called.");
 
   my $week = $self->get_fixtures_for_division_and_week;
 
-  return if $args{-type} ne "match";
+  my $names = [ map { ( $_->{home}, $_->{away} ) } @$week ];
 
-  my $i = $args{-lineno};
-  return if !$i;
+  return $names;
 
-  return ( $args{-team} eq "away" ) ? $week->[$i]->{away} : $week->[$i]->{home};
 }
 
 =head2 get_fixtures_for_division_and_week
