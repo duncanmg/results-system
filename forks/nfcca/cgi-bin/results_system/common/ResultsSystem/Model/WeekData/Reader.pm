@@ -91,20 +91,20 @@ The full filename must have been defined.
 
     #***************************************
     my $self = shift;
-    my $err  = 0;
     my @lines;
 
     my $ff = $self->get_full_dat_filename;
     if ( !$ff ) {
       $self->logger->error("Full filename is not defined");
-      $err = 1;
+      return;
     }
-    if ( $err == 0 ) {
+
       if ( !-f $ff ) {
         $self->logger->debug(
           "read_file(): No results have previously been saved for this division and week");
         $self->logger->debug("read_file(): $ff does not exist.");
         $self->file_not_found(1);
+        return;
       }
       else {
         @lines = slurp($ff);
@@ -113,10 +113,9 @@ The full filename must have been defined.
         $self->logger->debug( "read_file(): " . scalar(@lines) . " lines read from $ff." );
         $self->file_not_found(0);
       }
-    }
-    if ( $err == 0 ) {
-      $err = $self->process_lines( \@lines );
-    }
+
+      my $err = $self->process_lines( \@lines );
+
     return $err;
   }
 
@@ -312,7 +311,7 @@ Fields are : "team", "played", "result", "runs", "wickets",
       }
       push @{ $self->{LINES} }, \%team;
     }
-    return $err;
+    return 1;
   }
 
 =head3 get_labels
