@@ -50,33 +50,6 @@ There is also get_lines().
 
 =cut
 
-=head3 new
-
-ResultsSystem::Model::WeekData->new( { -logger => $logger, $configuration => $configuration } );
-
-Can also accept -division, -week
-
-=cut
-
-  #***************************************
-  sub new {
-
-    #***************************************
-    my ( $class, $args ) = @_;
-    my $self = {};
-    bless $self, $class;
-
-    $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
-
-    $self->set_logger( $args->{-logger} ) if $args->{-logger};
-
-    $self->set_division( $args->{-division} ) if $args->{-division};
-
-    $self->set_week( $args->{-week} ) if ( $args->{-week} );
-
-    return $self;
-  }
-
 =head3 read_file
 
 This method causes the object to read the saved results into an internal data structure. If no

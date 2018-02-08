@@ -15,48 +15,6 @@
 
 =cut
 
-=head2 new
-
-Constructor for the WeekData object. Inherits arguments from Parent
-plus -division and -week.
-
-=cut
-
-  #***************************************
-  sub new {
-
-    #***************************************
-    my $self = {};
-    bless $self;
-    shift;
-    my %args = (@_);
-
-    if ( $args{-division} ) {
-      $self->set_division( $args{-division} );
-    }
-    if ( $args{-week} ) {
-      $self->set_week( $args{-week} );
-    }
-
-    return $self;
-  }
-
-  #***************************************
-  sub get_labels {
-
-    #***************************************
-    my $self = shift;
-
-    my @list = (
-      "team",       "played",       "result",    "runs",
-      "wickets",    "performances", "resultpts", "battingpts",
-      "bowlingpts", "penaltypts",   "totalpts",  "pitchmks",
-      "groundmks",  "facilitiesmks"
-    );
-
-    return @list;
-  }
-
 =head2 write_file
 
 This writes the current contents of the data structure to the results file for the division and week.
