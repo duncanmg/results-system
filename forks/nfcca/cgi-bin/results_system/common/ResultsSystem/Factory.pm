@@ -29,7 +29,7 @@ use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
 use ResultsSystem::View::Blank;
 use ResultsSystem::View::MenuJs;
-use ResultsSystem::View::WeekFixtures;
+use ResultsSystem::View::Week::FixturesForm;
 
 =head2 new
 
@@ -354,7 +354,7 @@ sub get_menu_js_view {
 
 sub get_week_fixtures_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::WeekFixtures->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::Week::FixturesForm->new( { -logger => $self->get_file_logger() } );
 }
 
 1;
