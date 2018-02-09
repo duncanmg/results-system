@@ -27,7 +27,7 @@ sub run {
   my $data =
     $self->get_week_fixtures_model()
     ->run(
-    { -division => $query->param('division'), -matchdate => $query->param('matchdate') }
+    { -division => $query->param('division'), -week => $query->param('matchdate') }
     );
 
   $self->get_week_fixtures_view()->run( { -data => $data } );

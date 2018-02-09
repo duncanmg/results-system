@@ -42,7 +42,7 @@ sub route {
     'menu'          => sub { $self->get_factory->get_menu_controller->run($query) },
     'blank'         => sub { $self->get_factory->get_blank_controller->run($query) },
     'menu_js'       => sub { $self->get_factory->get_menu_js_controller->run($query) },
-    'week_fixtures' => sub { $self->get_factory->get_week_fixtures_controller->run($query) }
+    'week_fixtures' => sub { $self->get_factory->get_week_fixtures_controller->run($query) },
     'save_results' => sub { $self->get_factory->get_save_results_controller->run($query) }
   };
 

@@ -56,19 +56,26 @@ sub new {
 sub run {
   my ( $self, $args ) = @_;
 
-  my $wd = $self->get_week_data;
+  my $data = {};
+  my $wd   = $self->get_week_data;
 
-  $wd->set_division($args->{-division});
-  $wd->set_week($args->{-week});
+  $wd->set_division( $args->{-division} );
+  $wd->set_week( $args->{-week} );
 
-  $self->set_division($args->{-division});
-  $self->set_week($args->{-week});
-  
+  $self->set_division( $args->{-division} );
+  $self->set_week( $args->{-week} );
+
   $wd->read_file;
 
-  return $wd->get_lines if scalar $wd->get_lines;
+  $data->{SYSTEM} = $self->get_configuration->get_system;
+  $data->{SEASON} = $self->get_configuration->get_season;
+  $data->{MENU_NAME} = $self->get_configuration->get_name(-csv_file => $self->get_division)->{menu_name};
+  $data->{WEEK} = $self->get_week;
+  $data->{TITLE} = $self->get_configuration->get_title;
 
-  return @{ $self->_get_team_names };
+  $data->{rows} = scalar( $wd->get_lines ) ? $wd->get_lines : @{ $self->_get_team_names };
+
+  return $data;
 }
 
 =head1 Private Methods
@@ -112,7 +119,7 @@ sub get_fixtures_for_division_and_week {
   my $fixtures = $self->get_fixtures;
   $fixtures->set_division( $self->get_division );
 
-  my $ff     = $self->build_fixtures_full_filename();
+  my $ff = $self->build_fixtures_full_filename();
   $fixtures->set_full_filename($ff);
   my $fixtures_for_week = $fixtures->get_week_fixtures( -date => $self->get_week );
 
@@ -124,10 +131,10 @@ sub get_fixtures_for_division_and_week {
 =cut
 
 sub build_fixtures_full_filename {
-  my ($self)=@_;
+  my ($self) = @_;
   my $c      = $self->get_configuration;
   my $season = $c->get_season;
-  my $ff     = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
+  my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
   return $ff;
 }
 
@@ -167,6 +174,44 @@ sub set_fixtures {
 sub get_fixtures {
   my $self = shift;
   return $self->{FIXTURES};
+}
+
+=head3 set_division
+
+=cut
+
+sub set_division {
+  my ( $self, $v ) = @_;
+  $self->{division} = $v;
+  return $self;
+}
+
+=head3 get_division
+
+=cut
+
+sub get_division {
+  my $self = shift;
+  return $self->{division};
+}
+
+=head3 set_week
+
+=cut
+
+sub set_week {
+  my ( $self, $v ) = @_;
+  $self->{week} = $v;
+  return $self;
+}
+
+=head3 get_week
+
+=cut
+
+sub get_week {
+  my $self = shift;
+  return $self->{week};
 }
 
 1;

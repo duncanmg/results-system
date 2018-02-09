@@ -72,22 +72,22 @@ The full filename must have been defined.
       return;
     }
 
-      if ( !-f $ff ) {
-        $self->logger->debug(
-          "read_file(): No results have previously been saved for this division and week");
-        $self->logger->debug("read_file(): $ff does not exist.");
-        $self->file_not_found(1);
-        return;
-      }
-      else {
-        @lines = slurp($ff);
-        $self->logger->debug(
-          "read_file(): Results have previously been saved for this division and week");
-        $self->logger->debug( "read_file(): " . scalar(@lines) . " lines read from $ff." );
-        $self->file_not_found(0);
-      }
+    if ( !-f $ff ) {
+      $self->logger->debug(
+        "read_file(): No results have previously been saved for this division and week");
+      $self->logger->debug("read_file(): $ff does not exist.");
+      $self->file_not_found(1);
+      return;
+    }
+    else {
+      @lines = slurp($ff);
+      $self->logger->debug(
+        "read_file(): Results have previously been saved for this division and week");
+      $self->logger->debug( "read_file(): " . scalar(@lines) . " lines read from $ff." );
+      $self->file_not_found(0);
+    }
 
-      my $err = $self->process_lines( \@lines );
+    my $err = $self->process_lines( \@lines );
 
     return $err;
   }
@@ -180,10 +180,10 @@ Return all the lines as an array.
 
 =cut
 
-sub get_lines {
-  my $self = shift;
-  return $self->{LINES};
-}
+  sub get_lines {
+    my $self = shift;
+    return $self->{LINES};
+  }
 
 =head3 set_full_filename
 
@@ -245,7 +245,6 @@ sub get_lines {
 =head2 Internal (Private) Methods
 
 =cut
-
 
 =head3 process_lines
 
@@ -517,8 +516,8 @@ Returns the .dat filename for the week.
     my $self = shift;
     my $err  = 0;
     my $f;
-    my $w = $self->get_week;
-    my $d = $self->get_division;
+    my $w = $self->get_week     || "";
+    my $d = $self->get_division || "";
 
     $d =~ s/\..*$//g;    # Remove extension
     $f = $d . "_" . $w . ".dat";

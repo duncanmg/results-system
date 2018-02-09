@@ -35,12 +35,12 @@ Constructor for the WeekFixtures object. Inherits from Parent.
   sub new {
 
     #***************************************
-    my ($class, $args)=@_;
+    my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
 
-    $self->set_logger($args->{-logger}) if $args->{-logger};
-    $self->set_configuration($args->{-configuration}) if $args->{-configuration};
+    $self->set_logger( $args->{-logger} )               if $args->{-logger};
+    $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
 
     return $self;
   }
@@ -50,13 +50,25 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 =cut
 
   sub run {
-    my ($self, $data)=@_;
+    my ( $self, $data ) = @_;
 
-    my $table_rows = $self->create_table_rows($data->{rows});
+    $DB::single = 1;
+    my $d = $data->{-data};
+    $self->logger->debug( Dumper $data);
+    my $table_rows = $self->create_table_rows( $d->{rows} );
 
-    my $html = $self->merge_content( $self->get_html, { rows => $table_rows } );
+    my $html = $self->merge_content(
+      $self->get_html,
+      { ROWS      => $table_rows,
+        SYSTEM    => $d->{SYSTEM},
+        SEASON    => $d->{SEASON},
+        WEEK      => $d->{WEEK},
+        MENU_NAME => $d->{MENU_NAME},
+        TITLE => $d->{TITLE}
+      }
+    );
 
-    $self->render({ -data => $html});
+    $self->render( { -data => $html } );
 
     return 1;
   }
@@ -65,25 +77,25 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
 =cut
 
-sub create_table_rows {
-  my ($self,$rows)=@_;
+  sub create_table_rows {
+    my ( $self, $rows ) = @_;
 
-  my $table = "";
-  my $i=0;
-  for (my $r=0; $r<10; $r++) {
+    my $table = "";
+    my $i     = 0;
+    for ( my $r = 0; $r < 10; $r++ ) {
 
-    last if ! $rows->[$i];
+      last if !$rows->[$i];
 
-    $table .= $self->merge_content($self->get_row_html, $rows->[$i]);
-    $i++;
-    $table .= $self->merge_content($self->get_row_html, $rows->[$i]);
-    $i++;
-    $table .= $self->blank_line;
+      $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
+      $i++;
+      $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
+      $i++;
+      $table .= $self->_blank_line;
 
+    }
+
+    return $table;
   }
-
-  return $table;
-}
 
   #***************************************
   sub get_html {
@@ -91,11 +103,11 @@ sub create_table_rows {
     #***************************************
     my $self = shift;
 
-    my $html = q!
+    my $html = q~
       <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
       <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]<h1>
-      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1>
+      <!-- <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1> -->
       <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
 
       <form id="menu_form" name="menu_form" method="post" action="results_system.pl"
@@ -127,7 +139,7 @@ sub create_table_rows {
 
       <input type="submit" value="Save Changes"/>
       </form>
-!;
+~;
 
     return $html;
 
@@ -137,11 +149,23 @@ sub create_table_rows {
 
 =cut
 
-sub get_row_html {
+  sub get_row_html {
 
-return q!
+    return q!
+<tr>
+<td>[% played %]</td>
+<td>[% result %]</td>
+<td>[% runs %]</td>
+<td>[% wickets %]</td>
+<td>[% performances %]</td>
+<td>[% resultpts %]</td>
+<td>[% battingpts %]</td>
+<td>[% bowlingpts %]</td>
+<td>[% penaltypts %]</td>
+<td>[% totalpts %]</td>
+</tr>
 !;
-}
+  }
 
 =head1 Private Methods
 

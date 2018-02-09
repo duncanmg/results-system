@@ -423,6 +423,21 @@ Returns the current season.
     return $self->_trim($s);
   }
 
+=head3 get_title
+
+Returns the title.
+
+=cut
+
+  #***************************************
+  sub get_title {
+
+    #***************************************
+    my $self = shift;
+    my $s    = $self->_get_tags->{descriptors}[0]{title}[0];
+    return $self->_trim($s);
+  }
+
 =head3 get_log_stem
 
 Appends the current season to the string passed as an argument.
