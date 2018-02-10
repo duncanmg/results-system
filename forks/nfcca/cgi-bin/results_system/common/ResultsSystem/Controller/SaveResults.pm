@@ -24,7 +24,7 @@ sub logger {
 sub run {
   my ( $self, $query ) = @_;
 
-  my $data = $self->get_save_results_model()->run( { -params => [ $query->Vars ] } );
+  my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
 
   # $self->get_save_results_view()->run( { -data => $data } );
 }

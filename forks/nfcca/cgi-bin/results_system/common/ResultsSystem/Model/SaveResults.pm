@@ -10,11 +10,14 @@
   use warnings;
   use Params::Validate qw/:all/;
 
-  use Slurp;
-  use List::MoreUtils qw / any /;
   use Data::Dumper;
 
   use parent qw/ ResultsSystem::Model /;
+
+  my $types = {
+    positive_int => qr/^\d+$/,
+    int          => qr/^-*\d+$/
+  };
 
 =head1 SaveResults.pm
 
@@ -62,8 +65,60 @@ Can also accept -division, -week
 
   sub run {
     my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF } );
-    $self->logger->debug(Dumper ref $args);
-    $self->logger->debug(Dumper $args->{-params});
+
+    $self->logger->debug( Dumper $args->{-params} );
+
+    my $reformatted = $self->reformat( $args->{-params} );
+
+    $self->logger->debug( Dumper $reformatted );
+
+  }
+
+=head3 reformat
+
+=cut
+
+  sub reformat {
+    my ( $self, $hr ) = validate_pos( @_, 1, { type => HASHREF } );
+
+    my $out = [];
+
+    my $rename = sub {
+      my ( $hr, $k, $ha, $match, $new_hr ) = @_;
+      $self->logger->debug("test $k, $ha $match");
+      my @bits = $k =~ m/^$ha(.*\D)$match$/;
+      $self->logger->debug( Dumper @bits );
+      if (@bits) {
+        $new_hr->{ $bits[0] } = $hr->{$k};
+      }
+      return $new_hr;
+    };
+
+    my $prune = sub {
+      my ( $hr, $match ) = @_;
+      foreach my $k (keys %$hr) {
+        delete $hr->{$k} if ( $k =~ m/^.*$match$/ );
+      }
+      return $hr;
+    };
+
+    my $match = 0;
+    while ( 1 == 1 ) {
+      my $home_hr = {};
+      my $away_hr = {};
+      foreach my $k ( keys %$hr ) {
+
+        $home_hr = $rename->( $hr, $k, 'home', $match, $home_hr );
+        $away_hr = $rename->( $hr, $k, 'away', $match, $away_hr );
+
+      }
+      last if !( keys %$home_hr );
+      push @$out, $home_hr, $away_hr;
+      $hr = $prune->( $hr, $match );
+      $match++;
+    }
+
+    return $out;
   }
 
 =head3 set_full_filename

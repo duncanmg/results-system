@@ -87,7 +87,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
     my $table   = "";
     my $i       = 0;
     my $matchno = 0;
-    for ( my $r = 0; $r < 1; $r++ ) {
+    for ( my $r = 0; $r < 10; $r++ ) {
       my $r = $rows->[$i];
       last if !$r;
 
@@ -200,7 +200,7 @@ Returns an HTML string containing a table row.
 
     return q!
     <tr>
-    <td> [% team %] </td>
+    <td> <input type="text" id="[% ha %]team[% matchno %]" name="[% ha %]team[% matchno %]" value="[% team %]" readonly/> </td>
     <td> <select name="[% ha %]played[% matchno %]" size="2" onchange="calculate_points( this, [% rownumber %] )">
       <option value="Y">Y</option>
       <option value="N">N</option>
