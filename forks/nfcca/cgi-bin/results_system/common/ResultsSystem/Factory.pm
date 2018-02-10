@@ -15,6 +15,7 @@ use ResultsSystem::Controller::Menu;
 use ResultsSystem::Controller::Blank;
 use ResultsSystem::Controller::MenuJs;
 use ResultsSystem::Controller::WeekFixtures;
+use ResultsSystem::Controller::SaveResults;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
@@ -23,6 +24,7 @@ use ResultsSystem::Model::MenuJs;
 use ResultsSystem::Model::WeekData::Reader;
 use ResultsSystem::Model::WeekData::Writer;
 use ResultsSystem::Model::WeekFixtures;
+use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
 
 use ResultsSystem::View::Frame;
@@ -30,6 +32,8 @@ use ResultsSystem::View::Menu;
 use ResultsSystem::View::Blank;
 use ResultsSystem::View::MenuJs;
 use ResultsSystem::View::Week::FixturesForm;
+use ResultsSystem::View::Week::Results;
+use ResultsSystem::View::SaveResults;
 
 =head2 new
 
@@ -198,6 +202,20 @@ sub get_week_fixtures_controller {
   );
 }
 
+=head3 get_save_results_controller
+
+=cut
+
+sub get_save_results_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::SaveResults->new(
+    { -logger             => $self->get_file_logger(),
+      -save_results_view  => $self->get_save_results_view,
+      -save_results_model => $self->get_save_results_model
+    }
+  );
+}
+
 =head2 Models
 
 =cut
@@ -308,6 +326,19 @@ sub get_pwd_model {
   );
 }
 
+=head3 get_save_results_model
+
+=cut
+
+sub get_save_results_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::SaveResults->new(
+    { -logger        => $self->get_file_logger(),
+      -configuration => $self->get_configuration,
+    }
+  );
+}
+
 =head2 Views
 
 =cut
@@ -355,6 +386,15 @@ sub get_menu_js_view {
 sub get_week_fixtures_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Week::FixturesForm->new( { -logger => $self->get_file_logger() } );
+}
+
+=head3 get_save_results_view
+
+=cut
+
+sub get_save_results_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::SaveResults->new( { -logger => $self->get_file_logger() } );
 }
 
 1;

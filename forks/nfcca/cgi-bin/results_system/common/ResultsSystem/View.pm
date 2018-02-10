@@ -179,8 +179,6 @@ sub html_frame_wrapper {
 sub html_wrapper {
   my $self = shift;
 
-  my $q = CGI->new();
-
   my $output = q{
 <!DOCTYPE html
   	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -203,6 +201,43 @@ sub html_wrapper {
 </style>
 
 <script language="JavaScript" type="text/javascript" src="/results_system/common/common.js"></script>
+
+</head>
+  <body>
+  [% CONTENT %]
+  </body>
+</html>
+};
+
+  return $output;
+}
+
+=head2 html5_wrapper
+
+=cut
+
+sub html5_wrapper {
+  my $self = shift;
+
+  my $output = q{
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<!--***************************************************************
+*
+*       Copyright Duncan Garland Consulting Ltd 2003-2008. All rights reserved.
+*       Copyright Duncan Garland 2008-2018. All rights reserved.
+*
+****************************************************************-->
+
+<title>[% PAGETITLE %]</title>
+<style>
+<!--
+\@import url(gen_styles.css)
+-->
+</style>
+
+<script src="/results_system/common/common.js"></script>
 
 </head>
   <body>

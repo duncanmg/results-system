@@ -69,9 +69,11 @@ sub run {
 
   $data->{SYSTEM} = $self->get_configuration->get_system;
   $data->{SEASON} = $self->get_configuration->get_season;
-  $data->{MENU_NAME} = $self->get_configuration->get_name(-csv_file => $self->get_division)->{menu_name};
-  $data->{WEEK} = $self->get_week;
-  $data->{TITLE} = $self->get_configuration->get_title;
+  $data->{MENU_NAME} =
+    $self->get_configuration->get_name( -csv_file => $self->get_division )->{menu_name};
+  $data->{WEEK}     = $self->get_week;
+  $data->{TITLE}    = $self->get_configuration->get_title;
+  $data->{DIVISION} = $self->get_division;
 
   $data->{rows} = scalar( $wd->get_lines ) ? $wd->get_lines : @{ $self->_get_team_names };
 

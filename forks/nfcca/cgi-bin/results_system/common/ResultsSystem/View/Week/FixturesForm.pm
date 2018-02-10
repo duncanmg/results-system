@@ -53,7 +53,6 @@ Constructor for the FixturesForm object. Inherits from Parent.
   sub run {
     my ( $self, $data ) = @_;
 
-    $DB::single = 1;
     my $d = $data->{-data};
     $self->logger->debug( Dumper $data);
     my $table_rows = $self->create_table_rows( $d->{rows} );
@@ -65,9 +64,13 @@ Constructor for the FixturesForm object. Inherits from Parent.
         SEASON    => $d->{SEASON},
         WEEK      => $d->{WEEK},
         MENU_NAME => $d->{MENU_NAME},
-        TITLE => $d->{TITLE}
+        TITLE     => $d->{TITLE},
+        DIVISION  => $d->{DIVISION}
       }
     );
+
+    $html = $self->merge_content( $self->html5_wrapper,
+      { CONTENT => $html, PAGETITLE => 'Results System' } );
 
     $self->render( { -data => $html } );
 
@@ -81,21 +84,23 @@ Constructor for the FixturesForm object. Inherits from Parent.
   sub create_table_rows {
     my ( $self, $rows ) = @_;
 
-    my $table = "";
-    my $i     = 0;
+    my $table   = "";
+    my $i       = 0;
     my $matchno = 0;
-    for ( my $r = 0; $r < 10; $r++ ) {
+    for ( my $r = 0; $r < 1; $r++ ) {
       my $r = $rows->[$i];
       last if !$r;
 
-      $r->{ha} = 'home';
-      $r->{matchno} = $matchno;
+      $r->{ha}        = 'home';
+      $r->{matchno}   = $matchno;
+      $r->{rownumber} = $i;
       $table .= $self->merge_content( $self->get_row_html, $r );
 
       $i++;
-      $r = $rows->[$i];
-      $r->{ha} = 'away';
-      $r->{matchno} = $matchno;
+      $r              = $rows->[$i];
+      $r->{ha}        = 'away';
+      $r->{matchno}   = $matchno;
+      $r->{rownumber} = $i;
       $table .= $self->merge_content( $self->get_row_html, $r );
       $i++;
       $table .= $self->_blank_line;
@@ -113,9 +118,9 @@ Constructor for the FixturesForm object. Inherits from Parent.
     my $self = shift;
 
     my $html = q~
-      <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
+      <script src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
-      <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]<h1>
+      <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]</h1>
       <!-- <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1> -->
       <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
 
@@ -126,6 +131,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
       <table class='week_fixtures'>
       <tr>
       <th class="teamcol">Team</th>
+      <th>Played</th>
       <th>Result</th>
       <th>Runs</th>
       <th>Wickets</th>
@@ -142,7 +148,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
       </table>
 
       <input type="hidden" id="division" name="division" value="[% DIVISION %]"/>
-      <input type="hidden" id="matchdate" name="matchdate" value="[% MATCHDATE %]"/>
+      <input type="hidden" id="matchdate" name="matchdate" value="[% WEEK %]"/>
       <input type="hidden" id="page" name="page" value="save_results"/>
       <input type="hidden" id="system" name="system" value="[% SYSTEM %]"/>
 
@@ -195,26 +201,26 @@ Returns an HTML string containing a table row.
     return q!
     <tr>
     <td> [% team %] </td>
-    <td> <select name="[% ha %]played[% matchno %]" size="2" selected="[% selected_played %]" onchange="calculate_points( this, [% row_number %] )">
+    <td> <select name="[% ha %]played[% matchno %]" size="2" onchange="calculate_points( this, [% rownumber %] )">
       <option value="Y">Y</option>
       <option value="N">N</option>
       <option value="A">A</option>
       </select>
     </td>
-    <td> <select name="[% ha %]result[% matchno %]" size="2" selected="[% SELECTED_RESULT %]" onchange="calculate_points( this, [% row_number %] )">
+    <td> <select name="[% ha %]result[% matchno %]" size="2" onchange="calculate_points( this, [% rownumber %] )">
       <option value="W">W</option>
       <option value="L">L</option>
       <option value="T">T</option>
       </select>
     </td>
-    <td> <input name="[% ha %]runs[% matchno %]" id="[% ha %]runsid[% matchno %]" type="number" min="0" value="[% runs %]"/></td>
+    <td> <input name="[% ha %]runs[% matchno %]" id="[% ha %]runs[% matchno %]" type="number" min="0" value="[% runs %]"/></td>
     <td> <input name="[% ha %]wickets[% matchno %]" id="[% ha %]wickets[% matchno %]" type="number" min="0" value="[% wickets %]"/></td>
-    <td> <input type="text"  name="[% ha %]performances[% matchno %]" id="[% ha %][% performancesid %][% matchno %]" value="[% performances %]"/></td>
-    <td> <input  name="[% ha %]resultpts[% matchno %]" id="[% ha %]resultpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% row_number %] )" value="[% resultpts %]"/></td>
-    <td> <input name="[% ha %]battingpts[% matchno %]" id="[% ha %]battingptsid[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% row_number %] )" value="[% battingpts %]"/></td>
-    <td> <input name="[% ha %]bowlingptsid[% matchno %]" id="[% ha %]bowlingptsid[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% row_number %] )" value="[% bowlingpts %]"/></td>
-    <td> <input name="[% ha %]penaltyptsid[% matchno %]" id="[% ha %]penaltyptsid[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% row_number %] )" value="[% penaltypts %]"/></td>
-    <td> <input name="[% ha %]totalptsid[% matchno %]" id="[% ha %]totalptsid[% matchno %]" type="number" onchange="calculate_points( this, [% row_number %] )" value="[% totalpts %]"/></td>
+    <td> <input type="text"  name="[% ha %]performances[% matchno %]" id="[% ha %]performances[% matchno %]" value="[% performances %]"/></td>
+    <td> <input  name="[% ha %]resultpts[% matchno %]" id="[% ha %]resultpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% resultpts %]"/></td>
+    <td> <input name="[% ha %]battingpts[% matchno %]" id="[% ha %]battingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% battingpts %]"/></td>
+    <td> <input name="[% ha %]bowlingpts[% matchno %]" id="[% ha %]bowlingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% bowlingpts %]"/></td>
+    <td> <input name="[% ha %]penaltypts[% matchno %]" id="[% ha %]penaltypts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% penaltypts %]"/></td>
+    <td> <input name="[% ha %]totalpts[% matchno %]" id="[% ha %]totalpts[% matchno %]" type="number" onchange="calculate_points( this, [% rownumber %] )" value="[% totalpts %]"/></td>
     </tr>
 !;
 
