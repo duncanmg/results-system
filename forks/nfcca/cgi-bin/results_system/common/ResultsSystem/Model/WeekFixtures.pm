@@ -23,6 +23,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use ResultsSystem::Exception;
 
 use parent qw/ ResultsSystem::Model /;
 
@@ -75,7 +76,7 @@ sub run {
   $data->{TITLE}    = $self->get_configuration->get_title;
   $data->{DIVISION} = $self->get_division;
 
-  $data->{rows} = scalar( $wd->get_lines ) ? $wd->get_lines : @{ $self->_get_team_names };
+  $data->{rows} = scalar( $wd->get_lines ) ? $wd->get_lines : $self->_get_team_names;
 
   return $data;
 }
@@ -96,12 +97,15 @@ sub _get_team_names {
 
   #***************************************
   my $self = shift;
-  $self->logger->debug("get_team_name() called.");
+  $self->logger->debug("get_team_names() called.");
 
   my $week = $self->get_fixtures_for_division_and_week;
 
   my $names = [ map { ( $_->{home}, $_->{away} ) } @$week ];
 
+  $names = [ map { { team => $_ } } @$names ];
+
+  $self->logger->debug( "get_team_names(). " . Dumper($names) );
   return $names;
 
 }
@@ -119,12 +123,17 @@ sub get_fixtures_for_division_and_week {
   my $self = shift;
 
   my $fixtures = $self->get_fixtures;
+  $self->logger->debug( 'NOW get_fixtures_for_division_and_week ' . ref($fixtures) );
   $fixtures->set_division( $self->get_division );
 
   my $ff = $self->build_fixtures_full_filename();
   $fixtures->set_full_filename($ff);
+
+  $fixtures->read_file();
+
   my $fixtures_for_week = $fixtures->get_week_fixtures( -date => $self->get_week );
 
+  $self->logger->debug( 'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW ' . Dumper($fixtures_for_week) );
   return $fixtures_for_week;
 }
 
@@ -137,6 +146,7 @@ sub build_fixtures_full_filename {
   my $c      = $self->get_configuration;
   my $season = $c->get_season;
   my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
+  die ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) if !-f $ff;
   return $ff;
 }
 
@@ -175,6 +185,8 @@ sub set_fixtures {
 
 sub get_fixtures {
   my $self = shift;
+  die ResultsSystem::Exception->new( 'MISSING_DEPENDENCY', 'No Fixtures object' )
+    if !$self->{FIXTURES};
   return $self->{FIXTURES};
 }
 

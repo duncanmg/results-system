@@ -59,6 +59,8 @@ use Regexp::Common;
 use Slurp;
 use Data::Dumper;
 
+use ResultsSystem::Exception;
+
 use ResultsSystem::Model;
 use parent qw/ResultsSystem::Model/;
 
@@ -85,8 +87,8 @@ sub new {
   bless $self, $class;
   my $err = 0;
 
-  if ( $args->{-full_filename} ) {
-    $self->set_full_filename( $args->{-full_filename} );
+  if ( $args->{-division} ) {
+    $self->set_division( $args->{-division} );
     $err = $self->read_file();
   }
 
@@ -103,6 +105,14 @@ sub get_full_filename {
 
   #***************************************
   my $self = shift;
+  if ( !$self->{FULLFILENAME} ) {
+    my $c = $self->get_configuration;
+    my $p = $c->get_path( -csv_files => 1 );
+    my $s = $c->get_season;
+    $self->{FULLFILENAME} = join( '/', $p, $s, $self->get_division );
+  }
+  die ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} )
+    if !( -f $self->{FULLFILENAME} );
   return $self->{FULLFILENAME};
 }
 
@@ -160,6 +170,7 @@ sub get_week_fixtures {
 
   my $i    = 0;
   my $more = 1;
+  $self->logger->debug('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
   while ($more) {
     %h = $self->_get_fixture_hash( -date => $args{-date}, -index => $i );
     if ( ( !$h{home} ) || $i > 1000 ) {
@@ -312,16 +323,11 @@ sub read_file {
   my @lines;
   my $err = 0;
 
+  $self->logger->debug('QWWQWWEDDFFFEEX');
   $self->{DATES} = [];
-  if ( -f $self->get_full_filename ) {
-    @lines = slurp( $self->get_full_filename );
-    $self->logger->debug(
-      scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
-  }
-  else {
-    $self->logger->warn( "Fixtures file " . $self->get_full_filename . " does not exist." );
-    $err = 1;
-  }
+  @lines = slurp( $self->get_full_filename );
+  $self->logger->debug(
+    scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
 
   foreach my $l (@lines) {
 
@@ -534,6 +540,9 @@ sub _get_fixture_hash {
   my %h    = ();
 
   $self->logger->debug( "_get_fixtures_hash() " . Dumper(%args) );
+  $self->logger->debug( "_get_fixtures_hash() " . Dumper($self->{FIXTURES}) );
+
+  die ResultsSystem::Exception->new('FIXTURES_NOT_DEFINED', 'Has read_file been run?') if ! defined $self->{FIXTURES};
   my $l = $self->{FIXTURES}{ $args{-date} }[ $args{-index} ];
 
   if ($l) {
@@ -578,6 +587,25 @@ sub _trim {
   #$l =~ s/^\s*([^\s])/$1/;
   #$l =~ s/([^\s])\s*$/$1/;
   return $l;
+}
+
+=head2 set_division
+
+=cut
+
+sub set_division {
+  my ( $self, $v ) = @_;
+  $self->{division} = $v;
+  return $self;
+}
+
+=head2 get_division
+
+=cut
+
+sub get_division {
+  my ($self) = @_;
+  return $self->{division};
 }
 
 1;

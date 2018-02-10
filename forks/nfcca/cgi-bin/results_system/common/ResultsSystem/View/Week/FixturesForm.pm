@@ -16,6 +16,7 @@
 
   use strict;
   use warnings;
+  use Params::Validate qw/:all/;
 
   use Data::Dumper;
   use ResultsSystem::View::Week;
@@ -82,7 +83,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
 =cut
 
   sub create_table_rows {
-    my ( $self, $rows ) = @_;
+    my ( $self, $rows ) = validate_pos( @_, 1, { type => ARRAYREF } );
 
     my $table   = "";
     my $i       = 0;

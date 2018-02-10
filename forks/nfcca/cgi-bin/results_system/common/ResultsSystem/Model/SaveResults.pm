@@ -48,13 +48,7 @@ Can also accept -division, -week
     bless $self, $class;
     my %args = %$args;
 
-    $self->set_configuration( $args{-configuration} ) if $args{-configuration};
-
-    $self->set_logger( $args{-logger} ) if $args{-logger};
-
-    $self->set_division( $args{-division} ) if $args{-division};
-
-    $self->set_week( $args{-week} ) if ( $args{-week} );
+    $self->set_arguments( [qw/configuration logger week_data_writer/], $args );
 
     return $self;
   }
@@ -71,6 +65,13 @@ Can also accept -division, -week
     my $reformatted = $self->reformat( $args->{-params} );
 
     $self->logger->debug( Dumper $reformatted );
+
+    my $writer = $self->get_week_data_writer();
+    $writer->set_division( 'XX'.$args->{-params}->{division}  );
+    $writer->set_week( $args->{-params}->{matchdate} );
+
+    $self->logger->debug( 'Call write_file' );
+    $writer->write_file($reformatted);
 
   }
 
@@ -93,9 +94,9 @@ Can also accept -division, -week
 
     }
 
-    my $out=[];
-    foreach my $i (sort {$a <=> $b}  keys %$tmp_hr){
-    push @$out, $tmp_hr->{$i};
+    my $out = [];
+    foreach my $i ( sort { $a <=> $b } keys %$tmp_hr ) {
+      push @$out, $tmp_hr->{$i};
     }
 
     return $out;
@@ -251,6 +252,25 @@ Returns the .dat filename for the week complete with the csv path.
     my $season = $self->get_configuration->get_season;
 
     return $path . "/$season/" . $f;
+  }
+
+=head2 get_week_data_writer
+
+=cut
+
+  sub get_week_data_writer {
+    my $self = shift;
+    return $self->{week_data_writer};
+  }
+
+=head2 set_week_data_writer
+
+=cut
+
+  sub set_week_data_writer {
+    my ( $self, $v ) = @_;
+    $self->{week_data_writer} = $v;
+    return $self;
   }
 
   1;

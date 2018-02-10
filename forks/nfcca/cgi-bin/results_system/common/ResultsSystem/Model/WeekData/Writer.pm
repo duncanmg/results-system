@@ -25,32 +25,35 @@ This writes the current contents of the data structure to the results file for t
   sub write_file {
 
     #***************************************
-    my ($self,$lines) = validate_pos(@_,1,{type=>ARRAYREF});
+    my ( $self, $lines ) = validate_pos( @_, 1, { type => ARRAYREF } );
     my $FP;
+
+    $self->logger->debug('write_file');
 
     my @labels = $self->get_labels;
 
     my $ff = $self->get_full_dat_filename;
 
-    
+    $self->logger->debug('division '. $self->get_division);
+    $self->logger->debug('full_dat_filename '. $ff);
     # my $lines = $self->get_lines;
-    return if ! scalar @$lines;
+    return if !scalar @$lines;
 
-      open( $FP, ">", $ff ) ||do {
-        $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
-        return;
-      };
+    open( $FP, ">", $ff ) || do {
+      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
+      return;
+    };
 
-      foreach my $line ( @$lines ) {
+    foreach my $line (@$lines) {
 
-        $line = $self->validate_line($line);
+      $line = $self->validate_line($line);
 
-        my $out = join(",", map { $line->{$_} } @labels );
-          print $FP $out . "\n";
+      my $out = join( ",", map { $line->{$_} } @labels );
+      print $FP $out . "\n";
 
-      }
+    }
 
-      close ($FP) if $FP;
+    close($FP) if $FP;
 
     return 1;
   }
@@ -60,19 +63,19 @@ This writes the current contents of the data structure to the results file for t
 =cut
 
   sub validate_line {
-     my($self,$line)=validate_pos(@_, 1, {type=>HASHREF});
+    my ( $self, $line ) = validate_pos( @_, 1, { type => HASHREF } );
 
-     my @labels = $self->get_labels;
-     foreach my $label (@labels) {
+    my @labels = $self->get_labels;
+    foreach my $label (@labels) {
 
-        if ($label =~ m/(team)|(played)|(result[^p])|(performances)/ ) {
-          $line->{$label} =~ s/[,<>|\n]/ /g;
-          $line->{$label} ||="";
-        }
-        else {
-            $line->{$label} =~ s/[^\d-]//g;
-            $line->{$label} ||=0;
-        }
+      if ( $label =~ m/(team)|(played)|(result[^p])|(performances)/ ) {
+        $line->{$label} ||= "";
+        $line->{$label} =~ s/[,<>|\n]/ /g;
+      }
+      else {
+        $line->{$label} ||= 0;
+        $line->{$label} =~ s/[^\d-]//g;
+      }
     }
     return $line;
   }

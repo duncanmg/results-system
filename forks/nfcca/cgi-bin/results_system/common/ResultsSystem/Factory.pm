@@ -309,6 +309,7 @@ sub get_week_fixtures_model {
     { -logger        => $self->get_file_logger(),
       -configuration => $self->get_configuration,
       -week_data     => $self->get_week_data_reader_model,
+      -fixtures      => $self->get_fixtures_model,
     }
   );
 }
@@ -333,8 +334,9 @@ sub get_pwd_model {
 sub get_save_results_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::SaveResults->new(
-    { -logger        => $self->get_file_logger(),
-      -configuration => $self->get_configuration,
+    { -logger           => $self->get_file_logger(),
+      -configuration    => $self->get_configuration,
+      -week_data_writer => $self->get_week_data_writer_model(),
     }
   );
 }

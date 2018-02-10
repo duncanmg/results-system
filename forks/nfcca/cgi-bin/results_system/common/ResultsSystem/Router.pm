@@ -37,20 +37,26 @@ sub new {
 sub route {
   my ( $self, $query ) = @_;
 
-  my $pages = {
-    'frame'         => sub { $self->get_factory->get_frame_controller->run($query) },
-    'menu'          => sub { $self->get_factory->get_menu_controller->run($query) },
-    'blank'         => sub { $self->get_factory->get_blank_controller->run($query) },
-    'menu_js'       => sub { $self->get_factory->get_menu_js_controller->run($query) },
-    'week_fixtures' => sub { $self->get_factory->get_week_fixtures_controller->run($query) },
-    'save_results' => sub { $self->get_factory->get_save_results_controller->run($query) }
+  eval {
+    my $pages = {
+      'frame'         => sub { $self->get_factory->get_frame_controller->run($query) },
+      'menu'          => sub { $self->get_factory->get_menu_controller->run($query) },
+      'blank'         => sub { $self->get_factory->get_blank_controller->run($query) },
+      'menu_js'       => sub { $self->get_factory->get_menu_js_controller->run($query) },
+      'week_fixtures' => sub { $self->get_factory->get_week_fixtures_controller->run($query) },
+      'save_results'  => sub { $self->get_factory->get_save_results_controller->run($query) }
+    };
+
+    my $page = $query->param('page');
+    if ( $pages->{$page} ) {
+      $pages->{$page}->();
+    }
+    1;
+  } || do {
+    my $e = $@;
+    $self->get_factory->get_file_logger->error($e);
+    die 'Error. See log';
   };
-
-  my $page = $query->param('page');
-  if ( $pages->{$page} ) {
-    $pages->{$page}->();
-  }
-
 }
 
 sub get_factory {

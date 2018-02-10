@@ -11,6 +11,7 @@
 
   use Slurp;
   use List::MoreUtils qw / any /;
+  use ResultsSystem::Exception;
 
   use parent qw/ ResultsSystem::Model /;
 
@@ -179,6 +180,9 @@ Returns the .dat filename for the week.
     my $f;
     my $w = $self->get_week;
     my $d = $self->get_division;
+
+    die ResultsSystem::Exception->new( 'NO_DAT_WEEK',     'Week is not set.' )     if !$w;
+    die ResultsSystem::Exception->new( 'NO_DAT_DIVISION', 'Division is not set.' ) if !$d;
 
     $d =~ s/\..*$//g;    # Remove extension
     $f = $d . "_" . $w . ".dat";
