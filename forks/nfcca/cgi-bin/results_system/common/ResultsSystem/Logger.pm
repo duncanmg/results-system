@@ -69,7 +69,7 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
 =cut
 
   sub logger {
-    my ($self) = validate_pos( @_, 1 );
+    my ( $self, $category ) = validate_pos( @_, 1, 1 );
 
     die ResultsSystem::Exception->new( "LOGDIR_DOES_NOT_EXIST",
       "Log dir does not exist " . $self->get_log_dir )
@@ -82,7 +82,7 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
     $ENV{LOGFILENAME} = $file;
     Log::Log4perl::init( $self->get_conf );
 
-    return Log::Log4perl::get_logger( ref($self) );
+    return Log::Log4perl::get_logger($category);
 
   }
 
@@ -95,13 +95,13 @@ $logger = $self->screen_logger();
 =cut
 
   sub screen_logger {
-    my ( $self, $category ) = validate_pos( @_, 1, 0 );
+    my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
 
-    $category = 'Default' if !$category;
     my $conf = $self->default_conf();
 
     Log::Log4perl::init($conf);
 
+    print STDERR 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ' . $category . "\n\n";
     my $logger = Log::Log4perl::get_logger($category);
 
     return $logger;

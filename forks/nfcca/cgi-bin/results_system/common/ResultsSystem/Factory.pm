@@ -65,7 +65,8 @@ sub get_logger {
 
 sub get_screen_logger {
   my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
-  return $self->get_logger($args)->screen_logger();
+  $args->{-category} ||= 'Default';
+  return $self->get_logger($args)->screen_logger( $args->{-category} );
 }
 
 =head3 get_file_logger
@@ -79,7 +80,7 @@ sub get_file_logger {
     $args->{-log_dir} = $c->get_path( -log_dir => 1 );
     $args->{-logfile_stem} = $c->get_log_stem;
   }
-  return $self->get_logger($args)->logger();
+  return $self->get_logger($args)->logger( $args->{-category} );
 }
 
 sub get_starter {
@@ -97,7 +98,8 @@ sub get_configuration {
   my $s = sub {
 
     return ResultsSystem::Configuration->new(
-      -logger        => $self->get_logger->screen_logger,
+      -logger =>
+        $self->get_screen_logger( { -category => 'ResultsSystem::Configuration' } ),
       -full_filename => $args->{-full_filename}
     );
   };
@@ -140,7 +142,7 @@ sub get_full_filename {
 sub get_frame_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::Frame->new(
-    { -logger      => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Controller::Frame' } ),
       -frame_model => $self->get_frame_model,
       -frame_view  => $self->get_frame_view
     }
@@ -154,7 +156,7 @@ sub get_frame_controller {
 sub get_menu_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::Menu->new(
-    { -logger     => $self->get_file_logger(),
+    { -logger     => $self->get_file_logger( { -category => 'ResultsSystem::Controller::Menu' } ),
       -menu_model => $self->get_menu_model,
       -menu_view  => $self->get_menu_view
     }
@@ -168,7 +170,7 @@ sub get_menu_controller {
 sub get_blank_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::Blank->new(
-    { -logger     => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Controller::Blank' } ),
       -blank_view => $self->get_blank_view
     }
   );
@@ -181,7 +183,7 @@ sub get_blank_controller {
 sub get_menu_js_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::MenuJs->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Controller::MenuJs' } ),
       -menu_js_view  => $self->get_menu_js_view,
       -menu_js_model => $self->get_menu_js_model
     }
@@ -195,7 +197,8 @@ sub get_menu_js_controller {
 sub get_week_fixtures_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::WeekFixtures->new(
-    { -logger              => $self->get_file_logger(),
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Controller::WeekFixtures' } ),
       -week_fixtures_view  => $self->get_week_fixtures_view,
       -week_fixtures_model => $self->get_week_fixtures_model
     }
@@ -209,7 +212,8 @@ sub get_week_fixtures_controller {
 sub get_save_results_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::SaveResults->new(
-    { -logger             => $self->get_file_logger(),
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Controller::SaveResults' } ),
       -save_results_view  => $self->get_save_results_view,
       -save_results_model => $self->get_save_results_model
     }
@@ -227,7 +231,7 @@ sub get_save_results_controller {
 sub get_frame_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Frame->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::Model::Frame' } ),
       -configuration => $self->get_configuration
     }
   );
@@ -240,7 +244,7 @@ sub get_frame_model {
 sub get_menu_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Menu->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::Model::Menu' } ),
       -configuration => $self->get_configuration
     }
   );
@@ -253,7 +257,7 @@ sub get_menu_model {
 sub get_fixtures_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Fixtures->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::Fixtures' } ),
       -configuration => $self->get_configuration
     }
   );
@@ -266,7 +270,7 @@ sub get_fixtures_model {
 sub get_menu_js_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::MenuJs->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::MenuJs' } ),
       -configuration => $self->get_configuration,
       -fixtures      => $self->get_fixtures_model,
     }
@@ -280,7 +284,8 @@ sub get_menu_js_model {
 sub get_week_data_reader_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::WeekData::Reader->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekData::Reader' } ),
       -configuration => $self->get_configuration,
     }
   );
@@ -293,7 +298,8 @@ sub get_week_data_reader_model {
 sub get_week_data_writer_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::WeekData::Writer->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekData::Writer' } ),
       -configuration => $self->get_configuration,
     }
   );
@@ -306,7 +312,7 @@ sub get_week_data_writer_model {
 sub get_week_fixtures_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::WeekFixtures->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekFixtures' } ),
       -configuration => $self->get_configuration,
       -week_data     => $self->get_week_data_reader_model,
       -fixtures      => $self->get_fixtures_model,
@@ -321,7 +327,7 @@ sub get_week_fixtures_model {
 sub get_pwd_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::Pwd->new(
-    { -logger        => $self->get_file_logger(),
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::Model::Pwd' } ),
       -configuration => $self->get_configuration,
     }
   );
@@ -334,7 +340,7 @@ sub get_pwd_model {
 sub get_save_results_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::SaveResults->new(
-    { -logger           => $self->get_file_logger(),
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::SaveResults' } ),
       -configuration    => $self->get_configuration,
       -week_data_writer => $self->get_week_data_writer_model(),
     }
@@ -351,7 +357,8 @@ sub get_save_results_model {
 
 sub get_frame_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Frame->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::Frame->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Frame' } ) } );
 }
 
 =head3 get_menu_view
@@ -360,7 +367,8 @@ sub get_frame_view {
 
 sub get_menu_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Menu->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::Menu->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Menu' } ) } );
 }
 
 =head3 get_blank_view
@@ -369,7 +377,8 @@ sub get_menu_view {
 
 sub get_blank_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Blank->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::Blank->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Blank' } ) } );
 }
 
 =head3 get_menu_js_view
@@ -378,7 +387,8 @@ sub get_blank_view {
 
 sub get_menu_js_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::MenuJs->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::MenuJs->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::MenuJs' } ) } );
 }
 
 =head3 get_week_fixtures_view
@@ -387,7 +397,11 @@ sub get_menu_js_view {
 
 sub get_week_fixtures_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Week::FixturesForm->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::Week::FixturesForm->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::View::Week::FixturesForm' } )
+    }
+  );
 }
 
 =head3 get_save_results_view
@@ -396,7 +410,9 @@ sub get_week_fixtures_view {
 
 sub get_save_results_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::SaveResults->new( { -logger => $self->get_file_logger() } );
+  return ResultsSystem::View::SaveResults->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::SaveResults' } ) }
+  );
 }
 
 1;
