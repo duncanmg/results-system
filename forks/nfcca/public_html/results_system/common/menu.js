@@ -53,13 +53,15 @@ function set_up() {
        };
 
        var validate_won_lost = function(i) {
+         if ( f["homeplayed"+i].value == "Y" || f["awayplayed"+i].value == "Y" ) {
            if ( f["homeresult"+i].value == f["awayresult"+i].value ) {
              if ( f["homeresult"+i].value.search( /[WL]/ ) >= 0 ) {
                alert( "If one team won, surely the other lost! Match: " + i );
                return false;
              }  
            }
-           return true;
+	 }  
+         return true;
        };
 
        var validate_not_played = function(i) {
