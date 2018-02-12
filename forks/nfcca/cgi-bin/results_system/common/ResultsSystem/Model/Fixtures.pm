@@ -95,7 +95,6 @@ sub new {
   $self->{logger} = $args->{-logger} if $args->{-logger};
   $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
 
-  $self->logger->debug("Fixtures object created.") if !$err;
   return $self if $err == 0;
   return undef;
 }
@@ -323,11 +322,20 @@ sub read_file {
   my @lines;
   my $err = 0;
 
-  $self->logger->debug('QWWQWWEDDFFFEEX');
   $self->{DATES} = [];
-  @lines = slurp( $self->get_full_filename );
-  $self->logger->debug(
-    scalar(@lines) . " lines read from fixtures file " . $self->get_full_filename, 1 );
+  eval {
+    @lines = slurp( $self->get_full_filename );
+    1;
+  } || do {
+    my $err = $@;
+    die $err if $err . "" !~ m/FILE_DOES_NOT_EXIST/;
+    $self->logger->error($@);
+  };
+
+  my $lines    = scalar(@lines);
+  my $fixtures = 0;
+  my $dates    = 0;
+  my $dividers = 0;
 
   foreach my $l (@lines) {
 
@@ -336,21 +344,27 @@ sub read_file {
     $l = $self->_trim($l);
     if ( $self->_is_date($l) ) {
       $err = $self->_add_date($l);
+      $dates++;
     }
 
     elsif ( $self->_is_fixture($l) && $err == 0 ) {
       if ( $self->_get_last_date ) {
         $self->_add_fixture( $self->_get_last_date, $l );
+        $fixtures++;
       }
       else {
         $err = 1;
       }
     }
     else {
-      $self->logger->debug("read_file <$l> is not a date or a fixture.");
+      $dividers++ if ( $l =~ m/^==========/ );
     }
-    $self->logger->debug("read_file One line processed. err=$err");
+
   }
+  $self->logger->debug( "Read "
+      . $self->get_full_filename
+      . " lines=$lines dates=$dates fixtures=$fixtures "
+      . "dividers=$dividers err=$err" );
   return $err;
 }
 
@@ -540,9 +554,10 @@ sub _get_fixture_hash {
   my %h    = ();
 
   $self->logger->debug( "_get_fixtures_hash() " . Dumper(%args) );
-  $self->logger->debug( "_get_fixtures_hash() " . Dumper($self->{FIXTURES}) );
+  $self->logger->debug( "_get_fixtures_hash() " . Dumper( $self->{FIXTURES} ) );
 
-  die ResultsSystem::Exception->new('FIXTURES_NOT_DEFINED', 'Has read_file been run?') if ! defined $self->{FIXTURES};
+  die ResultsSystem::Exception->new( 'FIXTURES_NOT_DEFINED', 'Has read_file been run?' )
+    if !defined $self->{FIXTURES};
   my $l = $self->{FIXTURES}{ $args{-date} }[ $args{-index} ];
 
   if ($l) {
