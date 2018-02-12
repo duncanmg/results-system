@@ -245,7 +245,7 @@ There is no "else" or "default".
 =head2 _blank_line
 
 Returns a string containing HTML. The HTML is a table row
-with 11 cells. Each cell contains the &nbsp;
+oith 11 cells. Each cell contains the &nbsp;
 
 =cut
 
@@ -279,13 +279,13 @@ Returns an HTML string containing a table row.
     return q!
     <tr>
     <td> <input type="text" id="[% ha %]team[% matchno %]" name="[% ha %]team[% matchno %]" value="[% team %]" readonly/> </td>
-    <td> <select name="[% ha %]played[% matchno %]" size="1" onchange="calculate_points( this, [% rownumber %] )">
+    <td> <select name="[% ha %]played[% matchno %]" size="1" onchange="calculate_points( this, [% matchno %] )">
       <option value="Y" [% played_y %]>Y </option>
       <option value="N" [% played_n %]>N </option>
       <option value="A" [% played_a %]>A </option>
       </select>
     </td>
-    <td> <select name="[% ha %]result[% matchno %]" size="1" onchange="calculate_points( this, [% rownumber %] )">
+    <td> <select name="[% ha %]result[% matchno %]" size="1" onchange="calculate_points( this, [% matchno %] )">
       <option value="W" [% result_w %]>W</option>
       <option value="L" [% result_l %]>L</option>
       <option value="T" [% result_t %]>T</option>
@@ -294,11 +294,11 @@ Returns an HTML string containing a table row.
     <td> <input name="[% ha %]runs[% matchno %]" id="[% ha %]runs[% matchno %]" type="number" min="0" value="[% runs %]"/></td>
     <td> <input name="[% ha %]wickets[% matchno %]" id="[% ha %]wickets[% matchno %]" type="number" min="0" value="[% wickets %]"/></td>
     <td> <input type="text"  name="[% ha %]performances[% matchno %]" id="[% ha %]performances[% matchno %]" value="[% performances %]"/></td>
-    <td> <input  name="[% ha %]resultpts[% matchno %]" id="[% ha %]resultpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% resultpts %]"/></td>
-    <td> <input name="[% ha %]battingpts[% matchno %]" id="[% ha %]battingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% battingpts %]"/></td>
-    <td> <input name="[% ha %]bowlingpts[% matchno %]" id="[% ha %]bowlingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% bowlingpts %]"/></td>
-    <td> <input name="[% ha %]penaltypts[% matchno %]" id="[% ha %]penaltypts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% rownumber %] )" value="[% penaltypts %]"/></td>
-    <td> <input name="[% ha %]totalpts[% matchno %]" id="[% ha %]totalpts[% matchno %]" type="number" onchange="calculate_points( this, [% rownumber %] )" value="[% totalpts %]"/></td>
+    <td> <input  name="[% ha %]resultpts[% matchno %]" id="[% ha %]resultpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% resultpts %]"/></td>
+    <td> <input name="[% ha %]battingpts[% matchno %]" id="[% ha %]battingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% battingpts %]"/></td>
+    <td> <input name="[% ha %]bowlingpts[% matchno %]" id="[% ha %]bowlingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% bowlingpts %]"/></td>
+    <td> <input name="[% ha %]penaltypts[% matchno %]" id="[% ha %]penaltypts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% penaltypts %]"/></td>
+    <td> <input name="[% ha %]totalpts[% matchno %]" id="[% ha %]totalpts[% matchno %]" type="number" onchange="calculate_points( this, [% matchno %] )" value="[% totalpts %]"/></td>
     </tr>
 !;
 
