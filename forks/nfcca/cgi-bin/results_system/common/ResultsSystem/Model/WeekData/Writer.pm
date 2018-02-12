@@ -2,7 +2,7 @@
 
   use strict;
   use warnings;
-
+  use Data::Dumper;
   use Params::Validate qw/:all/;
 
   use parent qw/ ResultsSystem::Model::WeekData /;
@@ -34,8 +34,9 @@ This writes the current contents of the data structure to the results file for t
 
     my $ff = $self->get_full_dat_filename;
 
-    $self->logger->debug('division '. $self->get_division);
-    $self->logger->debug('full_dat_filename '. $ff);
+    $self->logger->debug( 'division ' . $self->get_division );
+    $self->logger->debug( 'full_dat_filename ' . $ff );
+
     # my $lines = $self->get_lines;
     return if !scalar @$lines;
 
@@ -68,7 +69,7 @@ This writes the current contents of the data structure to the results file for t
     my @labels = $self->get_labels;
     foreach my $label (@labels) {
 
-      if ( $label =~ m/(team)|(played)|(result[^p])|(performances)/ ) {
+      if ( $label =~ m/^(team)|(played)|(result[^p]*)|(performances)$/ ) {
         $line->{$label} ||= "";
         $line->{$label} =~ s/[,<>|\n]/ /g;
       }
