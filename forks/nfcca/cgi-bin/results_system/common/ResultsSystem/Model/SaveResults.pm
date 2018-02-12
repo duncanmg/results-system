@@ -67,10 +67,10 @@ Can also accept -division, -week
     $self->logger->debug( Dumper $reformatted );
 
     my $writer = $self->get_week_data_writer();
-    $writer->set_division( 'XX'.$args->{-params}->{division}  );
+    $writer->set_division( $args->{-params}->{division} );
     $writer->set_week( $args->{-params}->{matchdate} );
 
-    $self->logger->debug( 'Call write_file' );
+    $self->logger->debug('Call write_file');
     $writer->write_file($reformatted);
 
   }
@@ -86,17 +86,18 @@ Can also accept -division, -week
 
     foreach my $key ( keys %$hr ) {
 
-      my @bits = $key =~ m/^(home|away)(.*\D)(\d+)$/;
-      next if !scalar @bits;
+      my ( $ha, $name, $num ) = $key =~ m/^(home|away)(.*\D)(\d+)$/;
+      next if !$ha;
 
-      $tmp_hr->{ $bits[2] } = {} if !$tmp_hr->{ $bits[2] };
-      $tmp_hr->{ $bits[2] }->{ $bits[1] } = $hr->{$key};
+      $tmp_hr->{$num}->{$ha} = {} if !exists $tmp_hr->{$num};
+      $tmp_hr->{$num}->{$ha}->{$name} = $hr->{$key};
 
     }
 
     my $out = [];
     foreach my $i ( sort { $a <=> $b } keys %$tmp_hr ) {
-      push @$out, $tmp_hr->{$i};
+      push @$out, $tmp_hr->{$i}->{home};
+      push @$out, $tmp_hr->{$i}->{away};
     }
 
     return $out;
