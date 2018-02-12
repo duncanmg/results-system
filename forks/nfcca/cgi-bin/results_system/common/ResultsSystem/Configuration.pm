@@ -19,12 +19,17 @@
 
   package ResultsSystem::Configuration;
 
+  use strict;
+  use warnings;
+
   use XML::Simple;
   use Sort::Maker;
-  use strict;
   use List::MoreUtils qw/ first_value any /;
   use Regexp::Common qw /whitespace/;
   use Data::Dumper;
+  use Params::Validate qw/:all/;
+
+  use ResultsSystem::Exception;
 
 =head2 External Methods
 
@@ -109,7 +114,7 @@ Returns the full filename of the configuration file.
     my $self = shift;
     return $self->{FULL_FILENAME} if $self->{FULL_FILENAME};
     my $system = $self->get_system;
-    if ( $system ) {
+    if ($system) {
       $self->set_full_filename("../custom/$system/$system.ini");
     }
     return $self->{FULL_FILENAME};
@@ -310,8 +315,8 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
   sub get_path {
 
     #***************************************
-    my $self = shift;
-    my %args = (@_);
+    my ( $self, %args ) = @_;
+
     my $p;
     my $err = 0;
 
@@ -319,58 +324,36 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
     delete $args{"-allow_not_exists"};
 
     $self->logger->debug( "get_path() called. " . Dumper(%args) ) if !$args{-log_dir};
-    if ( !$self->_get_tags ) {
-      $self->logger->error("No tags are defined.");
-      $err = 1;
-    }
-    elsif ( !$self->_get_tags->{paths} ) {
-      $self->logger->error("No paths are defined.");
-      $err = 1;
-    }
-    elsif ( !%args || !keys %args ) {
-      $self->logger->error("No path passed as an argument.");
-      $err = 1;
-    }
-    elsif ( scalar( keys(%args) ) != 1 ) {
-      $self->logger->error("Only one path should be requested.");
-      $err = 1;
-    }
-    return undef if $err == 1;
+    die ResultsSystem::Exception->new( 'NO_PATHS_DEFINED', 'No paths defined' )
+      if !exists $self->_get_tags->{paths};
 
-    my @keys = keys(%args);
-    my $key  = shift @keys;
-    if ( $key !~ m/^-\w/ ) {
-      $self->logger->error(
-        "Path argument must begin with a dash followed by an alphanumeric character eg -cgi-bin"
-      );
-      return undef;
-    }
-
+    my @keys        = keys %args;
+    my $key         = shift @keys;
     my @valid_paths = (
-      "-csv_files",   "-log_dir", "-pwd_dir", "-table_dir",
-      "-results_dir", "-htdocs",  "-cgi_dir", "-root"
+      "-csv_files", "-log_dir", "-pwd_dir", "-table_dir", "-results_dir", "-htdocs",
+      "-cgi_dir",   "-root",    '-htdocs_full'
     );
     if ( !( any { $key eq $_ } @valid_paths ) ) {
       $self->logger->warn("$key is not in the list of valid paths.");
       $self->logger->warn( Dumper caller );
     }
 
-    if ( $args{$key} ) {
-      my $k = $key;
-      $k =~ s/^-//;
-      $p = $self->_get_tags->{paths}[0]{$k}[0];
-    }
+    my $k = $key;
+    $k =~ s/^-//;
+    $p = $self->_get_tags->{paths}[0]{$k}[0];
+    die ResultsSystem::Exception->new( 'PATH_NOT_IN_TAGS', $k ) if !$p;
 
-    $p = $self->_construct_path( -path => $p ) if $p;
-
+    $p = $self->_construct_path( -path => $p );
     $p = $self->_trim($p);
+
     if ( ( !$allow_not_exists ) && ( !-d $p ) ) {
 
       # Report this as a warning rather than a serious error.
       $self->logger->warn( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
       $self->logger->warn( Dumper caller );
     }
-    $self->logger->debug( "get_path() returning: " . $p ) if !$args{-log_dir};
+    $self->logger->debug( "get_path() returning: " . $p . " was called with " . Dumper(%args) )
+      if !$args{-log_dir};
     return $p;
 
   }
@@ -651,6 +634,7 @@ from the configuration file.
 
     #***************************************
     my $self = shift;
+    die ResultsSystem::Exception->new( 'NO_TAGS_DEFINED', 'No tags defined' ) if !$self->{TAGS};
     return $self->{TAGS};
   }
 
@@ -780,19 +764,23 @@ So if "path" is /x/y/z then this method will return /x/y/z/a/b/c.
 
     #***************************************
     my $self = shift;
-    my %args = (@_);
+    my (%args) = validate( @_, { -path => { type => SCALAR | HASHREF } } );
     my $tags = $self->_get_tags;
-    my $path;
+
+    return $args{-path} if !ref( $args{-path} );
     my $p = $args{-path};
-    if ( defined($p) && ref($p) && $p->{prefix} ) {
-      my $prefix = $self->get_path( '-' . $p->{prefix}[0] => 'Y' );
-      my $value = $p->{value}[0];
-      $path = "$prefix/$value";
-    }
-    else {
-      $path = $p;
-    }
+
+    die ResultsSystem::Exception( 'MISSING_KEYS', 'Path must contsin the keys prefix and value' )
+      if !( $p->{prefix} && $p->{value} );
+    my $prefix = $p->{prefix}[0];
+
+    my $path;
+    $self->logger->debug( "Compound path. About to call get_path for prefix " . $prefix );
+    $prefix = $self->get_path( '-' . $prefix => 'Y' );
+    my $value = $p->{value}[0];
+    $path = "$prefix/$value";
     $path =~ s://:/:g;    # Change // to /.
+
     return $path;
   }
 
