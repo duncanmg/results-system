@@ -54,7 +54,7 @@ sub route {
     1;
   } || do {
     my $e = $@;
-    $self->get_factory->get_file_logger->error($e);
+    $self->get_factory->get_file_logger( { -category => ref($self) } )->error($e);
     die 'Error. See log';
   };
 }
