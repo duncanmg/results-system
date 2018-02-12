@@ -78,6 +78,52 @@ Constructor for the FixturesForm object. Inherits from Parent.
     return 1;
   }
 
+=head2 merge_if_in_list
+  
+=cut
+  
+    sub merge_if_in_list {
+      my ( $self, $html, $label, $value, $targets, $replacements ) =
+        validate_pos( @_, 1, 1, 1, 1, { type => ARRAYREF }, { type => ARRAYREF } );
+  
+      my $out = "";
+      my $i   = 0;
+      foreach my $t (@$targets) {
+        if ( ( $value || "" ) eq ( $t || "" ) ) {
+          $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
+	  last;
+        }
+      }
+      return $out;
+    }
+
+=head2 merge_if
+
+Useful when working with select lists.
+
+The HTML could be:
+
+  <select><option value="Y" [% played_y %]>Y</option></select>
+
+The following could will replace the label with 'selected="selected"' if $r->{played} is 'Y'.
+
+ $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"' );
+
+There is no "else" or "default".
+
+=cut
+
+  sub merge_if {
+    my ( $self, $html, $label, $value, $target, $replacement ) =
+      validate_pos( @_, 1, 1, 1, 1, { type => SCALAR }, { type => SCALAR } );
+
+    my $out = $html;
+    if ( ( $value || "" ) eq ( $target || "" ) ) {
+      $out = $self->merge_content( $html, { $label => $replacement } );
+    }
+    return $out;
+  }
+
 =head2 create_table_rows
 
 =cut
@@ -95,21 +141,52 @@ Constructor for the FixturesForm object. Inherits from Parent.
       $r->{ha}        = 'home';
       $r->{matchno}   = $matchno;
       $r->{rownumber} = $i;
-      $table .= $self->merge_content( $self->get_row_html, $r );
+      my $merged_row .= $self->merge_content( $self->get_row_html, $r );
 
+      $merged_row = $self->merge_select_boxes( $merged_row, $r );
+
+      $table .= $merged_row;
       $i++;
       $r              = $rows->[$i];
       $r->{ha}        = 'away';
       $r->{matchno}   = $matchno;
       $r->{rownumber} = $i;
-      $table .= $self->merge_content( $self->get_row_html, $r );
+
+      $merged_row     = $self->merge_content( $self->get_row_html, $r );
+
+      $merged_row = $self->merge_select_boxes( $merged_row, $r );
+
+      $table .= $merged_row;
       $i++;
+
       $table .= $self->_blank_line;
 
       $matchno++;
     }
 
     return $table;
+  }
+
+=head2 merge_select_boxes
+
+=cut
+
+  sub merge_select_boxes {
+    my ( $self, $row, $r ) = validate_pos( @_, 1, { type => SCALAR }, { type => HASHREF } );
+
+    $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"' );
+
+    $row = $self->merge_if( $row, 'played_n', $r->{played}, 'N', 'selected="selected"' );
+
+    $row = $self->merge_if( $row, 'played_a', $r->{played}, 'A', 'selected="selected"' );
+
+    $row = $self->merge_if( $row, 'result_w', $r->{result}, 'W', 'selected="selected"' );
+
+    $row = $self->merge_if( $row, 'result_l', $r->{result}, 'L', 'selected="selected"' );
+
+    $row = $self->merge_if( $row, 'result_t', $r->{result}, 'T', 'selected="selected"' );
+
+    return $row;
   }
 
   #***************************************
@@ -119,7 +196,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
     my $self = shift;
 
     my $html = q~
-      <script src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
+      <script src="/results_system/common/menu.js"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
       <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]</h1>
       <!-- <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1> -->
@@ -202,16 +279,16 @@ Returns an HTML string containing a table row.
     return q!
     <tr>
     <td> <input type="text" id="[% ha %]team[% matchno %]" name="[% ha %]team[% matchno %]" value="[% team %]" readonly/> </td>
-    <td> <select name="[% ha %]played[% matchno %]" size="2" onchange="calculate_points( this, [% rownumber %] )">
-      <option value="Y">Y</option>
-      <option value="N">N</option>
-      <option value="A">A</option>
+    <td> <select name="[% ha %]played[% matchno %]" size="1" onchange="calculate_points( this, [% rownumber %] )">
+      <option value="Y" [% played_y %]>Y </option>
+      <option value="N" [% played_n %]>N </option>
+      <option value="A" [% played_a %]>A </option>
       </select>
     </td>
-    <td> <select name="[% ha %]result[% matchno %]" size="2" onchange="calculate_points( this, [% rownumber %] )">
-      <option value="W">W</option>
-      <option value="L">L</option>
-      <option value="T">T</option>
+    <td> <select name="[% ha %]result[% matchno %]" size="1" onchange="calculate_points( this, [% rownumber %] )">
+      <option value="W" [% result_w %]>W</option>
+      <option value="L" [% result_l %]>L</option>
+      <option value="T" [% result_t %]>T</option>
       </select>
     </td>
     <td> <input name="[% ha %]runs[% matchno %]" id="[% ha %]runs[% matchno %]" type="number" min="0" value="[% runs %]"/></td>
