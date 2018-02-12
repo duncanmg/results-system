@@ -68,13 +68,23 @@ sub get_all_dates_by_division {
 
   foreach my $div (@x) {
     my $ff = $path . '/' . $div->{csv_file};
-    $fixtures->set_full_filename($ff);
-    $fixtures->read_file();
-    my $list = $fixtures->get_date_list;
-    $dates->{ $div->{csv_file} } = $list if $list;
-    $self->logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$list;
+    $self->logger->debug($ff);
+    eval {
+      $fixtures->set_full_filename($ff);
+      $fixtures->read_file();
+      my $list = $fixtures->get_date_list;
+      $dates->{ $div->{csv_file} } = $list if $list;
+      $self->logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$list;
+      1;
+    } || do {
+      my $err = $@;
+      die $err if ( $err !~ m/FILE_DOES_NOT_EXIST/ );
+      $self->logger->warn(
+        "$ff does not exist. Dates and fixtures for division will not be available.");
+    };
   }
-  $self->logger->debug( Dumper $dates);
+  $self->logger->debug(
+    "Returning dates for these divisions: " . join( ", ", sort ( keys(%$dates) ) ) );
   return $dates;
 }
 
@@ -113,8 +123,6 @@ sub get_menu {
     $line = $line . "csv_files.push( \"" . $x->{csv_file} . "\" );\n\n";
 
   }
-
-  $self->logger->debug($line);
 
   return $line;
 
