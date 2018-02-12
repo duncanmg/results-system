@@ -69,7 +69,7 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
 =cut
 
   sub logger {
-    my ( $self, $category ) = validate_pos( @_, 1, 1 );
+    my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
 
     die ResultsSystem::Exception->new( "LOGDIR_DOES_NOT_EXIST",
       "Log dir does not exist " . $self->get_log_dir )
