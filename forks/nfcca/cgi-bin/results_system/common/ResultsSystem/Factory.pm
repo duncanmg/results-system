@@ -34,6 +34,8 @@ use ResultsSystem::View::MenuJs;
 use ResultsSystem::View::Week::FixturesForm;
 use ResultsSystem::View::Week::Results;
 use ResultsSystem::View::SaveResults;
+use ResultsSystem::View::Pwd;
+use ResultsSystem::View::Message;
 
 =head2 new
 
@@ -98,8 +100,7 @@ sub get_configuration {
   my $s = sub {
 
     return ResultsSystem::Configuration->new(
-      -logger =>
-        $self->get_screen_logger( { -category => 'ResultsSystem::Configuration' } ),
+      -logger => $self->get_screen_logger( { -category => 'ResultsSystem::Configuration' } ),
       -full_filename => $args->{-full_filename}
     );
   };
@@ -215,7 +216,9 @@ sub get_save_results_controller {
     { -logger =>
         $self->get_file_logger( { -category => 'ResultsSystem::Controller::SaveResults' } ),
       -save_results_view  => $self->get_save_results_view,
-      -save_results_model => $self->get_save_results_model
+      -message_view       => $self->get_message_view,
+      -save_results_model => $self->get_save_results_model,
+      -pwd_model          => $self->get_pwd_model,
     }
   );
 }
@@ -399,7 +402,8 @@ sub get_week_fixtures_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Week::FixturesForm->new(
     { -logger =>
-        $self->get_file_logger( { -category => 'ResultsSystem::View::Week::FixturesForm' } )
+        $self->get_file_logger( { -category => 'ResultsSystem::View::Week::FixturesForm' } ),
+      -pwd_view => $self->get_pwd_view
     }
   );
 }
@@ -411,8 +415,28 @@ sub get_week_fixtures_view {
 sub get_save_results_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::SaveResults->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::SaveResults' } ) }
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::SaveResults' } ), }
   );
+}
+
+=head3 get_pwd_view
+
+=cut
+
+sub get_pwd_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::Pwd->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Pwd' } ) } );
+}
+
+=head3 get_message_view
+
+=cut
+
+sub get_message_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::Message->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Message' } ) } );
 }
 
 1;

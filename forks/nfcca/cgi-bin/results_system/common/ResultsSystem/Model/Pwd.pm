@@ -16,7 +16,7 @@
   use Time::localtime;
   use Slurp;
   use Data::Dumper;
-
+  use Params::Validate qw/:all/;
   use parent qw/ ResultsSystem::Model/;
 
 =head1 Pwd
@@ -49,6 +49,8 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
       $self->set_pwd_dir( $self->get_configuration->get_path( -log_dir => "Y" ) );
     }
 
+    $self->set_logger( $args->{-logger} ) if $args->{-logger};
+
     $self->set_wrong_file("wrong");
     $self->_set_vwrong_file("vwrong");
 
@@ -62,10 +64,10 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
 This method interrogates the query object and retrieves the user and code parameters.
 It then reads the correct password for the user from the ResultsConfiguration object.
 
-It returns an error code (0 for success) and a message.
+It returns an error code (1 for success) and a message.
 
  ( $err, $msg ) = $p->check_pwd();
- if ( $err != 0 ) {
+ if ( ! $err  ) {
    print $msg . "\n";
  }  
 
@@ -76,24 +78,23 @@ It returns an error code (0 for success) and a message.
 
     #***************************************
     my $self = shift;
-    my $err  = 1;
-    my $q    = $self->get_query;
-    my $c    = $self->get_configuration;
+    my (%args) = validate( @_, { -user => { type => SCALAR }, -code => { type => SCALAR } } );
+    my $ok = 0;
+
+    my $c = $self->get_configuration;
 
     my $msg;
 
-    my $user = $q->param("user");
-    my $code = $q->param("code");
-    my $real = $c->get_code($user);
+    my $real = $c->get_code( $args{-user} );
     if ( !$real ) {
-      $self->logger->debug("No password for user $user.");
-      $err = 1;
+      $self->logger->error("No password for user $args{-user}.");
+      return ( 0, "Incorrect password" );
     }
     else {
-      ( $err, $msg ) = $self->check_code( $real, $code, $user );
+      ( $ok, $msg ) = $self->check_code( $real, $args{-code}, $args{-user} );
     }
 
-    return ( $err, $msg );
+    return ( $ok, $msg );
 
   }
 
@@ -134,7 +135,7 @@ There is also the concept of the password being wrong or very wrong.
     #*****************************************************************************
   {
     my ( $self, $real_pwd, $user_pwd, $teamfile ) = @_;
-    my $err = 0;
+    my $ok = 0;
     my $msg;
 
     $real_pwd =~ s/\W//g;
@@ -142,31 +143,31 @@ There is also the concept of the password being wrong or very wrong.
     $teamfile =~ s/\W//g;
 
     if ( $real_pwd eq undef || $user_pwd eq undef || $teamfile eq undef ) {
-      $self->logger->debug(
+      $self->logger->error(
         "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
-      return ( 1, "<h3>You have entered an incorrect password.</h3>" );
+      return ( 0, "<h3>You have entered an incorrect password.</h3>" );
     }
 
-    ( $err, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
-    return ( $err, $msg ) if $err;
+    ( $ok, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
+    return ( $ok, $msg ) if !$ok;
 
-    ( $err, $msg ) = $self->check_very_wrong( $real_pwd, $user_pwd, $teamfile );
-    $self->logger->debug( $err . " returned by check_very_wrong()" );
-    return ( $err, $msg ) if $err;
+    ( $ok, $msg ) = $self->check_very_wrong( $real_pwd, $user_pwd, $teamfile );
+    $self->logger->debug( $ok . " returned by check_very_wrong()" );
+    return ( $ok, $msg ) if !$ok;
 
     if ( $user_pwd ne $real_pwd ) {
 
-      $self->logger->debug("Incorrect password");
+      $self->logger->error("Incorrect password");
       $msg = "<h3>You have entered an incorrect password.</h3>";
-      $err = 1;
+      $ok  = 0;
 
       #Log incorrect try in file.
       $self->_write_tries( $self->_get_wrong_file(), $teamfile );
 
     }    #pwd
 
-    $self->logger->debug( "Leaving check_code(): " . $err );
-    return ( $err, $msg );
+    $self->logger->debug( "Leaving check_code(): " . $ok );
+    return ( $ok, $msg );
   }    # End check_code()
 
 =head3 check_very_wrong
@@ -188,7 +189,7 @@ it issues a "Too Many Tries" message.
     my ( $self, $real_pwd, $user_pwd, $teamfile ) = @_;
 
     my $vwrong = 0;
-    my $err    = 0;
+    my $ok     = 0;
     my $x      = 0;
     my $msg    = "<h3>You have entered an incorrect password.</h3>";
     my $count  = 0;
@@ -198,31 +199,31 @@ it issues a "Too Many Tries" message.
       if ( !defined $p ) {
         $self->logger->error( "One or more parameters is undefined. "
             . Dumper( ( $teamfile, $real_pwd, $user_pwd ) ) );
-        return ( 1, $msg );
+        return ( 0, $msg );
       }
     }
 
     # If password is right then no need to do anything. Test as strings.
-    return ( 0, undef ) if ( $real_pwd eq $user_pwd );
+    return ( 1, undef ) if ( $real_pwd eq $user_pwd );
 
     if ( length($real_pwd) < 3 ) {
       $self->logger->debug( "Do not check short code. " . length($real_pwd) < 3 );
-      return ( 0, undef );
+      return ( 1, undef );
     }
 
     my $vwrong_msg;
-    ( $err, $vwrong_msg ) = $self->_too_many_tries( $self->_get_vwrong_file(), $teamfile, 3 );
-    return ( $err, $vwrong_msg ) if $err;
+    ( $ok, $vwrong_msg ) = $self->_too_many_tries( $self->_get_vwrong_file(), $teamfile, 3 );
+    return ( $ok, $vwrong_msg ) if !$ok;
 
     #Compare each digit in turn. (Compare as characters.)
     #At least three must be correct.
     $count = $self->_compare_characters( $real_pwd, $user_pwd );
-    return ( 0, undef ) if $count >= 3;
+    return ( 1, undef ) if $count >= 3;
 
     $self->_write_tries( $self->_get_vwrong_file(), $teamfile );
-    $self->logger->debug("Incorrect password (Very wrong)");
+    $self->logger->error("Incorrect password (Very wrong)");
 
-    return ( 1, $msg );
+    return ( 0, $msg );
 
   }    # End check_very_wrong()
 
@@ -234,14 +235,14 @@ Loop through file, if it exists, and count the incorrect tries.
 
   sub _too_many_tries {
     my ( $self, $file, $string, $max_tries ) = @_;
-    my $err = $self->_count_tries( $file, $string, $max_tries );
-    if ($err) {
+    my $ok = $self->_count_tries( $file, $string, $max_tries );
+    if ( !$ok ) {
       $self->logger->error("Too many incorrect tries $file, $string");
-      return ( $err,
+      return ( $ok,
         "<h3>You have entered an incorrect password too many times in one day.</h3>" );
 
     }
-    return ( $err, undef );
+    return ( $ok, undef );
   }
 
 =head3 _count_tries
@@ -258,7 +259,7 @@ Returns false if the file is missing or contains less occurrences than max_tries
 
     #*****************************************************************************
     my ( $self, $file, $string, $max_tries ) = @_;
-    my $err = 0;
+    my $ok = 1;
     my @lines;
     $self->logger->debug("file=$file string=$string max_tries=$max_tries");
 
@@ -267,9 +268,9 @@ Returns false if the file is missing or contains less occurrences than max_tries
     }
     my $count = grep /^$string$/, @lines;
     if ( $count >= $max_tries ) {
-      $err = 1;
+      $ok = 0;
     }
-    return $err;
+    return $ok;
   }
 
 =head3 _write_tries
@@ -283,17 +284,17 @@ Returns false if the file is missing or contains less occurrences than max_tries
     my $self   = shift;
     my $file   = shift;
     my $string = shift;
-    my $err    = 0;
+    my $ok     = 0;
     my $FP;
     if ( !open( $FP, ">>", $file ) ) {
       $self->logger->error("Unable to open $file or writing.");
-      $err = 1;
+      $ok = 0;
     }
     else {
       print $FP $string . "\n";
       close $FP;
     }
-    return $err;
+    return $ok;
   }
 
 =head3 _compare_characters

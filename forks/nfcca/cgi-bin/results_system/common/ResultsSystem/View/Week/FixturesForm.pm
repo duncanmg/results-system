@@ -43,6 +43,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
 
     $self->set_logger( $args->{-logger} )               if $args->{-logger};
     $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
+    $self->set_pwd_view( $args->{-pwd_view} )           if $args->{-pwd_view};
 
     return $self;
   }
@@ -58,8 +59,11 @@ Constructor for the FixturesForm object. Inherits from Parent.
     $self->logger->debug( Dumper $data);
     my $table_rows = $self->create_table_rows( $d->{rows} );
 
-    my $html = $self->merge_content(
-      $self->get_html,
+    my $html = $self->merge_content( $self->get_html,
+      { PASSWORD_TABLE => $self->get_pwd_view->get_pwd_fields } );
+
+    $html = $self->merge_content(
+      $html,
       { ROWS      => $table_rows,
         SYSTEM    => $d->{SYSTEM},
         SEASON    => $d->{SEASON},
@@ -81,21 +85,21 @@ Constructor for the FixturesForm object. Inherits from Parent.
 =head2 merge_if_in_list
   
 =cut
-  
-    sub merge_if_in_list {
-      my ( $self, $html, $label, $value, $targets, $replacements ) =
-        validate_pos( @_, 1, 1, 1, 1, { type => ARRAYREF }, { type => ARRAYREF } );
-  
-      my $out = "";
-      my $i   = 0;
-      foreach my $t (@$targets) {
-        if ( ( $value || "" ) eq ( $t || "" ) ) {
-          $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
-	  last;
-        }
+
+  sub merge_if_in_list {
+    my ( $self, $html, $label, $value, $targets, $replacements ) =
+      validate_pos( @_, 1, 1, 1, 1, { type => ARRAYREF }, { type => ARRAYREF } );
+
+    my $out = "";
+    my $i   = 0;
+    foreach my $t (@$targets) {
+      if ( ( $value || "" ) eq ( $t || "" ) ) {
+        $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
+        last;
       }
-      return $out;
     }
+    return $out;
+  }
 
 =head2 merge_if
 
@@ -152,7 +156,7 @@ There is no "else" or "default".
       $r->{matchno}   = $matchno;
       $r->{rownumber} = $i;
 
-      $merged_row     = $self->merge_content( $self->get_row_html, $r );
+      $merged_row = $self->merge_content( $self->get_row_html, $r );
 
       $merged_row = $self->merge_select_boxes( $merged_row, $r );
 
@@ -230,6 +234,7 @@ There is no "else" or "default".
       <input type="hidden" id="page" name="page" value="save_results"/>
       <input type="hidden" id="system" name="system" value="[% SYSTEM %]"/>
 
+      [% PASSWORD_TABLE %]
       <input type="submit" value="Save Changes"/>
       </form>
 ~;
@@ -303,6 +308,26 @@ Returns an HTML string containing a table row.
 !;
 
   }
+
+=head2 get_pwd_view
+
+=cut
+
+  sub get_pwd_view {
+    my $self = shift;
+    return $self->{pwd_view};
+  }
+
+=head2 set_pwd_view
+
+=cut
+
+  sub set_pwd_view {
+    my ( $self, $v ) = @_;
+    $self->{pwd_view} = $v;
+    return $self;
+  }
+
   1;
 
 }
