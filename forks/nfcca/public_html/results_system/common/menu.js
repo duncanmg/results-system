@@ -42,6 +42,14 @@ function set_up() {
        var i = 0;
        var f = document.menu_form;
 
+       var validate_user_code = function() {
+          if (!(f.user.value && f.code.value)){
+		   alert('Please enter a user and code');
+		   return false;
+	  }
+	  return true;
+       };
+
        var validate_played_points = function(i) {
          if ( f["homeplayed"+i].value == "N" || f["awayplayed"+i].value == "N" ) {
            if ( f["hometotalpts"+i].value >0 || f["awaytotalpts"+i].value > 0 ) {
@@ -73,6 +81,10 @@ function set_up() {
            }
            return true;
        };
+
+       if (validate_user_code() == false){
+	       return false;
+       }
 
        while ( f["homeplayed" + i] ) {
          if (validate_played_points(i) == false){
