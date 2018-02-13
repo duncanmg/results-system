@@ -24,6 +24,7 @@ use warnings;
 
 use Data::Dumper;
 use ResultsSystem::Exception;
+use Params::Validate qw/:all/;
 
 use parent qw/ ResultsSystem::Model /;
 
@@ -76,8 +77,15 @@ sub run {
   $data->{TITLE}    = $self->get_configuration->get_title;
   $data->{DIVISION} = $self->get_division;
 
-  $data->{rows} = scalar( $wd->get_lines ) ? $wd->get_lines : $self->_get_team_names;
+  if ( scalar( $wd->get_lines ) ) {
+    $data->{rows} = $wd->get_lines;
+  }
+  else {
+    my $team_names = $self->_get_team_names;
+    $data->{rows} = $self->reformat_team_names($team_names);
+  }
 
+  $self->logger->debug( Dumper $data);
   return $data;
 }
 
@@ -97,7 +105,6 @@ sub _get_team_names {
 
   #***************************************
   my $self = shift;
-  $self->logger->debug("get_team_names() called.");
 
   my $week = $self->get_fixtures_for_division_and_week;
 
@@ -105,9 +112,38 @@ sub _get_team_names {
 
   $names = [ map { { team => $_ } } @$names ];
 
-  $self->logger->debug( "get_team_names(). " . Dumper($names) );
   return $names;
 
+}
+
+=head2 reformat_team_names
+
+=cut
+
+sub reformat_team_names {
+  my ( $self, $team_names ) = validate_pos( @_, 1, { type => ARRAYREF } );
+  my @labels = $self->get_week_data->get_labels;
+  my $out    = [];
+  foreach my $t (@$team_names) {
+    my $hr = {};
+    foreach my $l (@labels) {
+      if ( !exists( $t->{$l} ) ) {
+        if ( $l =~ m/^(team|performances|played|result)$/ ) {
+          $hr->{$l} = ""  if ( $l =~ m/^(team|performances)$/ );
+          $hr->{$l} = 'N' if $l eq 'played';
+          $hr->{$l} = 'W' if $l eq 'result';
+        }
+        else {
+          $hr->{$l} = 0;
+        }
+      }
+      else {
+        $hr->{$l} = $t->{$l};
+      }
+    }
+    push @$out, $hr;
+  }
+  return $out;
 }
 
 =head2 get_fixtures_for_division_and_week
