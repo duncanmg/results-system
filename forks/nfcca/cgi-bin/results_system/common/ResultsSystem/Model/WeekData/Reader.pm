@@ -306,108 +306,108 @@ Fields are : "team", "played", "result", "runs", "wickets",
     return @list;
   }
 
-=head3 set_field
-
- Arguments are: -type: match or line
- -lineno: 0 based
- -field: See list of valid names below.
- -team: Home or away. Only needed if -type is match.
- -value
- 
- Fields are : "team", "played", "result", "runs", "wickets",
-      "performances", "resultspts", "battingpts", "bowlingpts", "totalpts"
-
- Returns 0 on success, 1 on error.
-
- e.g. $w->set_field( -type => "match", -lineno => 0, -team => "home", 
- -field => "team", -value => "Hamble A" );
- 
-=cut
-
-  #***************************************
-  sub set_field {
-
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $err  = 0;
-    my $l;
-
-    if ( $args{-type} !~ m/^((line)|(match))$/ ) {
-      $self->logger->error("set_field(): -type must be line or match.");
-      $err = 1;
-    }
-    if ( $args{-lineno} !~ m/^[0-9][0-9]*$/ ) {
-      $self->logger->error("set_field(): -lineno must be a number.");
-      $err = 1;
-    }
-    if ( $args{-field} !~ m/^\w/ ) {
-      $self->logger->error( "set_field(): -field is invalid." . $args{-field} );
-      $err = 1;
-    }
-    if ( !any { $args{-field} eq $_ } $self->get_labels ) {
-      $self->logger->error(
-        "set_field(): -field is not in list of valid fields." . $args{-field} );
-      $err = 1;
-    }
-    if ( $err == 0 ) {
-
-      $l = $args{-lineno} * 2;
-      if ( $args{-type} eq "match" ) {
-        if ( $args{-team} !~ m/^((home)|(away))$/ ) {
-          $self->logger->error("-team must be home or away if -type is match.");
-          $err = 1;
-        }
-        else {
-          if ( $args{-team} =~ m/away/ ) {
-            $l++;
-          }
-        }
-      }
-
-    }
-
-    if ( $err == 0 ) {
-      if ( $args{-field} =~ m/runs|wickets|resultpts|battingpts|bowlingpts|totalpts|penaltypts/ )
-      {
-        if ( ( $args{-value} ) && ( $args{-value} !~ m/^[0-9]+$/ ) ) {
-          $self->logger->error("$args{-field} must be a positive integer or empty.");
-          $err = 1;
-        }
-      }
-    }
-
-    if ( $err == 0 ) {
-      if ( $args{-field} eq "totalpts" ) {
-        if ( ( $args{-value} ) && ( $args{-value} !~ m/^-{0,1}[0-9]+$/ ) ) {
-          $self->logger->error("$args{-field} must be an integer or empty.");
-          $err = 1;
-        }
-      }
-    }
-
-    if ( $err == 0 ) {
-      if ( $args{-field} eq "played" ) {
-        if ( $args{-value} !~ m/^[YNA]$/ ) {
-          $self->logger->error("$args{-field} must be Y,N or A");
-          $err = 1;
-        }
-      }
-    }
-
-    if ( $err == 0 ) {
-
-      if ( @{ $self->{LINES} }[$l] ) {
-        @{ $self->{LINES} }[$l]->{ $args{-field} } = $args{-value};
-      }
-      else {
-        my %h = ( $args{-field} => $args{-value} );
-        @{ $self->{LINES} }[$l] = \%h;
-      }
-
-    }
-    return $err;
-  }
+#=head3 set_field
+#
+# Arguments are: -type: match or line
+# -lineno: 0 based
+# -field: See list of valid names below.
+# -team: Home or away. Only needed if -type is match.
+# -value
+# 
+# Fields are : "team", "played", "result", "runs", "wickets",
+#      "performances", "resultspts", "battingpts", "bowlingpts", "totalpts"
+#
+# Returns 0 on success, 1 on error.
+#
+# e.g. $w->set_field( -type => "match", -lineno => 0, -team => "home", 
+# -field => "team", -value => "Hamble A" );
+# 
+#=cut
+#
+#  #***************************************
+#  sub set_field {
+#
+#    #***************************************
+#    my $self = shift;
+#    my %args = (@_);
+#    my $err  = 0;
+#    my $l;
+#
+#    if ( $args{-type} !~ m/^((line)|(match))$/ ) {
+#      $self->logger->error("set_field(): -type must be line or match.");
+#      $err = 1;
+#    }
+#    if ( $args{-lineno} !~ m/^[0-9][0-9]*$/ ) {
+#      $self->logger->error("set_field(): -lineno must be a number.");
+#      $err = 1;
+#    }
+#    if ( $args{-field} !~ m/^\w/ ) {
+#      $self->logger->error( "set_field(): -field is invalid." . $args{-field} );
+#      $err = 1;
+#    }
+#    if ( !any { $args{-field} eq $_ } $self->get_labels ) {
+#      $self->logger->error(
+#        "set_field(): -field is not in list of valid fields." . $args{-field} );
+#      $err = 1;
+#    }
+#    if ( $err == 0 ) {
+#
+#      $l = $args{-lineno} * 2;
+#      if ( $args{-type} eq "match" ) {
+#        if ( $args{-team} !~ m/^((home)|(away))$/ ) {
+#          $self->logger->error("-team must be home or away if -type is match.");
+#          $err = 1;
+#        }
+#        else {
+#          if ( $args{-team} =~ m/away/ ) {
+#            $l++;
+#          }
+#        }
+#      }
+#
+#    }
+#
+#    if ( $err == 0 ) {
+#      if ( $args{-field} =~ m/runs|wickets|resultpts|battingpts|bowlingpts|totalpts|penaltypts/ )
+#      {
+#        if ( ( $args{-value} ) && ( $args{-value} !~ m/^[0-9]+$/ ) ) {
+#          $self->logger->error("$args{-field} must be a positive integer or empty.");
+#          $err = 1;
+#        }
+#      }
+#    }
+#
+#    if ( $err == 0 ) {
+#      if ( $args{-field} eq "totalpts" ) {
+#        if ( ( $args{-value} ) && ( $args{-value} !~ m/^-{0,1}[0-9]+$/ ) ) {
+#          $self->logger->error("$args{-field} must be an integer or empty.");
+#          $err = 1;
+#        }
+#      }
+#    }
+#
+#    if ( $err == 0 ) {
+#      if ( $args{-field} eq "played" ) {
+#        if ( $args{-value} !~ m/^[YNA]$/ ) {
+#          $self->logger->error("$args{-field} must be Y,N or A");
+#          $err = 1;
+#        }
+#      }
+#    }
+#
+#    if ( $err == 0 ) {
+#
+#      if ( @{ $self->{LINES} }[$l] ) {
+#        @{ $self->{LINES} }[$l]->{ $args{-field} } = $args{-value};
+#      }
+#      else {
+#        my %h = ( $args{-field} => $args{-value} );
+#        @{ $self->{LINES} }[$l] = \%h;
+#      }
+#
+#    }
+#    return $err;
+#  }
 
 =head3 file_not_found
 
@@ -438,70 +438,70 @@ This call returns the current value without changing it.
     return $self->{NO_FILE};
   }
 
-=head3 write_file
-
-This writes the current contents of the data structure to the results file for the division and week.
-
-=cut
-
-  #***************************************
-  sub write_file {
-
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    my $FP;
-
-    my @labels = get_labels;
-
-    my $ff = $self->get_full_filename;
-    if ( !$ff ) {
-      $err = 1;
-    }
-
-    if ( !$self->{LINES} ) {
-      $err = 1;
-      $self->logger->error("Nothing to write to file.");
-    }
-    else {
-
-      if ( !open( $FP, ">", $ff ) ) {
-        $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
-        $err = 1;
-      }
-
-    }
-
-    if ( $err == 0 ) {
-
-      foreach my $line ( @{ $self->{LINES} } ) {
-
-        foreach my $label (@labels) {
-
-          if ( ( !$line->{$label} )
-            && ( $label !~ m/(team)|(played)|(result[^p])|(performances)/ ) )
-          {
-            $line->{$label} = 0;
-          }
-
-          # Commas or new lines will really mess things up!
-          $line->{$label} =~ s/[,<>|\n]/ /g;
-          print $FP $line->{$label} . ",";
-
-        }
-
-        print $FP "\n";
-
-      }
-
-    }
-
-    if ($FP) {
-      close $FP;
-    }
-
-    return $err;
-  }
+#=head3 write_file
+#
+#This writes the current contents of the data structure to the results file for the division and week.
+#
+#=cut
+#
+#  #***************************************
+#  sub write_file {
+#
+#    #***************************************
+#    my $self = shift;
+#    my $err  = 0;
+#    my $FP;
+#
+#    my @labels = get_labels;
+#
+#    my $ff = $self->get_full_filename;
+#    if ( !$ff ) {
+#      $err = 1;
+#    }
+#
+#    if ( !$self->{LINES} ) {
+#      $err = 1;
+#      $self->logger->error("Nothing to write to file.");
+#    }
+#    else {
+#
+#      if ( !open( $FP, ">", $ff ) ) {
+#        $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
+#        $err = 1;
+#      }
+#
+#    }
+#
+#    if ( $err == 0 ) {
+#
+#      foreach my $line ( @{ $self->{LINES} } ) {
+#
+#        foreach my $label (@labels) {
+#
+#          if ( ( !$line->{$label} )
+#            && ( $label !~ m/(team)|(played)|(result[^p])|(performances)/ ) )
+#          {
+#            $line->{$label} = 0;
+#          }
+#
+#          # Commas or new lines will really mess things up!
+#          $line->{$label} =~ s/[,<>|\n]/ /g;
+#          print $FP $line->{$label} . ",";
+#
+#        }
+#
+#        print $FP "\n";
+#
+#      }
+#
+#    }
+#
+#    if ($FP) {
+#      close $FP;
+#    }
+#
+#    return $err;
+#  }
 
 =head2 get_filename
 
