@@ -19,6 +19,10 @@
   use Params::Validate qw/:all/;
   use parent qw/ ResultsSystem::Model/;
 
+  my $incorrect_password = "<h3>You have entered an incorrect password.</h3>";
+  my $too_many_tries =
+    "<h3>You have entered an incorrect password too many times in one day.</h3>";
+
 =head1 Pwd
 
 Object which facilitates password handling.
@@ -88,7 +92,7 @@ It returns an error code (1 for success) and a message.
     my $real = $c->get_code( $args{-user} );
     if ( !$real ) {
       $self->logger->error("No password for user $args{-user}.");
-      return ( 0, "Incorrect password" );
+      return ( 0, $incorrect_password );
     }
     else {
       ( $ok, $msg ) = $self->check_code( $real, $args{-code}, $args{-user} );
@@ -145,7 +149,7 @@ There is also the concept of the password being wrong or very wrong.
     if ( !( $real_pwd && $user_pwd && $teamfile ) ) {
       $self->logger->error(
         "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
-      return ( 0, "<h3>You have entered an incorrect password.</h3>" );
+      return ( 0, $incorrect_password );
     }
 
     ( $ok, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
@@ -158,7 +162,7 @@ There is also the concept of the password being wrong or very wrong.
     if ( $user_pwd ne $real_pwd ) {
 
       $self->logger->error("Incorrect password");
-      $msg = "<h3>You have entered an incorrect password.</h3>";
+      $msg = $incorrect_password;
       $ok  = 0;
 
       #Log incorrect try in file.
@@ -192,7 +196,7 @@ it issues a "Too Many Tries" message.
     my $vwrong = 0;
     my $ok     = 0;
     my $x      = 0;
-    my $msg    = "<h3>You have entered an incorrect password.</h3>";
+    my $msg    = $incorrect_password;
     my $count  = 0;
     $self->logger->debug("In check_very_wrong()");
 
@@ -231,8 +235,7 @@ Loop through file, if it exists, and count the incorrect tries.
     my $ok = $self->_count_tries( $file, $string, $max_tries );
     if ( !$ok ) {
       $self->logger->error("Too many incorrect tries $file, $string");
-      return ( $ok,
-        "<h3>You have entered an incorrect password too many times in one day.</h3>" );
+      return ( $ok, $too_many_tries );
 
     }
     return ( $ok, undef );
