@@ -142,7 +142,7 @@ There is also the concept of the password being wrong or very wrong.
     $user_pwd =~ s/\W//g;
     $teamfile =~ s/\W//g;
 
-    if ( $real_pwd eq undef || $user_pwd eq undef || $teamfile eq undef ) {
+    if ( !( $real_pwd && $user_pwd && $teamfile ) ) {
       $self->logger->error(
         "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
       return ( 0, "<h3>You have entered an incorrect password.</h3>" );
@@ -186,7 +186,8 @@ it issues a "Too Many Tries" message.
 
     #*****************************************************************************
   {
-    my ( $self, $real_pwd, $user_pwd, $teamfile ) = @_;
+    my ( $self, $real_pwd, $user_pwd, $teamfile ) =
+      validate_pos( @_, 1, { type => SCALAR }, { type => SCALAR }, { type => SCALAR } );
 
     my $vwrong = 0;
     my $ok     = 0;
@@ -194,14 +195,6 @@ it issues a "Too Many Tries" message.
     my $msg    = "<h3>You have entered an incorrect password.</h3>";
     my $count  = 0;
     $self->logger->debug("In check_very_wrong()");
-
-    foreach my $p ( ( $teamfile, $real_pwd, $user_pwd ) ) {
-      if ( !defined $p ) {
-        $self->logger->error( "One or more parameters is undefined. "
-            . Dumper( ( $teamfile, $real_pwd, $user_pwd ) ) );
-        return ( 0, $msg );
-      }
-    }
 
     # If password is right then no need to do anything. Test as strings.
     return ( 1, undef ) if ( $real_pwd eq $user_pwd );
