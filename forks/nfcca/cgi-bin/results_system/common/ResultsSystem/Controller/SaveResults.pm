@@ -35,6 +35,7 @@ sub run {
     return 1;
   }
   my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
+  $self->get_message_view->run( { -data => "Your changes have been accepted." } );
 
   # $self->get_save_results_view()->run( { -data => $data } );
 }
