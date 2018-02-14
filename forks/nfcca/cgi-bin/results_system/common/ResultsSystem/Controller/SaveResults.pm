@@ -1,10 +1,15 @@
 package ResultsSystem::Controller::SaveResults;
 
+=head1 ResultsSystem::Controller::SaveResults
+
+=cut
+
 use strict;
 use warnings;
 
-use ResultsSystem::View;
-use parent qw/ ResultsSystem::View/;
+=head2 new
+
+=cut
 
 sub new {
   my ( $class, $args ) = @_;
@@ -18,10 +23,9 @@ sub new {
   return $self;
 }
 
-sub logger {
-  my $self = shift;
-  return $self->{logger};
-}
+=head2 run
+
+=cut
 
 sub run {
   my ( $self, $query ) = @_;
@@ -34,30 +38,62 @@ sub run {
     $self->get_message_view->run( { -data => $msg } );
     return 1;
   }
-  my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
-  $self->get_message_view->run( { -data => "Your changes have been accepted." } );
+  eval {
+    my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
+    $self->get_message_view->run( { -data => "Your changes have been accepted." } );
+    1;
+  } || do {
+    my $err = @_;
+    $self->logger->error($err);
+    $self->get_message_view->run( { -data => "Your changes have been rejected." } );
+  };
 
   # $self->get_save_results_view()->run( { -data => $data } );
 }
+
+=head2 get_save_results_view
+
+=cut
 
 sub get_save_results_view {
   my $self = shift;
   return $self->{save_results_view};
 }
 
+=head2 get_save_results_model
+
+=cut
+
 sub get_save_results_model {
   my $self = shift;
   return $self->{save_results_model};
 }
+
+=head2 get_pwd_model
+
+=cut
 
 sub get_pwd_model {
   my $self = shift;
   return $self->{pwd_model};
 }
 
+=head2 get_message_view
+
+=cut
+
 sub get_message_view {
   my $self = shift;
   return $self->{message_view};
+}
+
+=head2 logger
+
+=cut
+
+sub logger {
+  my $self = shift;
+  return $self->{logger};
 }
 
 1;
