@@ -403,7 +403,8 @@ sub get_week_fixtures_view {
   return ResultsSystem::View::Week::FixturesForm->new(
     { -logger =>
         $self->get_file_logger( { -category => 'ResultsSystem::View::Week::FixturesForm' } ),
-      -pwd_view => $self->get_pwd_view
+      -pwd_view      => $self->get_pwd_view,
+      -configuration => $self->get_configuration,
     }
   );
 }

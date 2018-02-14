@@ -77,6 +77,15 @@ Constructor for the FixturesForm object. Inherits from Parent.
     $html = $self->merge_content( $self->html5_wrapper,
       { CONTENT => $html, PAGETITLE => 'Results System' } );
 
+    my @styles = $self->get_configuration->get_stylesheets;
+
+    my $sheet =
+        $self->get_configuration->get_path( -htdocs => "Y", -allow_not_exists => "Y" )
+      . "/custom/"
+      . $styles[0];
+
+    $html = $self->merge_stylesheets( $html, [$sheet] );
+
     $self->render( { -data => $html } );
 
     return 1;

@@ -6,6 +6,7 @@ use warnings;
 use CGI;
 use HTTP::Response;
 use HTTP::Status qw/:constants status_message/;
+use Params::Validate qw/:all/;
 
 use JSON::Tiny qw(decode_json encode_json);
 
@@ -34,6 +35,25 @@ sub set_logger {
   my $self = shift;
   $self->{logger} = shift;
   return $self;
+}
+
+=head2 set_configuration
+
+=cut
+
+sub set_configuration {
+  my ( $self, $v ) = @_;
+  $self->{configuration} = $v;
+  return $self;
+}
+
+=head2 get_configuration
+
+=cut
+
+sub get_configuration {
+  my $self = shift;
+  return $self->{configuration};
 }
 
 =head2 render
@@ -199,6 +219,7 @@ sub html_wrapper {
 \@import url(gen_styles.css);
 -->
 </style>
+[% STYLESHEETS %]
 
 <script language="JavaScript" type="text/javascript" src="/results_system/common/common.js"></script>
 
@@ -236,6 +257,7 @@ sub html5_wrapper {
 \@import url(gen_styles.css)
 -->
 </style>
+[% STYLESHEETS %]
 
 <script src="/results_system/common/common.js"></script>
 
@@ -247,6 +269,22 @@ sub html5_wrapper {
 };
 
   return $output;
+}
+
+=head2 merge_stylesheets
+
+  $self->merge_stylesheets($html, [ "/results_system/custom/nfcca/nfcca_styles.css", 
+    "/results_system/custom/nfcca/styles2.css" ]);
+
+=cut
+
+sub merge_stylesheets {
+  my ( $self, $html, $sheets ) = validate_pos( @_, 1, { type => SCALAR }, { type => ARRAYREF } );
+  my $sheets_html = '';
+  foreach my $s (@$sheets) {
+    $sheets_html .= '<link rel="stylesheet" type="text/css" href="' . $s . '" />' . "\n";
+  }
+  return $self->merge_content( $html, { STYLESHEETS => $sheets_html } );
 }
 
 1;
