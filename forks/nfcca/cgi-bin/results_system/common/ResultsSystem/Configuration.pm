@@ -615,6 +615,7 @@ $s = $c->_trim( $s );
     #***************************************
     my $self = shift;
     my $s    = shift;
+    return $s if !defined $s;
     $s =~ s/$RE{ws}{crop}//g;
 
     #$s =~ s/^\s*([^\s])/$1/;
