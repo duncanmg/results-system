@@ -101,7 +101,6 @@ $logger = $self->screen_logger();
 
     Log::Log4perl::init($conf);
 
-    print STDERR 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ' . $category . "\n\n";
     my $logger = Log::Log4perl::get_logger($category);
 
     return $logger;
