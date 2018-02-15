@@ -4,15 +4,17 @@ use strict;
 use warnings;
 use Params::Validate qw/:all/;
 
-=head1 Menu
+=head1 Model
+
+Base class the the models.
 
 =cut
 
-=head2 Methods
+=head1 Methods
 
 =cut
 
-=head3 logger
+=head2 logger
 
 =cut
 
@@ -21,7 +23,7 @@ sub logger {
   return $self->{logger};
 }
 
-=head3 set_logger
+=head2 set_logger
 
 =cut
 
@@ -31,7 +33,7 @@ sub set_logger {
   return $self;
 }
 
-=head3 get_configuration
+=head2 get_configuration
 
 =cut
 
@@ -40,7 +42,7 @@ sub get_configuration {
   return $self->{configuration};
 }
 
-=head3 set_configuration
+=head2 set_configuration
 
 =cut
 
@@ -50,7 +52,9 @@ sub set_configuration {
   return $self;
 }
 
-=head3 set_arguments
+=head2 set_arguments
+
+Helper method to set the constructor arguments of the child classes.
 
 $self->set_arguments( [ qw/ logger configuration week_data fixtures / ], $args );
 
