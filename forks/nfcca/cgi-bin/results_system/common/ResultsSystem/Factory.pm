@@ -26,6 +26,7 @@ use ResultsSystem::Model::WeekData::Writer;
 use ResultsSystem::Model::WeekFixtures;
 use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
+use ResultsSystem::Model::LeagueTable;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
@@ -346,6 +347,20 @@ sub get_save_results_model {
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::SaveResults' } ),
       -configuration    => $self->get_configuration,
       -week_data_writer => $self->get_week_data_writer_model(),
+    }
+  );
+}
+
+=head3 get_league_table_model
+
+=cut
+
+sub get_league_table_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::LeagueTable->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::LeagueTable' } ),
+      -configuration  => $self->get_configuration,
+      -fixtures_model => $self->get_fixtures_model(),
     }
   );
 }
