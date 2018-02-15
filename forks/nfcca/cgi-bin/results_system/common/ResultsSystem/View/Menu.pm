@@ -10,7 +10,8 @@ sub new {
   my ( $class, $args ) = @_;
   my $self = {};
   bless $self, $class;
-  $self->{logger} = $args->{-logger} if $args->{-logger};
+  $self->{logger}        = $args->{-logger}        if $args->{-logger};
+  $self->{configuration} = $args->{-configuration} if $args->{-configuration};
   return $self;
 }
 
@@ -29,7 +30,10 @@ sub run {
 
   $html = $self->merge_content( $html, $data );
 
-  $html = $self->merge_content( $self->html_wrapper, { CONTENT => $html } );
+  $html = $self->merge_content( $self->html_wrapper,
+    { CONTENT => $html, PAGETITLE => 'Results System' } );
+
+  $html = $self->merge_default_stylesheet($html);
 
   $self->render( { -data => $html } );
 }

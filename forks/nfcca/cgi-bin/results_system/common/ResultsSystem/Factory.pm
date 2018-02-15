@@ -371,7 +371,10 @@ sub get_frame_view {
 sub get_menu_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Menu->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Menu' } ) } );
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::View::Menu' } ),
+      -configuration => $self->get_configuration
+    }
+  );
 }
 
 =head3 get_blank_view

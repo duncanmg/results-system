@@ -176,7 +176,7 @@ sub html_frame_wrapper {
 *
 ****************************************************************-->
 
-<title>PAGETITLE</title>
+<title>[% PAGETITLE %]</title>
 <style type='text/css'>
 <!--
 \@import url(gen_styles.css);
@@ -285,6 +285,24 @@ sub merge_stylesheets {
     $sheets_html .= '<link rel="stylesheet" type="text/css" href="' . $s . '" />' . "\n";
   }
   return $self->merge_content( $html, { STYLESHEETS => $sheets_html } );
+}
+
+=head2 merge_default_stylesheet
+
+$html = $self->merge_default_stylesheet( $html );
+
+=cut
+
+sub merge_default_stylesheet {
+  my ( $self, $html ) = validate_pos( @_, 1, 1 );
+  my @styles = $self->get_configuration->get_stylesheets;
+
+  my $sheet =
+      $self->get_configuration->get_path( -htdocs => "Y", -allow_not_exists => "Y" )
+    . "/custom/"
+    . $styles[0];
+
+  return $self->merge_stylesheets( $html, [$sheet] );
 }
 
 1;
