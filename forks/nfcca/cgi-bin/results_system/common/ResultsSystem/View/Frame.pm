@@ -29,7 +29,8 @@ sub run {
 
   $html = $self->merge_content( $html, $data );
 
-  $html = $self->merge_content( $self->html_frame_wrapper, { CONTENT => $html } );
+  $html = $self->merge_content( $self->html_frame_wrapper,
+    { CONTENT => $html, PAGETITLE => 'Results System', STYLESHEETS => "" } );
 
   $self->render( { -data => $html } );
 }
