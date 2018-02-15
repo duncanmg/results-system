@@ -77,14 +77,7 @@ Constructor for the FixturesForm object. Inherits from Parent.
     $html = $self->merge_content( $self->html5_wrapper,
       { CONTENT => $html, PAGETITLE => 'Results System' } );
 
-    my @styles = $self->get_configuration->get_stylesheets;
-
-    my $sheet =
-        $self->get_configuration->get_path( -htdocs => "Y", -allow_not_exists => "Y" )
-      . "/custom/"
-      . $styles[0];
-
-    $html = $self->merge_stylesheets( $html, [$sheet] );
+    $html = $self->merge_default_stylesheet($html);
 
     $self->render( { -data => $html } );
 
@@ -307,7 +300,7 @@ Returns an HTML string containing a table row.
     </td>
     <td> <input name="[% ha %]runs[% matchno %]" id="[% ha %]runs[% matchno %]" type="number" min="0" value="[% runs %]"/></td>
     <td> <input name="[% ha %]wickets[% matchno %]" id="[% ha %]wickets[% matchno %]" type="number" min="0" value="[% wickets %]"/></td>
-    <td> <input type="text"  name="[% ha %]performances[% matchno %]" id="[% ha %]performances[% matchno %]" value="[% performances %]"/></td>
+    <td class="performances"> <input type="text"  name="[% ha %]performances[% matchno %]" id="[% ha %]performances[% matchno %]" value="[% performances %]"/></td>
     <td> <input  name="[% ha %]resultpts[% matchno %]" id="[% ha %]resultpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% resultpts %]"/></td>
     <td> <input name="[% ha %]battingpts[% matchno %]" id="[% ha %]battingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% battingpts %]"/></td>
     <td> <input name="[% ha %]bowlingpts[% matchno %]" id="[% ha %]bowlingpts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% bowlingpts %]"/></td>
