@@ -23,7 +23,8 @@ sub run {
   my ( $self, $args ) = @_;
   my $data = $args->{-data};
 
-  my $html = $self->merge_content( $self->html_wrapper, { CONTENT => '<p>&nbsp;</p>' } );
+  my $html = $self->merge_content( $self->html_wrapper,
+    { CONTENT => '<p>&nbsp;</p>', PAGETITLE => 'Results System', STYLESHEETS => "" } );
 
   $self->render( { -data => $html } );
 }
