@@ -127,6 +127,7 @@ sub set_full_filename {
   #***************************************
   my $self = shift;
   $self->{FULLFILENAME} = shift;
+  return $self;
 }
 
 =head2 get_date_list
