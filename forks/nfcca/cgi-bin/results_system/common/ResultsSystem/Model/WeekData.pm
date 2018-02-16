@@ -9,13 +9,13 @@
   use strict;
   use warnings;
 
-  use Slurp;
-  use List::MoreUtils qw / any /;
   use ResultsSystem::Exception;
 
   use parent qw/ ResultsSystem::Model /;
 
 =head1 WeekData.pm
+
+Parent class for ResultsSystem::Model::WeekData::Reader and ResultsSystem::Model::WeekData::Writer.
 
 =cut
 

@@ -6,6 +6,7 @@ package ResultsSystem::Controller::SaveResults;
 
 use strict;
 use warnings;
+use Data::Dumper;
 
 =head2 new
 
@@ -20,6 +21,8 @@ sub new {
   $self->{pwd_model}          = $args->{-pwd_model}          if $args->{-pwd_model};
   $self->{save_results_view}  = $args->{-save_results_view}  if $args->{-save_results_view};
   $self->{message_view}       = $args->{-message_view}       if $args->{-message_view};
+  $self->{league_table_model} = $args->{-league_table_model} if $args->{-league_table_model};
+  $self->{league_table_view}  = $args->{-league_table_view}  if $args->{-league_table_view};
   return $self;
 }
 
@@ -38,12 +41,18 @@ sub run {
     $self->get_message_view->run( { -data => $msg } );
     return 1;
   }
+
   eval {
     my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
     $self->get_message_view->run( { -data => "Your changes have been accepted." } );
+
+    $self->logger->debug("About to create league table");
+    my $lt = $self->get_league_table_model->set_division( $query->param('division') )
+      ->create_league_table;
+    $self->logger->debug(Dumper $lt);
     1;
   } || do {
-    my $err = @_;
+    my $err = $@;
     $self->logger->error($err);
     $self->get_message_view->run( { -data => "Your changes have been rejected." } );
   };
@@ -76,6 +85,24 @@ sub get_save_results_model {
 sub get_pwd_model {
   my $self = shift;
   return $self->{pwd_model};
+}
+
+=head2 get_league_table_model
+
+=cut
+
+sub get_league_table_model {
+  my $self = shift;
+  return $self->{league_table_model};
+}
+
+=head2 get_league_table_view
+
+=cut
+
+sub get_league_table_view {
+  my $self = shift;
+  return $self->{league_table_view};
 }
 
 =head2 get_message_view

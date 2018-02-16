@@ -15,7 +15,6 @@
 
   use List::MoreUtils qw / first_index /;
   use Sort::Maker;
-
   use Data::Dumper;
 
   use ResultsSystem::Model;
@@ -23,7 +22,18 @@
 
   use parent qw/ResultsSystem::Model/;
 
-=head1 Methods
+=head1 ResultsSystem::Model::LeagueTable
+
+  my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
+                                                 -configuration => $configuration,
+						 -fixtures_model => $f,
+						 -week_data_reader_model => $wdm);
+  $l->set_division( 'U9N.csv');
+  $l->create_league_table;
+
+=cut
+
+=head1 External Methods (Public)
 
 =cut
 
@@ -31,24 +41,73 @@
 
 This is the constructor for a LeagueTable object.
 
- my $l = ResultsSystem::Model::LeagueTable->new( -logger => $logger, -configuration => $configuration );
- $err = $l->create_league_table_file;
-
+  my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
+                                                 -configuration => $configuration
+						 -fixtures_model => $f,
+						 -week_data_reader_model => $wdm);
 =cut
 
   #***************************************
   sub new {
 
     #***************************************
-    my $class = shift;
+    my ($class,$args) = @_;
     my $self  = {};
     bless $self, $class;
-    my %args = (@_);
-
-    $self->set_arguments( [qw/ configuration logger fixtures_model/] );
-
+    $self->set_arguments( [qw/ configuration logger fixtures_model week_data_reader_model/],
+      $args );
+    $self->logger->debug( $args );
     return $self;
   }
+
+=head2 create_league_table
+
+  gather_data
+  _process_data
+  _sort_table
+
+=cut
+
+  #***************************************
+  sub create_league_table {
+
+    #***************************************
+    my $self = shift;
+
+    $self->logger('Here');
+    $self->gather_data();
+
+    $self->_process_data;
+
+    $self->_sort_table;
+
+    return $self->_get_sorted_table;
+  }
+
+=head2 set_division
+
+=cut
+
+  sub set_division {
+    my ( $self, $v ) = @_;
+    $self->{division} = @_;
+    return $self;
+  }
+
+=head2 get_division
+
+=cut
+
+  sub get_division {
+    my $self = shift;
+    die ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' )
+      if !$self->{division};
+    return $self->{division};
+  }
+
+=head1 Internal Methods (Private)
+
+=cut
 
 =head2 _get_all_week_files
 
@@ -131,7 +190,6 @@ It returns an error code.
 
     #***************************************
     my $self      = shift;
-    my $err       = 0;
     my $files_ref = shift;
     my $dir       = $self->get_configuration->get_path( -csv_files => "Y" );
 
@@ -140,28 +198,17 @@ It returns an error code.
       my $wk = $f;
       $wk =~ s/^.*_(.*)\..*$/$1/;
       $self->logger->debug( "Create WeekData object " . $self->get_division . " $wk" );
-      my $wd = WeekData->new(
-        -config   => $self->get_configuration,
-        -query    => $self->get_query,
-        -logger   => $self->logger,
-        -division => $self->get_division,
-        -week     => $wk
-      );
-      if ($wd) {
-        $err = $wd->read_file;
-      }
-      else {
-        $self->logger->error("Unable to create WeekData object.");
-        $err = 1;
-      }
 
-      if ( $err == 0 ) {
-        push @{ $self->{WEEKDATA} }, $wd;
-      }
+      my $wd = $self->get_week_data_reader_model;
+      $wd->set_division( $self->get_division );
+      $wd->set_week($wk);
+      $wd->read_file;
+
+      push @{ $self->{WEEKDATA} }, $wd;
 
     }
 
-    return $err;
+    return 1;
   }
 
 =head2 _get_all_week_data
@@ -196,10 +243,9 @@ the league table. The structure consists of an array of hash references.
 
     #***************************************
     my $self   = shift;
-    my $err    = 0;
     my @all_wd = $self->_get_all_week_data;
     my @labels;
-    my @table;
+    my @table = ();
 
     if ( $all_wd[0] ) {
       @labels = $all_wd[0]->get_labels;
@@ -219,58 +265,45 @@ the league table. The structure consists of an array of hash references.
         # The processing finishes when there are no more lines
         # or the team name is undefined.
         my $fields_hash_ref = $wd->get_line($lineno);
-        if ( !$fields_hash_ref ) {
-          $more = 0;
-          next;
-        }
-        my %fields_hash = %$fields_hash_ref;
-        if ( !$fields_hash{team} ) {
-          $more = 0;
-          next;
-        }
+        last if !$fields_hash_ref;
+        last if !$fields_hash_ref->{team};
 
         # Find the row in the table for the current team.
-        my $i = first_index { $_->{team} eq $fields_hash{team} } @table;
+        my $i = first_index { $_->{team} eq $fields_hash_ref->{team} } @table;
 
         # Create one if necessary
         if ( $i < 0 ) {
-          my %h = ( team => $fields_hash{team} );
-          $i = scalar(@table);
-          $table[$i] = \%h;
+          push @table, { team => $fields_hash_ref->{team} };
         }
 
         foreach my $l (@labels) {
 
           # Skip if the match hasn't been played.
-          if ( $fields_hash{played} !~ m/Y/i ) {
-            last;
-          }
+          last if ( $fields_hash_ref->{played} !~ m/Y/i );
 
           # Skip these fields because they play no part in the calculations.
-          if ( $l =~ m/(performances)|(team)/ ) {
-            next;
-          }
+          next if ( $l =~ m/(performances)|(team)/ );
 
           if ( $l =~ m/played/ ) {
-            $table[$i]->{played} = $table[$i]->{played} + 1;
+            $table[$i]->{played} += 1;
             next;
           }
 
           if ( $l eq "result" ) {
-            if ( $fields_hash{result} =~ m/w/i ) {
-              $table[$i]->{won} = $table[$i]->{won} + 1;
+            if ( $fields_hash_ref->{result} =~ m/w/i ) {
+              $table[$i]->{won} += 1;
             }
-            if ( $fields_hash{result} =~ m/t/i ) {
-              $table[$i]->{tied} = $table[$i]->{tied} + 1;
+            if ( $fields_hash_ref->{result} =~ m/t/i ) {
+              $table[$i]->{tied} += 1;
             }
-            if ( $fields_hash{result} =~ m/l/i ) {
-              $table[$i]->{lost} = $table[$i]->{lost} + 1;
+            if ( $fields_hash_ref->{result} =~ m/l/i ) {
+              $table[$i]->{lost} += 1;
             }
             next;
           }
 
           # The rest of the fields are numeric so just add the new value to the previous value.
-          $table[$i]->{$l} = $table[$i]->{$l} + $fields_hash{$l};
+          $table[$i]->{$l} = $table[$i]->{$l} + $fields_hash_ref->{$l};
 
         }
 
@@ -279,28 +312,22 @@ the league table. The structure consists of an array of hash references.
 
       }
 
-      if ( $err == 0 ) {
+      foreach my $t (@table) {
 
-        foreach my $t (@table) {
+        $t->{average} = 0;
+        if ( $t->{played} > 0 ) {
 
-          $t->{average} = 0;
-          if ( $t->{played} > 0 ) {
-
-            $t->{average} = sprintf( "%.2f", $t->{totalpts} / $t->{played} );
-
-          }
+          $t->{average} = sprintf( "%.2f", $t->{totalpts} / $t->{played} );
 
         }
 
       }
 
-      if ( $err == 0 ) {
-        $self->{AGGREGATED_DATA} = \@table;
-      }
+      $self->{AGGREGATED_DATA} = \@table;
 
     }
 
-    return $err;
+    return 1;
   }
 
 =head2 _get_aggregated_data
@@ -336,45 +363,29 @@ The sorted data in placed in a new list.
 
     #***************************************
     my $self = shift;
-    my $err  = 0;
     my @sorted;
 
-    my $t_ref = $self->_get_aggregated_data;
-    if ( !$t_ref ) {
-      $self->logger->debug("_sort_table(): No aggregated data to sort.");
-      if ( $self->_get_sorted_table ) {
-        $self->logger->debug("_sort_table(): A sorted list of teams already exists.");
-        return 0;
-      }
-      else {
-        $self->logger->error("_sort_table(): No aggregated data and no list of teams.");
-        return 1;
-      }
-    }
-    my @table = @$t_ref;
+    my $table = $self->_get_aggregated_data;
+    die ResultsSystem::Exception->new( 'NO_AGGREGATED_DATA', 'No aggregated data to sort' )
+      if !$table;
 
     my $order = $self->get_configuration->get_calculation( -order_by => "Y" );
-    if ( $order ne "average" ) {
-      $order = "totalpts";
-    }
+    $order = "totalpts" if ( $order ne "average" );
 
     my $sorter = make_sorter( 'ST', 'descending', number => '$_->{' . $order . '}' );
-    if ( !$sorter ) {
-      $self->logger->error( "Unable to create sorter. " . $@ );
-      $err = 1;
-    }
+    die ResultsSystem::Exception->new( 'NO_SORTER', "Unable to create sorter. " . $@ )
+      if !$sorter;
 
-    if ( $err == 0 ) {
-      local $@;
-      eval {
-        @sorted = $sorter->(@table);
-        1;
-      }
-        || do { $self->logger->error( "Unable to sort table. $@ " . Dumper( \@table ) ); $err = 1; };
-      $self->{SORTED_TABLE} = \@sorted;
+    local $@;
+    eval {
+      @sorted = $sorter->(@$table);
+      1;
     }
+      || die ResultsSystem::Exception->new( 'BAD_SORT',
+      "Unable to sort table. $@" . Dumper($table) );
+    $self->{SORTED_TABLE} = \@sorted;
 
-    return $err;
+    return 1;
 
   }
 
@@ -408,66 +419,6 @@ This method returns a reference to the table of sorted data.
     return $self->{SORTED_TABLE};
   }
 
-=head2 _d
-
-This method sets an undefined value to 0. $v = $lt->_d( $v );
-
-=cut
-
-  #***************************************
-  # Sets undefined values to 0.
-  #***************************************
-  sub _d {
-
-    #***************************************
-    my $v = shift;
-    return $v ? $v : 0;
-  }
-
-  #=head2 create_league_table_file
-  #
-  #This method runs all the other methods necessary to write an updated league
-  #table to the HTML file.
-  #
-  # $err = $lt->create_league_table_file;
-  #
-  #=cut
-  #
-  #  #***************************************
-  #  sub create_league_table_file {
-  #
-  #    #***************************************
-  #    my $self = shift;
-  #    my $err  = 0;
-  #    my ( @files, $files_ref, $line );
-  #    my $is_week_data = 1;
-  #
-  #    ( $err, $is_week_data ) = $self->gather_data();
-  #
-  #    if ( $err == 0 && $is_week_data ) {
-  #      $err = $self->_process_data;
-  #    }
-  #
-  #    if ( $err == 0 && $is_week_data ) {
-  #      $err = $self->_sort_table;
-  #    }
-  #
-  #    if ( $err == 0 ) {
-  #      ( $err, $line ) = $self->output_html;
-  #    }
-  #
-  #    if ( $err == 0 ) {
-  #      $err = $self->write_file($line);
-  #    }
-  #
-  #    if ( $err == 0 ) {
-  #      $err = $self->_copy_stylesheet("table_dir");
-  #    }
-  #
-  #    my $c = $self->get_configuration;
-  #    return $err;
-  #  }
-
   #***************************************
   sub gather_data {
 
@@ -492,27 +443,6 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
     return 1;
   }
 
-=head2 set_division
-
-=cut
-
-  sub set_division {
-    my ( $self, $v ) = @_;
-    $self->{division} = @_;
-    return $self;
-  }
-
-=head2 get_division
-
-=cut
-
-  sub get_division {
-    my $self = shift;
-    die ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' )
-      if !$self->{division};
-    return $self->{division};
-  }
-
 =head2 set_fixtures_model
 
 =cut
@@ -530,6 +460,25 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
   sub get_fixtures_model {
     my $self = shift;
     return $self->{fixtures};
+  }
+
+=head2 set_week_data_reader_model
+
+=cut
+
+  sub set_week_data_reader_model {
+    my ( $self, $v ) = @_;
+    $self->{week_data_reader_model} = $v;
+    return $self;
+  }
+
+=head2 get_week_data_reader_model
+
+=cut
+
+  sub get_week_data_reader_model {
+    my $self = shift;
+    return $self->{week_data_reader_model};
   }
 
   1;
