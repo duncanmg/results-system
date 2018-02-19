@@ -44,12 +44,16 @@ sub run {
 
   eval {
     my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
-    $self->get_message_view->run( { -data => "Your changes have been accepted." } );
 
     $self->logger->debug("About to create league table");
     my $lt = $self->get_league_table_model->set_division( $query->param('division') )
       ->create_league_table;
-    $self->logger->debug(Dumper $lt);
+    $self->logger->debug( Dumper $lt);
+
+    $self->get_league_table_view->run(
+      { -data => { rows => $lt, division => $query->param('division') } } );
+
+    $self->get_message_view->run( { -data => "Your changes have been accepted." } );
     1;
   } || do {
     my $err = $@;

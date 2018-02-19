@@ -256,7 +256,7 @@ the league table. The structure consists of an array of hash references.
     # Loop through all the week data objects.
     foreach my $wd (@all_wd) {
 
-      $self->logger->debug( "Loop wd " . Dumper($wd) );
+      # $self->logger->debug( "Loop wd " . Dumper($wd) );
 
       my $lineno = 0;
       my $more   = 1;
@@ -337,6 +337,7 @@ the league table. The structure consists of an array of hash references.
       team         => "",
       played       => 0,
       won          => 0,
+      tied         => 0,
       lost         => 0,
       performances => "",
       resultpts    => 0,

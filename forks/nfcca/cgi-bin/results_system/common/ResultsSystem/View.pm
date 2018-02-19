@@ -140,6 +140,10 @@ sub merge_content {
 
 =head2 merge_array
 
+  $html = $self->merge_array( $row_html, $data_list );
+
+where $data_list is an array ref of hash refs.
+
 =cut
 
 sub merge_array {
