@@ -23,7 +23,7 @@ sub start {
   my $conf = $self->get_configuration;
   $conf->set_system($system);
   $conf->read_file;
-
+  return $self;
 }
 
 sub set_system {
