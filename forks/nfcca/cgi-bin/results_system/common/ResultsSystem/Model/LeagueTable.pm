@@ -12,6 +12,7 @@
 
   use strict;
   use warnings;
+  use Clone qw/clone/;
 
   use List::MoreUtils qw / first_index /;
   use Sort::Maker;
@@ -51,12 +52,12 @@ This is the constructor for a LeagueTable object.
   sub new {
 
     #***************************************
-    my ($class,$args) = @_;
-    my $self  = {};
+    my ( $class, $args ) = @_;
+    my $self = {};
     bless $self, $class;
     $self->set_arguments( [qw/ configuration logger fixtures_model week_data_reader_model/],
       $args );
-    $self->logger->debug( $args );
+    $self->logger->debug( Dumper $args);
     return $self;
   }
 
@@ -90,7 +91,7 @@ This is the constructor for a LeagueTable object.
 
   sub set_division {
     my ( $self, $v ) = @_;
-    $self->{division} = @_;
+    $self->{division} = $v;
     return $self;
   }
 
@@ -192,6 +193,7 @@ It returns an error code.
     my $self      = shift;
     my $files_ref = shift;
     my $dir       = $self->get_configuration->get_path( -csv_files => "Y" );
+    $self->{WEEKDATA} = [];
 
     foreach my $f (@$files_ref) {
 
@@ -204,7 +206,7 @@ It returns an error code.
       $wd->set_week($wk);
       $wd->read_file;
 
-      push @{ $self->{WEEKDATA} }, $wd;
+      push @{ $self->{WEEKDATA} }, clone $wd;
 
     }
 
@@ -254,8 +256,9 @@ the league table. The structure consists of an array of hash references.
     # Loop through all the week data objects.
     foreach my $wd (@all_wd) {
 
+      $self->logger->debug( "Loop wd " . Dumper($wd) );
+
       my $lineno = 0;
-      my $team   = "home";
       my $more   = 1;
 
       my $counter = 0;    # Guard against infinite loops.
@@ -268,54 +271,49 @@ the league table. The structure consists of an array of hash references.
         last if !$fields_hash_ref;
         last if !$fields_hash_ref->{team};
 
+        $counter++;
+        $lineno++;
+
         # Find the row in the table for the current team.
         my $i = first_index { $_->{team} eq $fields_hash_ref->{team} } @table;
 
         # Create one if necessary
         if ( $i < 0 ) {
-          push @table, { team => $fields_hash_ref->{team} };
+          my $t = $self->get_new_table_row;
+          $t->{team} = $fields_hash_ref->{team};
+          push @table, $t;
+          $i = scalar(@table) - 1;
         }
 
-        foreach my $l (@labels) {
+        # Skip these fields because they play no part in the calculations
+        # and do not appear in the league table.
+        @labels = grep {
+          $_ !~ m/^(performances)|(team)|(runs)|(wickets)|(facilitiesmks)|(pitchmks)|(groundmks)$/
+        } @labels;
 
-          # Skip if the match hasn't been played.
-          last if ( $fields_hash_ref->{played} !~ m/Y/i );
+        # Skip if the match hasn't been played.
+        next if $fields_hash_ref->{played} !~ m/Y/i;
 
-          # Skip these fields because they play no part in the calculations.
-          next if ( $l =~ m/(performances)|(team)/ );
+        $table[$i]->{played} += 1;
 
-          if ( $l =~ m/played/ ) {
-            $table[$i]->{played} += 1;
-            next;
-          }
+        $table[$i]->{won} += 1 if ( $fields_hash_ref->{result} =~ m/w/i );
 
-          if ( $l eq "result" ) {
-            if ( $fields_hash_ref->{result} =~ m/w/i ) {
-              $table[$i]->{won} += 1;
-            }
-            if ( $fields_hash_ref->{result} =~ m/t/i ) {
-              $table[$i]->{tied} += 1;
-            }
-            if ( $fields_hash_ref->{result} =~ m/l/i ) {
-              $table[$i]->{lost} += 1;
-            }
-            next;
-          }
+        $table[$i]->{lost} += 1 if ( $fields_hash_ref->{result} =~ m/l/i );
 
-          # The rest of the fields are numeric so just add the new value to the previous value.
-          $table[$i]->{$l} = $table[$i]->{$l} + $fields_hash_ref->{$l};
+        $table[$i]->{tied} += 1 if ( $fields_hash_ref->{result} =~ m/t/i );
+
+        # The rest of the fields are numeric so just add the new value to the previous value.
+        foreach my $k (qw /resultpts battingpts bowlingpts penaltypts totalpts/) {
+          $table[$i]->{$k} = ( $table[$i]->{$k} || 0 ) + ( $fields_hash_ref->{$k} || 0 );
 
         }
-
-        $counter++;
-        $lineno++;
 
       }
 
       foreach my $t (@table) {
 
         $t->{average} = 0;
-        if ( $t->{played} > 0 ) {
+        if ( ( $t->{played} || 0 ) > 0 ) {
 
           $t->{average} = sprintf( "%.2f", $t->{totalpts} / $t->{played} );
 
@@ -328,6 +326,25 @@ the league table. The structure consists of an array of hash references.
     }
 
     return 1;
+  }
+
+=head2 get_new_table_row
+
+=cut
+
+  sub get_new_table_row {
+    return {
+      team         => "",
+      played       => 0,
+      won          => 0,
+      lost         => 0,
+      performances => "",
+      resultpts    => 0,
+      battingpts   => 0,
+      bowlingpts   => 0,
+      penaltypts   => 0,
+      totalpts     => 0
+    };
   }
 
 =head2 _get_aggregated_data
