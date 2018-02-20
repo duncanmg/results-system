@@ -3,12 +3,26 @@ package ResultsSystem::View;
 use strict;
 use warnings;
 
+=head1 ResultsSystem::View
+
+Base class for views.
+
+=cut
+
 use CGI;
 use HTTP::Response;
 use HTTP::Status qw/:constants status_message/;
 use Params::Validate qw/:all/;
 
 use JSON::Tiny qw(decode_json encode_json);
+
+=head1 External Methods (Public)
+
+=cut
+
+=head2 new
+
+=cut
 
 sub new {
   my ( $class, $args ) = @_;
@@ -56,7 +70,18 @@ sub get_configuration {
   return $self->{configuration};
 }
 
+=head1 Templating Methods (Public)
+
+=cut
+
 =head2 render
+
+Prints an HTTP response to the standard output. Status 200.
+Character set ISO-8859-1. Content type text/html.
+
+The response content is the HTML provided as the -data key.
+
+  $self->render( { -data => $html } );
 
 =cut
 
@@ -79,6 +104,13 @@ sub render {
 
 =head2 render_javascript
 
+Prints an HTTP response to the standard output. Status 200.
+Character set ISO-8859-1. Content type text/javascript.
+
+The response content is the javascript provided as the -data key.
+
+  $self->render( { -data => $js } );
+
 =cut
 
 sub render_javascript {
@@ -99,6 +131,14 @@ sub render_javascript {
 }
 
 =head2 render_json
+
+Prints an HTTP response to the standard output. Status 200.
+Character set ISO-8859-1. Content type text/javascript.
+
+The response content is the hash ref provided as the -data key
+converted to json.
+
+  $self->render( { -data => $data } );
 
 =cut
 
@@ -123,6 +163,15 @@ sub render_json {
 }
 
 =head2 merge_content
+
+Accepts a block of text containing placeholders and a hashref
+containg the replacements. Does a global replacement of the
+placeholders.
+
+  $html = $self->merge_content( "<p>[% name %] had a little lamb.</p.",
+    { name => "Mary" } );
+
+will return "<p>Mary had a little lamb.</p>".
 
 =cut
 
@@ -159,6 +208,8 @@ sub merge_array {
 }
 
 =head2 html_frame_wrapper
+
+Returns the static html for the frame. Two placeholders PAGETITLE and CONTENT.
 
 =cut
 
@@ -197,6 +248,9 @@ sub html_frame_wrapper {
 }
 
 =head2 html_wrapper
+
+Returns the doctype, header and body tags for an XHTML 1.0 page as a wrapper.
+Three tags PAGETITLE, STYLESHEETS and CONTENT.
 
 =cut
 
@@ -238,6 +292,9 @@ sub html_wrapper {
 }
 
 =head2 html5_wrapper
+
+Returns the doctype, header and body tags for an HTML 5 page as a wrapper.
+Three tags PAGETITLE, STYLESHEETS and CONTENT.
 
 =cut
 
