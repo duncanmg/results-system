@@ -1,10 +1,22 @@
 package ResultsSystem::View::SaveResults;
 
+=head1 ResultsSystem::View::SaveResults
+
+=cut
+
 use strict;
 use warnings;
 
 use ResultsSystem::View;
 use parent qw/ ResultsSystem::View/;
+
+=head1 External Methods (Public)
+
+=cut
+
+=head2 new
+
+=cut
 
 sub new {
   my ( $class, $args ) = @_;
@@ -14,12 +26,11 @@ sub new {
   return $self;
 }
 
-sub logger {
-  my $self = shift;
-  return $self->{logger};
-}
-
 # TODO print $q->header( -expires => "+2d" );
+
+=head2 run
+
+=cut
 
 sub run {
   my ( $self, $args ) = @_;
@@ -34,14 +45,11 @@ sub run {
   $self->render( { -data => $html } );
 }
 
-=head2 output_html
+=head1 Internal Methods (Private)
 
-This method returns the html for the menu page. No header or footer.
+=cut
 
- print $q->header;
- print $q->start_html;
- print $m->output_html;
- print $q->end_html;
+=head2 get_html
 
 =cut
 
@@ -72,6 +80,15 @@ sub get_html {
     <a href="javascript: parent.location.href='[% RETURN_TO_LINK %]'">[% RETURN_TO_TITLE %]</a>
 };
   return $html;
+}
+
+=head2 logger
+
+=cut
+
+sub logger {
+  my $self = shift;
+  return $self->{logger};
 }
 
 1;
