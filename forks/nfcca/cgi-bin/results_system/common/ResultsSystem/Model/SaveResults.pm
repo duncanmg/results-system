@@ -73,6 +73,7 @@ Can also accept -division, -week
     $self->logger->debug('Call write_file');
     $writer->write_file($reformatted);
 
+    return $reformatted;
   }
 
 =head3 reformat

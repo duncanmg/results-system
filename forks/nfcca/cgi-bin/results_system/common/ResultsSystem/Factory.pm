@@ -222,7 +222,8 @@ sub get_save_results_controller {
       -save_results_model => $self->get_save_results_model,
       -pwd_model          => $self->get_pwd_model,
       -league_table_model => $self->get_league_table_model,
-      -league_table_view => $self->get_league_table_view,
+      -league_table_view  => $self->get_league_table_view,
+      -week_results_view  => $self->get_week_results_view,
     }
   );
 }
@@ -470,6 +471,19 @@ sub get_league_table_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::LeagueTable->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::LeagueTable' } ),
+      -configuration => $self->get_configuration
+    }
+  );
+}
+
+=head3 get_week_results_view
+
+=cut
+
+sub get_week_results_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::Week::Results->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Week::Results' } ),
       -configuration => $self->get_configuration
     }
   );

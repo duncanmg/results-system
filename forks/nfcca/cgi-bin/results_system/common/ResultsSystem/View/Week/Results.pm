@@ -1,21 +1,24 @@
 # ******************************************************
 #
-# Name: WeekFixtures.pm
+# Name: Week::Results.pm
 #
 # 0.1  - 27 Jun 08 - POD added.
 #
 # ******************************************************
 
-=head1 WeekFixtures.pm
+=head1 ResultsSystem::View::Week::Results.pm
+
+Creates the static HTML page for the results.
 
 =cut
 
 {
 
-  package ResultsSystem::View::WeekFixtures;
+  package ResultsSystem::View::Week::Results;
 
   use strict;
   use warnings;
+  use Params::Validate qw/:all/;
 
   use Data::Dumper;
 
@@ -27,7 +30,7 @@
 
 =head2 new
 
-Constructor for the WeekFixtures object. Inherits from Parent.
+Constructor for the Week::Results object.
 
 =cut
 
@@ -52,7 +55,6 @@ Constructor for the WeekFixtures object. Inherits from Parent.
   sub run {
     my ( $self, $data ) = @_;
 
-    $DB::single = 1;
     my $d = $data->{-data};
     $self->logger->debug( Dumper $data);
     my $table_rows = $self->create_table_rows( $d->{rows} );
@@ -62,13 +64,17 @@ Constructor for the WeekFixtures object. Inherits from Parent.
       { ROWS      => $table_rows,
         SYSTEM    => $d->{SYSTEM},
         SEASON    => $d->{SEASON},
-        WEEK      => $d->{WEEK},
+        WEEK      => $d->{week},
         MENU_NAME => $d->{MENU_NAME},
-        TITLE => $d->{TITLE}
+        TITLE     => $d->{TITLE}
       }
     );
 
-    $self->render( { -data => $html } );
+    $html = $self->merge_content( $self->html_wrapper,
+      { CONTENT => $html, PAGETITLE => 'Results System' } );
+
+    $self->set_division( $d->{division} )->set_week( $d->{week} );
+    $self->write_file($html);
 
     return 1;
   }
@@ -106,8 +112,7 @@ Constructor for the WeekFixtures object. Inherits from Parent.
     my $html = q~
       <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
-      <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]<h1>
-      <!-- <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1> -->
+      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1>
       <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
 
       <form id="menu_form" name="menu_form" method="post" action="results_system.pl"
@@ -153,6 +158,7 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
     return q!
 <tr>
+<td class="teamcol">[% team %]</td>
 <td>[% played %]</td>
 <td>[% result %]</td>
 <td>[% runs %]</td>
@@ -193,44 +199,91 @@ with 11 cells. Each cell contains the &nbsp;
 !;
   }
 
-=head2 _fixture_line
+=head2 write_file
 
-Returns an HTML string containing a table row.
+This method writes the string passed as an argument to an HTML file. The filename
+is formed by replacing the .csv for the csv file with .htm. The file will be written
+to the directory given by "table_dir" in the configuration file.
+
+ $err = $lt->write_file( $line );
 
 =cut
 
   #***************************************
-  sub _fixture_line {
+  sub write_file {
 
     #***************************************
+    my ( $self, $line ) = validate_pos( @_, 1, { type => SCALAR } );
+    my ( $f, $FP );
+
+    $f = $self->build_full_filename;
+
+    open( $FP, ">", $f )
+      || die ResultsSystem::Exception->new( "WRITE_ERR",
+      "Unable to open file $f for writing. " . $! );
+
+    print $FP $line;
+    close $FP;
+    return 1;
+  }
+
+=head2 build_full_filename
+
+=cut
+
+  sub build_full_filename {
+    my ( $self, $data ) = @_;
+
+    my $c = $self->get_configuration;
+    my $dir = $c->get_path( -results_dir_full => "Y" );
+    die ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
+      "Result directory $dir does not exist." )
+      if !-d $dir;
+
+    my $f = $self->get_division;    # The csv file
+    my $w = $self->get_week;        # The csv file
+    $f =~ s/\..*$//;                # Remove extension
+    $f = "$dir/${f}_$w.htm";        # Add the path
+
+    return $f;
+  }
+
+=head2 get_division
+
+=cut
+
+  sub get_division {
     my $self = shift;
+    return $self->{division};
+  }
 
-    return q!
-    <tr>
-    <td> <input type="text" name="[% TEAM %]" id="[%TEAM %] size="32" readonly="readonly"/> </td>
-    <td> <select name="[% PLAYED %]" size="2" selected="[% SELECTED_PLAYED %]" onchange="calculate_points( this, [% ROW_NUMBER %] )">
-      <option value="Y">Y</option>
-      <option value="N">N</option>
-      <option value="A">A</option>
-      </select>
-    </td>
-    <td> <select name="[% RESULT %]" size="2" selected="[% SELECTED_RESULT %]" onchange="calculate_points( this, [% ROW_NUMBER %] )">
-      <option value="W">W</option>
-      <option value="L">L</option>
-      <option value="T">T</option>
-      </select>
-    </td>
-    <td> <input name="[% RUNS %]" id="[$ RUNS %]" type="number" min="0"/></td>
-    <td> <input name="[% WICKETS %]" id="[% WICKETS %]" type="number" min="0"/></td>
-    <td> <input type="text"  name="[% PERFORMANCES %]" id="[% PERFORMANCES %]"/></td>
-    <td> <input  name="[% RESULTPTS %]" id="[% RESULTPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% BATTINGPTS %]" id="[% BATTINGPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% BOWLINGPTS %]" id="[% BOWLINGPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% PENALTYPTS %]" id="[% PENALTYPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% TOTALPTS %]" id="[% TOTALPTS %]" type="number" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    </tr>
-!;
+=head2 set_division
 
+=cut
+
+  sub set_division {
+    my ( $self, $v ) = @_;
+    $self->{division} = $v;
+    return $self;
+  }
+
+=head2 get_week
+
+=cut
+
+  sub get_week {
+    my $self = shift;
+    return $self->{week};
+  }
+
+=head2 set_week
+
+=cut
+
+  sub set_week {
+    my ( $self, $v ) = @_;
+    $self->{week} = $v;
+    return $self;
   }
 
   1;

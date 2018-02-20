@@ -23,6 +23,7 @@ sub new {
   $self->{message_view}       = $args->{-message_view}       if $args->{-message_view};
   $self->{league_table_model} = $args->{-league_table_model} if $args->{-league_table_model};
   $self->{league_table_view}  = $args->{-league_table_view}  if $args->{-league_table_view};
+  $self->{week_results_view}  = $args->{-week_results_view}  if $args->{-week_results_view};
   return $self;
 }
 
@@ -52,6 +53,15 @@ sub run {
 
     $self->get_league_table_view->run(
       { -data => { rows => $lt, division => $query->param('division') } } );
+
+    $self->get_week_results_view->run(
+      { -data => {
+          rows     => $data,
+          division => $query->param('division'),
+          week     => $query->param('matchdate')
+        }
+      }
+    );
 
     $self->get_message_view->run( { -data => "Your changes have been accepted." } );
     1;
@@ -116,6 +126,15 @@ sub get_league_table_view {
 sub get_message_view {
   my $self = shift;
   return $self->{message_view};
+}
+
+=head2 get_week_results_view
+
+=cut
+
+sub get_week_results_view {
+  my $self = shift;
+  return $self->{week_results_view};
 }
 
 =head2 logger
