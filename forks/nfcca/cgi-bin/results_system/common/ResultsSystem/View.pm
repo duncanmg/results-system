@@ -15,6 +15,7 @@ use HTTP::Status qw/:constants status_message/;
 use Params::Validate qw/:all/;
 
 use JSON::Tiny qw(decode_json encode_json);
+use HTML::Entities qw();
 
 =head1 External Methods (Public)
 
@@ -68,6 +69,15 @@ sub set_configuration {
 sub get_configuration {
   my $self = shift;
   return $self->{configuration};
+}
+
+=head2 encode_entities
+
+=cut
+
+sub encode_entities {
+  my ( $self, $unencoded ) = validate_pos( @_, 1, 1 );
+  return HTML::Entities::encode_entities($unencoded);
 }
 
 =head1 Templating Methods (Public)
