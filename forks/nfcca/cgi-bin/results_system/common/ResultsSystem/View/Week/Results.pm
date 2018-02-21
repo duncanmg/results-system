@@ -57,21 +57,32 @@ Constructor for the Week::Results object.
 
     my $d = $data->{-data};
     $self->logger->debug( Dumper $data);
+
+    foreach my $r ( @{ $d->{rows} } ) {
+      $r->{team}        = $self->encode_entities( $r->{team} );
+      $r->{performanes} = $self->encode_entities( $r->{performances} );
+    }
+
     my $table_rows = $self->create_table_rows( $d->{rows} );
+
+    my $c = $self->get_configuration;
 
     my $html = $self->merge_content(
       $self->get_html,
       { ROWS      => $table_rows,
         SYSTEM    => $d->{SYSTEM},
-        SEASON    => $d->{SEASON},
+        SEASON    => $c->get_descriptors( -season => "Y" ),
         WEEK      => $d->{week},
         MENU_NAME => $d->{MENU_NAME},
-        TITLE     => $d->{TITLE}
+        TITLE     => $c->get_descriptors( -title => "Y" ),
+        TIMESTAMP => localtime() . "",
       }
     );
 
     $html = $self->merge_content( $self->html_wrapper,
       { CONTENT => $html, PAGETITLE => 'Results System' } );
+
+    $html = $self->merge_default_stylesheet($html);
 
     $self->set_division( $d->{division} )->set_week( $d->{week} );
     $self->write_file($html);
@@ -112,12 +123,8 @@ Constructor for the Week::Results object.
     my $html = q~
       <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
-      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]<h1>
+      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]</h1>
       <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
-
-      <form id="menu_form" name="menu_form" method="post" action="results_system.pl"
-      onsubmit="return validate_menu_form();"
-      target = "f_detail">
 
       <table class='week_fixtures'>
       <tr>
@@ -137,13 +144,7 @@ Constructor for the Week::Results object.
 
       </table>
 
-      <input type="hidden" id="division" name="division" value="[% DIVISION %]"/>
-      <input type="hidden" id="matchdate" name="matchdate" value="[% MATCHDATE %]"/>
-      <input type="hidden" id="page" name="page" value="save_results"/>
-      <input type="hidden" id="system" name="system" value="[% SYSTEM %]"/>
-
-      <input type="submit" value="Save Changes"/>
-      </form>
+      <p class="timestamp">[% TIMESTAMP %]</p>
 ~;
 
     return $html;

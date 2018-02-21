@@ -70,14 +70,18 @@ accept the standard arguments of a Parent object. The two most important are -qu
 
 =cut
 
-sub create_document {
+  sub create_document {
     my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF } );
 
     my $c = $self->get_configuration;
 
+    foreach my $r ( @{ $args->{-data}->{rows} } ) {
+      $r->{team} = $self->encode_entities( $r->{team} );
+    }
+
     my $html = $self->merge_array( $self->get_row_html, $args->{-data}->{rows} );
 
-    $self->set_division($args->{-data}->{division});
+    $self->set_division( $args->{-data}->{division} );
 
     $args->{-data}->{division} =~ s/\.csv//;
 
@@ -89,7 +93,6 @@ sub create_document {
     $html = $self->merge_content(
       $self->get_html,
       { TABLE_ROWS        => $html,
-        PAGETITLE         => 'Results System',
         DESCRIPTOR        => $c->get_descriptors( -title => "Y" ),
         SEASON            => $c->get_descriptors( -season => "Y" ),
         TIMESTAMP         => localtime() . "",
@@ -98,14 +101,19 @@ sub create_document {
       }
     );
 
-    $html = $self->merge_content( $self->html_wrapper, { CONTENT => $html, } );
+    $html = $self->merge_content(
+      $self->html_wrapper,
+      { CONTENT   => $html,
+        PAGETITLE => 'Results System',
+      }
+    );
 
     $html = $self->merge_stylesheets( $html, ["/results_system/custom/nfcca/nfcca_styles.css"] );
 
     $self->logger->debug($html);
 
     return $html;
-}
+  }
 
 =head2 _d
 
@@ -132,7 +140,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
     return q!
 
 <h1>[% DESCRIPTOR %] [% SEASON %]</h1>
-<h2>Division: [% DIVISION %]
+<h2>Division: [% DIVISION %]</h2>
 <p><a href="[% TABLES_INDEX_HREF %]">Return to Tables Index</a></p>
 
 <table class="league_table">
@@ -228,20 +236,20 @@ to the directory given by "table_dir" in the configuration file.
 
 =cut
 
-sub set_division {
-	my($self,$v)=@_;
-	$self->{division}=$v;
-	return $self;
-}
+  sub set_division {
+    my ( $self, $v ) = @_;
+    $self->{division} = $v;
+    return $self;
+  }
 
 =head2 get_division
 
 =cut
 
-sub get_division {
-	my($self)=@_;
-	return $self->{division};
-}
+  sub get_division {
+    my ($self) = @_;
+    return $self->{division};
+  }
 
   1;
 
