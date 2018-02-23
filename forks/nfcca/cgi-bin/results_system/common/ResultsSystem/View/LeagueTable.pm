@@ -154,6 +154,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
 <th>Bowling Pts</th>
 <th>Penalty Pts</th>
 <th>Total</th>
+<th>Average</th>
 </tr>
 [% TABLE_ROWS %]
 </table>
@@ -179,6 +180,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
 	<td>[% bowlingpts %]</td>
 	<td>[% penaltypts %]</td>
 	<td>[% totalpts %]</td>
+	<td>[% average %]</td>
 	</tr>
 !;
 
