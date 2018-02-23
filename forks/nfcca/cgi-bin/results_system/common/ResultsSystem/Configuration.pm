@@ -511,6 +511,11 @@ Returns a list of stylesheets
 The return link on the page will point here. Returns HTML
 within a <p> tag.
 
+  my ( $results_index_url, $title ) 
+    = $self->get_return_page( -results_index => 1 );
+
+  my ( $menu_url, $title ) = $self->get_return_page;
+
 =cut
 
   #***************************************
