@@ -57,7 +57,8 @@ This is the constructor for a LeagueTable object.
     bless $self, $class;
     $self->set_arguments( [qw/ configuration logger fixtures_model week_data_reader_model/],
       $args );
-    $self->logger->debug( Dumper $args);
+
+    # $self->logger->debug( Dumper $args);
     return $self;
   }
 
@@ -344,7 +345,8 @@ the league table. The structure consists of an array of hash references.
       battingpts   => 0,
       bowlingpts   => 0,
       penaltypts   => 0,
-      totalpts     => 0
+      totalpts     => 0,
+      average      => 0
     };
   }
 
@@ -403,6 +405,7 @@ The sorted data in placed in a new list.
       "Unable to sort table. $@" . Dumper($table) );
     $self->{SORTED_TABLE} = \@sorted;
 
+    $self->logger->debug( "Table sorted by $order " . Dumper( $self->{SORTED_TABLE} ) );
     return 1;
 
   }
