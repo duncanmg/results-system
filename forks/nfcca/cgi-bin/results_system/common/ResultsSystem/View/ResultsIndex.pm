@@ -52,16 +52,30 @@ sub run {
   my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF } );
   $self->logger->debug( Dumper $args);
 
+  my $c = $self->get_configuration;
+
   my $all_divisions_html = "";
   foreach my $div ( @{ $args->{-data} } ) {
     my $div_html = $self->process_division($div);
     $all_divisions_html .= $div_html;
   }
 
+  my ( $l, $t ) = $c->get_return_page( -results_index => 1 );
+
+  $all_divisions_html = $self->merge_content(
+    $self->get_heading_html,
+    { TITLE           => $c->get_descriptors( -title  => "Y" ),
+      SEASON          => $c->get_descriptors( -season => "Y" ),
+      CONTENT         => $all_divisions_html,
+      RETURN_TO_LINK  => $l,
+      RETURN_TO_TITLE => $t
+    }
+  );
+
   $self->render(
     { -data => $self->merge_default_stylesheet(
         $self->merge_content(
-          $self->html_wrapper, { CONTENT => $all_divisions_html, TITLE => 'Results System' }
+          $self->html_wrapper, { CONTENT => $all_divisions_html, PAGETITLE => 'Results System' }
         )
       )
     }
@@ -122,6 +136,18 @@ sub blocks {
     $i++;
   }
   return $bits;
+}
+
+=head2 get_heading_html
+
+=cut
+
+sub get_heading_html {
+  return q!
+        <h1>[% TITLE %] - [% SEASON %]</h1>
+        <p><a href="[% RETURN_TO_LINK %]"/>[% RETURN_TO_TITLE %]</a></p>
+	[% CONTENT %]
+!;
 }
 
 =head2 get_division_table_html
