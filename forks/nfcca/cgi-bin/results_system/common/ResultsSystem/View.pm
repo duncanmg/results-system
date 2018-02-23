@@ -71,6 +71,25 @@ sub get_configuration {
   return $self->{configuration};
 }
 
+=head2 set_arguments
+
+Helper method to set the constructor arguments of the child classes.
+
+$self->set_arguments( [ qw/ logger configuration week_data fixtures / ], $args );
+
+=cut
+
+sub set_arguments {
+  my ( $self, $map, $args ) = validate_pos( @_, 1, { type => ARRAYREF }, { type => HASHREF } );
+
+  foreach my $m (@$map) {
+    my $method = 'set_' . $m;
+    my $key    = '-' . $m;
+    $self->$method( $args->{$key} );
+  }
+  return 1;
+}
+
 =head2 encode_entities
 
 =cut

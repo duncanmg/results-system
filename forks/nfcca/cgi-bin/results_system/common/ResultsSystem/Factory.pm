@@ -16,6 +16,7 @@ use ResultsSystem::Controller::Blank;
 use ResultsSystem::Controller::MenuJs;
 use ResultsSystem::Controller::WeekFixtures;
 use ResultsSystem::Controller::SaveResults;
+use ResultsSystem::Controller::ResultsIndex;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
@@ -27,6 +28,7 @@ use ResultsSystem::Model::WeekFixtures;
 use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
 use ResultsSystem::Model::LeagueTable;
+use ResultsSystem::Model::ResultsIndex;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
@@ -38,6 +40,7 @@ use ResultsSystem::View::SaveResults;
 use ResultsSystem::View::Pwd;
 use ResultsSystem::View::Message;
 use ResultsSystem::View::LeagueTable;
+use ResultsSystem::View::ResultsIndex;
 
 =head2 new
 
@@ -228,6 +231,22 @@ sub get_save_results_controller {
   );
 }
 
+=head3 get_results_index_controller
+
+=cut
+
+sub get_results_index_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::ResultsIndex->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Controller::ResultsIndex' } ),
+      -configuration       => $self->get_configuration,
+      -results_index_model => $self->get_results_index_model,
+      -results_index_view  => $self->get_results_index_view
+    }
+  );
+}
+
 =head2 Models
 
 =cut
@@ -370,6 +389,20 @@ sub get_league_table_model {
   );
 }
 
+=head3 get_results_index_model
+
+=cut
+
+sub get_results_index_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::ResultsIndex->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::ResultsIndex' } ),
+      -configuration  => $self->get_configuration,
+      -fixtures_model => $self->get_fixtures_model(),
+    }
+  );
+}
+
 =head2 Views
 
 =cut
@@ -484,6 +517,19 @@ sub get_week_results_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Week::Results->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Week::Results' } ),
+      -configuration => $self->get_configuration
+    }
+  );
+}
+
+=head3 get_results_index_view
+
+=cut
+
+sub get_results_index_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::ResultsIndex->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::ResultsIndex' }, ),
       -configuration => $self->get_configuration
     }
   );
