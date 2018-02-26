@@ -9,6 +9,9 @@
                 Options FollowSymLinks
                 AllowOverride None
         </Directory>
+	<Directory /results_system/custom/nfcca>
+	        AllowOverride FileInfo
+	</Directory>
         <Directory /var/www/>
                 Options Indexes FollowSymLinks MultiViews
                 AllowOverride None

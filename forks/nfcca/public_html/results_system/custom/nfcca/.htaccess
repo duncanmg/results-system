@@ -1,1 +1,2 @@
+# This requires the Apache AllowOveride directive to be set to FileInfo or higher.
 ErrorDocument 404 /results_system/custom/nfcca/pagenotfound.htm
