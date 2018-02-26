@@ -1,3 +1,5 @@
 # Created 26 April 2008
 # Modified 9 May 2009
-ExpiresByType text/html A900
+<IfModule mod_expires.c>
+    ExpiresByType text/html A900
+</IfModule>
