@@ -15,6 +15,12 @@ Usage:
 
   $wf->run({-full_filename => $ff, -division => $d, -week => $matchdate });
 
+  This module returns the results for a given division and date.
+
+  If there aren't any results then it uses the fixtures to create
+  and return a structure containing the team names and with the keys
+  set to defaults.
+
 =cut
 
 package ResultsSystem::Model::WeekFixtures;
@@ -173,7 +179,7 @@ sub get_fixtures_for_division_and_week {
   return $fixtures_for_week;
 }
 
-=head build_fixtures_full_filename
+=head3 build_fixtures_full_filename
 
 =cut
 
