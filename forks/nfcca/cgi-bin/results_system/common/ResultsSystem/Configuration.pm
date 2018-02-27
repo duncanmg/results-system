@@ -330,8 +330,9 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
     my @keys        = keys %args;
     my $key         = shift @keys;
     my @valid_paths = (
-      "-csv_files", "-log_dir", "-pwd_dir", "-table_dir", "-results_dir", "-htdocs",
-      "-cgi_dir",   "-root",    '-htdocs_full'
+      "-csv_files",   "-log_dir",          "-pwd_dir", "-table_dir",
+      "-results_dir", "-htdocs",           "-cgi_dir", "-root",
+      '-htdocs_full', '-results_dir_full', '-table_dir_full'
     );
     if ( !( any { $key eq $_ } @valid_paths ) ) {
       $self->logger->warn("$key is not in the list of valid paths.");
