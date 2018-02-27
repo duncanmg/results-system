@@ -24,6 +24,7 @@ sub new {
   $self->{league_table_model} = $args->{-league_table_model} if $args->{-league_table_model};
   $self->{league_table_view}  = $args->{-league_table_view}  if $args->{-league_table_view};
   $self->{week_results_view}  = $args->{-week_results_view}  if $args->{-week_results_view};
+  $self->{locker}  = $args->{-locker}  if $args->{-locker};
   return $self;
 }
 
@@ -33,6 +34,8 @@ sub new {
 
 sub run {
   my ( $self, $query ) = @_;
+
+  my $locker = $self->get_locker;
 
   my $pwd = $self->get_pwd_model;
   my ( $ok, $msg ) =
@@ -44,6 +47,7 @@ sub run {
   }
 
   eval {
+    $locker->open_lock_file;
     my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
 
     $self->logger->debug("About to create league table");
@@ -64,11 +68,13 @@ sub run {
     );
 
     $self->get_message_view->run( { -data => "Your changes have been accepted." } );
+    $locker->close_lock_file;
     1;
   } || do {
     my $err = $@;
     $self->logger->error($err);
     $self->get_message_view->run( { -data => "Your changes have been rejected." } );
+    $locker->close_lock_file;
   };
 
   # $self->get_save_results_view()->run( { -data => $data } );
@@ -135,6 +141,15 @@ sub get_message_view {
 sub get_week_results_view {
   my $self = shift;
   return $self->{week_results_view};
+}
+
+=head2 get_locker
+
+=cut
+
+sub get_locker {
+  my $self = shift;
+  return $self->{locker};
 }
 
 =head2 logger

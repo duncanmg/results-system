@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-FcLockfile Package
+ResultsSystem::Locker Package
 
 =cut
 
@@ -17,26 +17,24 @@ Lock file functionality.
 
 #***********************************************************************
 #
-# Name FcLockfile.pm
+# Name ResultsSystem::Locker.pm
 #
 #***********************************************************************
 
-{
+package ResultsSystem::Locker;
 
-  package FcLockfile;
+use strict;
+use warnings;
 
-  use strict;
-  use List::MoreUtils qw( first_index any );
-  use File::stat;
+use Params::Validate qw/:all/;
 
-  use Slurp;
-  use File::Copy;
-  use File::Compare;
-  use Time::localtime;
-  use Carp;
+use ResultsSystem::Exception;
 
-  # Class variables
-  $FcLockfile::TIMEOUT = 105;
+use Time::localtime;
+use Carp;
+
+# Class variables
+$ResultsSystem::Locker::TIMEOUT = 105;
 
 =head2 External Methods
 
@@ -44,28 +42,27 @@ Lock file functionality.
 
 =head3 Constructor
 
-Create the object and gives it an error object. Binds in the current values of
-the class variables LOCKDIR, OLDFILE.
+  my $locker = 
+    ResultsSystem::Locker->new( { -logger => $logger, -configuration => $config } );
 
 =cut
 
+#*****************************************************************************
+sub new
+
   #*****************************************************************************
-  sub new
+{
+  my ( $class, $args ) = @_;
+  my $self = {};
+  bless $self, $class;
 
-    #*****************************************************************************
-  {
-    my ( $class, %args ) = @_;
-    my $self = {};
-    bless $self, $class;
+  $self->{configuration} = $args->{-configuration} if $args->{-configuration};
+  $self->{logger}        = $args->{-logger}        if $args->{-logger};
 
-    my $err = 0;
-    $self->set_lock_dir( $args{-lock_dir} ) if $args{-lock_dir};
-    $self->{LOCKFILETRIES} = 0;
-    croak "Need a logger. -logger not set." if !$args{-logger};
-    $self->{LOGGER} = $args{-logger};
-    return $self;
+  $self->logger->debug('Locker created') if $self->get_configuration;
+  return $self;
 
-  }    # End constructor
+}    # End constructor
 
 =head3 open_lock_file
 
@@ -80,135 +77,156 @@ Should really be called CreateLockFile because the file is created then closed.
 
 =cut
 
+#*****************************************************************************
+sub open_lock_file
+
   #*****************************************************************************
-  sub open_lock_file
+{
+  my ( $self, $lockfile ) = validate_pos( @_, 1, 0 );
+  my $count = 0;
 
-    #*****************************************************************************
-  {
-    my $self     = shift;
-    my $err      = 0;
-    my $count    = 0;
-    my $lockfile = shift;
-    $lockfile =~ s/[^A-Za-z0-9._]//g;    # Clean the filename.
+  $self->set_lock_file($lockfile) if $lockfile;
 
-    if ( length($lockfile) == 0 ) {
-      $self->logger->error("open_lock_file(): Parameter was null or invalid.");
-      $err = 1;
-    }
+  my $ff = $self->get_lock_full_filename;
 
-    # print $lockfile;
-    if ( $lockfile !~ m/\./ ) { $lockfile = $lockfile . "."; }
-    if ( $lockfile !~ m/\.[a-zA-Z0-9_-]{1,}$/ ) { $lockfile =~ s/\.[^.]*$/\.lock/; }
-    $lockfile = $self->get_lock_dir . "/" . $lockfile;
-    $self->{LOCKFILE} = $lockfile;
+  while ( $self->check_lock_file_exists && $count < $ResultsSystem::Locker::TIMEOUT ) {
+    $count = $count + 1;
+    sleep 1;
+  }
 
-    # If the lockfile ends in .lock, use a similar .old file. Otherwise just leave the default.
-    if ( $self->{LOCKFILE} =~ m/\.lock$/ ) {
-      $self->{OLDFILE} = $self->{LOCKFILE};
-      $self->{OLDFILE} =~ s/\.lock$/\.old/;
-    }
+  if ( $count >= $ResultsSystem::Locker::TIMEOUT ) {
+    $self->logger->warn(
+      "Unable to create lock file after $ResultsSystem::Locker::TIMEOUT tries. Overwrite it.");
+  }
 
-    while ( -e $lockfile && $count < $FcLockfile::TIMEOUT ) {
-      $count = $count + 1;
-      sleep 1;
-    }
+  open( LOCKFILE, ">" . $ff ) || do {
+    die ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_FILE', "Unable to open file. $ff. " . $! );
+  };
 
-    if ( $count >= $FcLockfile::TIMEOUT ) {
-      $self->logger->warn(
-        "Unable to create lock file after $FcLockfile::TIMEOUT tries. Overwrite it.");
-    }
+  print LOCKFILE $ff . "\n";
+  close LOCKFILE;
+  $self->logger->debug("Lockfile created. $ff");
+  $self->{IOPENEDLOCKFILE} = 1;
 
-    $self->{LOCKFILETRIES} = $count;
+  return 1
 
-    if ( $err == 0 ) {
-      if ( !open( LOCKFILE, ">" . $lockfile ) ) {
-        $err = 1;
-        $self->logger->error( "Unable to open file. $lockfile. " . $! );
-      }
-    }
-
-    if ( $err == 0 ) {
-      print LOCKFILE $lockfile . "\n";
-      close LOCKFILE;
-      $self->logger->debug("Lockfile created. $lockfile");
-      $self->{IOPENEDLOCKFILE} = 1;
-    }
-
-    return $err;
-
-  }    # End open_lock_file()
+}    # End open_lock_file()
 
 =head3 close_lock_file
 
-Doesn't close or delete the lockfile as such. Moves it to OLDFILE.
-
-Ummm ... looks like it deletes it to me.
+Deletes the lockfile.
 
 =cut
 
-  #*****************************************************************************
-  sub close_lock_file
+#*****************************************************************************
+sub close_lock_file
 
-    #*****************************************************************************
-  {
-    my $self = shift;
-    my $err  = 0;
-    my $ret;
-    my $lockfile    = $self->{LOCKFILE};
-    my $oldlockfile = $self->{OLDFILE};
-    $self->logger->debug("close_lock_file() called.");
-    if ( !-e $lockfile ) {
-      $self->logger->debug("Lockfile $lockfile does not exist.");
-      return $err;
-    }
-    $ret = unlink $lockfile;
-    if ( $ret != 1 ) {
-      $self->logger->error( "Can not delete lockfile " . $lockfile . " " . $! );
-      $err = 1;
-      $self->{IOPENEDLOCKFILE} = undef;
-    }
-    $self->logger->debug( "Finished close_lock_file(). " . $err );
-    return $err;
-  }
+  #*****************************************************************************
+{
+  my $self     = shift;
+  my $lockfile = $self->get_lock_full_filename;
+
+  return 1 if !$self->check_lock_file_exists;
+
+  unlink $lockfile || do {
+    $self->logger->error( "Can not delete lockfile " . $lockfile . " " . $! );
+    $self->{IOPENEDLOCKFILE} = undef;
+  };
+
+  $self->logger->debug("Finished close_lock_file(). ");
+  return 1;
+}
+
+=head3 check_lock_file_exists
+
+=cut
+
+sub check_lock_file_exists {
+  my $self = shift;
+  return ( -e $self->get_lock_full_filename ) ? 1 : undef;
+}
+
+=head3 get_lock_full_filename
+
+=cut
+
+#*****************************************************************************
+sub get_lock_full_filename
+
+  #*****************************************************************************
+{
+  my $self = shift;
+  return $self->get_lock_dir . '/' . $self->get_lock_file;
+}
 
 =head3 get_lock_file
 
 =cut
 
-  #*****************************************************************************
-  sub get_lock_file
+#*****************************************************************************
+sub get_lock_file
 
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{LOCKFILE};
+  #*****************************************************************************
+{
+  my $self = shift;
+  if ( !$self->{LOCKFILE} ) {
+    my $c = $self->get_configuration;
+    $self->set_lock_file( $c->get_log_stem ) if $c;
   }
+
+  return $self->{LOCKFILE};
+}
+
+=head3 set_lock_file
+
+Cleans and sets the lock file.
+
+=cut
+
+sub set_lock_file {
+  my ( $self, $lockfile ) = validate_pos( @_, 1, { -type => SCALAR } );
+  $lockfile =~ s/[^A-Za-z0-9._]//g;    # Clean the filename.
+
+  if ( $lockfile !~ m/\./ ) { $lockfile = $lockfile . "."; }
+  if ( $lockfile !~ m/\.[a-zA-Z0-9_-]{1,}$/ ) { $lockfile =~ s/\.[^.]*$/\.lock/; }
+  $self->{LOCKFILE} = $lockfile;
+  return $self;
+}
 
 =head3 get_lock_dir
 
 =cut
 
-  #*****************************************************************************
-  sub get_lock_dir
+#*****************************************************************************
+sub get_lock_dir
 
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{LOCKDIR};
+  #*****************************************************************************
+{
+  my $self = shift;
+
+  if ( !$self->{LOCKDIR} ) {
+    my $c = $self->get_configuration;
+    $self->set_lock_dir( $c->get_path( -log_dir => 'Y' ) ) if $c;
   }
+
+  die ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
+    'Lock dir does not exist ' . $self->{LOCKDIR} )
+    if !-d $self->{LOCKDIR};
+  return $self->{LOCKDIR};
+}
 
 =head3 set_lock_dir
 
 =cut
 
-  #*****************************************************************************
-  sub set_lock_dir
+#*****************************************************************************
+sub set_lock_dir
 
-    #*****************************************************************************
-  {
-    my $self = shift;
-    $self->{LOCKDIR} = shift;
-  }
+  #*****************************************************************************
+{
+  my $self = shift;
+  $self->{LOCKDIR} = shift;
+}
 
 =head2 Internal Methods
 
@@ -218,7 +236,13 @@ Ummm ... looks like it deletes it to me.
 
 =cut
 
-  sub logger { my $self = shift; return $self->{LOGGER}; }
+sub logger { my $self = shift; return $self->{logger}; }
+
+=head3 get_configuration
+
+=cut
+
+sub get_configuration { my $self = shift; return $self->{configuration}; }
 
 =head3 DESTROY
 
@@ -226,13 +250,12 @@ Close the lock file if this object opened it.
 
 =cut
 
-  #*****************************************************************************
-  sub DESTROY {
-    my $self = shift;
-    $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
-    $self->close_lock_file() if $self->{IOPENEDLOCKFILE};
-    1;
-  }
-
+#*****************************************************************************
+sub DESTROY {
+  my $self = shift;
+  $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
+  $self->close_lock_file() if $self->{IOPENEDLOCKFILE};
   1;
-}    # End package FcLockfile
+}
+
+1;

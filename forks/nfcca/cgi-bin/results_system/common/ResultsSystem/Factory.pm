@@ -7,6 +7,7 @@ use Params::Validate qw/:all/;
 use ResultsSystem::Logger;
 use ResultsSystem::Starter;
 use ResultsSystem::Router;
+use ResultsSystem::Locker;
 
 use ResultsSystem::Configuration;
 
@@ -90,15 +91,40 @@ sub get_file_logger {
   return $self->get_logger($args)->logger( $args->{-category} );
 }
 
+=head3 get_starter
+
+=cut
+
 sub get_starter {
   my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
   return ResultsSystem::Starter->new( { -configuration => $self->get_configuration(), %$args } );
 }
 
+=head3 get_router
+
+=cut
+
 sub get_router {
   my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
   return ResultsSystem::Router->new( { -factory => $self, %$args } );
 }
+
+=head3 get_locker
+
+=cut
+
+sub get_locker {
+  my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
+  return ResultsSystem::Locker->new(
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::Locker' } ),
+      -configuration => $self->get_configuration()
+    }
+  );
+}
+
+=head3 get_configuration
+
+=cut
 
 sub get_configuration {
   my ( $self, $args ) = @_;
@@ -112,6 +138,10 @@ sub get_configuration {
   return $self->lazy( 'configuration', $s );
 }
 
+=head3 lazy
+
+=cut
+
 sub lazy {
   my ( $self, $key, $sub ) = validate_pos( @_, 1, 1, 1 );
   if ( !$self->{$key} ) {
@@ -120,16 +150,28 @@ sub lazy {
   return $self->{$key};
 }
 
+=head3 set_system
+
+=cut
+
 sub set_system {
   my $self = shift;
   $self->{SYSTEM} = shift;
   return $self->{SYSTEM};
 }
 
+=head3 get_system
+
+=cut
+
 sub get_system {
   my $self = shift;
   return $self->{SYSTEM};
 }
+
+=head3 get_full_filename
+
+=cut
 
 sub get_full_filename {
   my $self   = shift;
@@ -227,6 +269,7 @@ sub get_save_results_controller {
       -league_table_model => $self->get_league_table_model,
       -league_table_view  => $self->get_league_table_view,
       -week_results_view  => $self->get_week_results_view,
+      -locker             => $self->get_locker,
     }
   );
 }
