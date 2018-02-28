@@ -8,6 +8,7 @@ use ResultsSystem::Logger;
 use ResultsSystem::Starter;
 use ResultsSystem::Router;
 use ResultsSystem::Locker;
+use ResultsSystem::AutoCleaner;
 
 use ResultsSystem::Configuration;
 
@@ -120,6 +121,20 @@ sub get_locker {
       -configuration => $self->get_configuration()
     }
   );
+}
+
+=head3 get_auto_cleaner
+
+=cut
+
+sub get_auto_cleaner {
+  my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
+  return ResultsSystem::AutoCleaner->new(
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::AutoCleaner' } ),
+      -configuration => $self->get_configuration()
+    }
+    )->set_logfile_stem("*")
+    ->set_log_dir( $self->get_configuration->get_path( -log_dir => 'Y' ) );
 }
 
 =head3 get_configuration

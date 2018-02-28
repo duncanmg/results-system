@@ -40,6 +40,7 @@ sub main {
     my $rs = ResultsSystem->new();
 
     $rs->get_starter->start( $q->param('system') );
+    $rs->get_factory->get_auto_cleaner->auto_clean;
 
     $rs->get_router->route($q);
 
