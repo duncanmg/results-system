@@ -50,9 +50,8 @@ the class variables LOGDIR, OLDFILE.
     shift;
     my %args = (@_);
 
-    my $err = 0;
-
-    $self->set_log_dir( $args{-log_dir} ) if $args{-log_dir};
+    $self->set_log_dir( $args{-log_dir} )            if $args{-log_dir};
+    $self->set_log_file_stem( $args{-logfile_stem} ) if $args{-logfile_stem};
 
     return $self;
 
@@ -126,7 +125,8 @@ will set $logfile_name to "/tmp/rs28.log"
   sub logfile_name {
     my ($self) = validate_pos( @_, 1 );
     my $now = DateTime::Tiny->now();
-    $self->{logfile_name} = sprintf( "%s/%s%02d.log", $self->get_log_dir, "rs", $now->day );
+    $self->{logfile_name} =
+      sprintf( "%s/%s%02d.log", $self->get_log_dir, $self->get_log_file_stem, $now->day );
     return $self->{logfile_name};
   }
 
@@ -142,13 +142,21 @@ Set the log directory.
     #*****************************************************************************
   {
     my $self = shift;
-    my $err  = 0;
     $self->{LOGDIR} = shift;
     if ( !-d $self->get_log_dir ) {
       $self->{logger}->error( "Log directory does not exist. " . $self->get_log_dir );
-      $err = 1;
     }
-    return $err;
+    return $self;
+  }
+
+=head3 set_log_file_stem
+
+=cut
+
+  sub set_log_file_stem {
+    my ( $self, $v ) = @_;
+    $self->{LOG_FILE_STEM} = $v;
+    return $self;
   }
 
 =head3 open_log_file
@@ -335,25 +343,34 @@ Return the log configuration file if it exists.
 
   }
 
-=head3 get_log_file_name
+  #=head3 get_log_file_name
+  #
+  #Return the name of the open log file. If a parameter is provided then the path is
+  #returned as well.
+  #
+  #=cut
+  #
+  #  #*****************************************************************************
+  #  sub get_log_file_name
+  #
+  #    #*****************************************************************************
+  #  {
+  #    my $self = shift;
+  #    my $full = shift;
+  #    my $name = $self->{LOGFILENAME};
+  #    if ( $full eq undef ) {
+  #      $name =~ s/^.*?([^\/\\]{1,})$/$1/;
+  #    }
+  #    return $name;
+  #  }
 
-Return the name of the open log file. If a parameter is provided then the path is
-returned as well.
+=head3 get_log_file_stem
 
 =cut
 
-  #*****************************************************************************
-  sub get_log_file_name
-
-    #*****************************************************************************
-  {
+  sub get_log_file_stem {
     my $self = shift;
-    my $full = shift;
-    my $name = $self->{LOGFILENAME};
-    if ( $full eq undef ) {
-      $name =~ s/^.*?([^\/\\]{1,})$/$1/;
-    }
-    return $name;
+    return $self->{LOG_FILE_STEM} || 'rs';
   }
 
   1;
