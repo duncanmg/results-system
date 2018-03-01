@@ -2,12 +2,11 @@ package Helper;
 
 use strict;
 use warnings;
-use ResultsConfiguration;
-use Logger;
+use ResultsSystem;
 
 use parent qw/Exporter/;
 
-our @EXPORT_OK = qw/get_config get_logger/;
+our @EXPORT_OK = qw/get_config get_logger get_factory/;
 
 =head1 Helper
 
@@ -28,6 +27,22 @@ Die if neither is present.
 
 sub get_config {
 
+  my $file = get_system_full_filename();
+
+  return get_factory()->get_configuration;
+}
+
+sub get_logger {
+  return get_factory()->get_screen_logger;
+}
+
+sub get_factory {
+  my $rs = ResultsSystem->new();
+  $rs->get_starter->start( get_system_full_filename() );
+  return $rs->get_factory;
+}
+
+sub get_system_full_filename {
   if ( !( $ARGV[0] || $ENV{NFCCA_CONFIG} ) ) {
     die "Need a filename in ARGV. <"
       . ( $ARGV[0] || "" )
@@ -35,18 +50,7 @@ sub get_config {
       . ( $ENV{NFCCA_CONFIG} || "" ) . ">";
   }
   my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
-
-  my $config =
-    ResultsConfiguration->new( -full_filename => $file, -logger => Logger->new()->logger );
-  die "Unable to create ResultsConfiguration object" if !$config;
-  die "Unable to read file" if $config->read_file;
-
-  return $config;
-}
-
-sub get_logger {
-  my $config = shift;
-  return Logger->new( -log_dir => ( $config->get_path( -log_dir => 1 ) ) )->logger;
+  return $file;
 }
 
 1;
