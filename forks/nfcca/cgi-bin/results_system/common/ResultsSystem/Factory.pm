@@ -18,7 +18,7 @@ use ResultsSystem::Controller::Blank;
 use ResultsSystem::Controller::MenuJs;
 use ResultsSystem::Controller::WeekFixtures;
 use ResultsSystem::Controller::SaveResults;
-use ResultsSystem::Controller::ResultsIndex;
+use ResultsSystem::Controller::TablesIndex;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
@@ -31,6 +31,7 @@ use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
 use ResultsSystem::Model::LeagueTable;
 use ResultsSystem::Model::ResultsIndex;
+use ResultsSystem::Model::TablesIndex;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
@@ -43,6 +44,7 @@ use ResultsSystem::View::Pwd;
 use ResultsSystem::View::Message;
 use ResultsSystem::View::LeagueTable;
 use ResultsSystem::View::ResultsIndex;
+use ResultsSystem::View::TablesIndex;
 
 =head2 new
 
@@ -133,7 +135,7 @@ sub get_auto_cleaner {
     { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::AutoCleaner' } ),
       -configuration => $self->get_configuration()
     }
-    )->set_logfile_stem("*")
+    )->set_logfile_stem(".*")
     ->set_log_dir( $self->get_configuration->get_path( -log_dir => 'Y' ) );
 }
 
@@ -305,6 +307,22 @@ sub get_results_index_controller {
   );
 }
 
+=head3 get_tables_index_controller
+
+=cut
+
+sub get_tables_index_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::TablesIndex->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Controller::TablesIndex' } ),
+      -configuration      => $self->get_configuration,
+      -tables_index_model => $self->get_tables_index_model,
+      -tables_index_view  => $self->get_tables_index_view,
+    }
+  );
+}
+
 =head2 Models
 
 =cut
@@ -461,6 +479,19 @@ sub get_results_index_model {
   );
 }
 
+=head3 get_tables_index_model
+
+=cut
+
+sub get_tables_index_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::TablesIndex->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::TablesIndex' } ),
+      -configuration => $self->get_configuration,
+    }
+  );
+}
+
 =head2 Views
 
 =cut
@@ -588,6 +619,19 @@ sub get_results_index_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::ResultsIndex->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::ResultsIndex' }, ),
+      -configuration => $self->get_configuration
+    }
+  );
+}
+
+=head3 get_tables_index_view
+
+=cut
+
+sub get_tables_index_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::TablesIndex->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::TablesIndex' }, ),
       -configuration => $self->get_configuration
     }
   );
