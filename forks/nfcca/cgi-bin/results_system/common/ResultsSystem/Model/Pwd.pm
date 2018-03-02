@@ -142,14 +142,14 @@ There is also the concept of the password being wrong or very wrong.
     my $ok = 0;
     my $msg;
 
-    $real_pwd =~ s/\W//g;
-    $user_pwd =~ s/\W//g;
-    $teamfile =~ s/\W//g;
-
-    if ( !( $real_pwd && $user_pwd && $teamfile ) ) {
-      $self->logger->error(
-        "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
-      return ( 0, $incorrect_password );
+    foreach my $p ( $real_pwd, $user_pwd, $teamfile ) {
+      $p ||= "";
+      $p =~ s/\W//g;
+      if ( !$p ) {
+        $self->logger->error(
+          "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
+        return ( 0, $incorrect_password );
+      }
     }
 
     ( $ok, $msg ) = $self->_too_many_tries( $self->_get_wrong_file(), $teamfile, 3 );
@@ -349,7 +349,7 @@ Returns the full filename of the wrong file.
 
     #*****************************************************************************
     my $self = shift;
-    return $self->get_pwd_dir . '/' . $self->{WRONGFILE};
+    return ( $self->get_pwd_dir || "" ) . '/' . ( $self->{WRONGFILE} || "" );
   }
 
 =head3 _get_vwrong_file
@@ -363,7 +363,7 @@ Returns the full filename of the very wrong file.
 
     #*****************************************************************************
     my $self = shift;
-    return $self->get_pwd_dir . '/' . $self->{VWRONGFILE};
+    return ( $self->get_pwd_dir || "" ) . '/' . ( $self->{VWRONGFILE} || "" );
   }
 
 =head3 _set_vwrong_file

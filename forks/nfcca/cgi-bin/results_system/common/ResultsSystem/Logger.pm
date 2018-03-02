@@ -125,8 +125,9 @@ will set $logfile_name to "/tmp/rs28.log"
   sub logfile_name {
     my ($self) = validate_pos( @_, 1 );
     my $now = DateTime::Tiny->now();
-    $self->{logfile_name} =
-      sprintf( "%s/%s%02d.log", $self->get_log_dir, $self->get_log_file_stem, $now->day );
+    $self->{logfile_name} = sprintf( "%s/%s%02d.log",
+      ( $self->get_log_dir || "" ),
+      $self->get_log_file_stem, $now->day );
     return $self->{logfile_name};
   }
 
