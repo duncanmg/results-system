@@ -9,15 +9,19 @@ use_ok('ResultsSystem::Configuration');
 
 my $config = get_config;
 
+# These paths must return a directory which exists.
 foreach my $p (
   qw/ -csv_files -log_dir -pwd_dir
-  -root -cgi_dir_full /
+  -root -cgi_dir_full -htdocs_full
+  -results_dir_full -table_dir_full/
   )
 {
   my $ff = $config->get_path( $p => "Y" ) || "";
   ok( ( -d $ff ), "$ff is a directory. " . $p );
 }
 
+# These path must return something, but it may be a relative
+# path, so we can't test if it exists.
 foreach my $p (
   qw/ -csv_files -log_dir -pwd_dir -table_dir
   -htdocs -cgi_dir -root /
@@ -27,9 +31,11 @@ foreach my $p (
   ok( $ff, "$ff is set. " . $p );
 }
 
+# This demonstrates that -allow_not_exists can be any true value.
 ok( $config->get_path( "-cgi_dir_full" => "Y", -allow_not_exists => 1 ),
   "-cgi_dir_full is a valid argument" );
-ok( !$config->get_path( "-bad_path" => "Y", -allow_not_exists => 1 ),
-  "-bad_path is an invalid argument" );
+
+throws_ok( sub { $config->get_path( "-bad_path" => "Y", -allow_not_exists => 1 ) },
+  qr/PATH_NOT_IN_TAGS/, "-bad_path is an invalid argument" );
 
 done_testing;

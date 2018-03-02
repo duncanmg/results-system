@@ -4,11 +4,11 @@ use Test::More;
 use Test::Exception;
 use Test::Deep;
 
-use_ok('ResultsConfiguration');
+use_ok('ResultsSystem::Configuration');
 
 my $config;
-ok( $config = ResultsConfiguration->new(), "Object created." );
-isa_ok( $config, 'ResultsConfiguration' );
+ok( $config = ResultsSystem::Configuration->new(), "Object created." );
+isa_ok( $config, 'ResultsSystem::Configuration' );
 
 ok( !$config->get_full_filename(), "Full file name is not set." );
 
