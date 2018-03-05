@@ -2,83 +2,54 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
-use Test::Deep;
+use Helper qw/get_config get_logger/;
 
-use Data::Dumper;
-use Clone qw/clone/;
+use_ok('LeagueTable');
+use_ok('ResultsConfiguration');
 
-use_ok('ResultsSystem::Model::LeagueTable');
-use_ok('ResultsSystem');
+ok(
+  $ARGV[0] || $ENV{NFCCA_CONFIG},
+  "Got a filename in ARGV. <"
+    . ( $ARGV[0] || "" )
+    . "> or NFCCA_CONFIG is set. <"
+    . ( $ENV{NFCCA_CONFIG} || "" ) . ">"
+) || die "Unable to continue.";
+my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
 
-#ok(
-#  $ARGV[0] || $ENV{NFCCA_CONFIG},
-#  "Got a filename in ARGV. <"
-#    . ( $ARGV[0] || "" )
-#    . "> or NFCCA_CONFIG is set. <"
-#    . ( $ENV{NFCCA_CONFIG} || "" ) . ">"
-#) || die "Unable to continue.";
-#my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
+my $config = get_config;
 
-my ( $rs, $f, $lt );
+my $lt;
+ok( $lt = LeagueTable->new( -config => $config, -logger => get_logger($config) ),
+  "Created a LeagueTable object." );
 
-ok( $rs = ResultsSystem->new, "Created object" );
-isa_ok( $rs, 'ResultsSystem' );
+is( $lt->_sort_table, 1, "Returns an error because nothing is initialised." );
 
-ok( $rs->get_starter->start('nfcca'), "Started system" );
+$lt->{AGGREGATED_DATA} = undef;
+$lt->{TAGS}->{calculations}[0]{order_by}[0] = "average";
+is( $lt->_sort_table, 1,
+  "Returns an error because the configuration is ok but the data is just undefined." );
 
-ok( $f = $rs->get_factory, "Created factory" );
-isa_ok( $f, 'ResultsSystem::Factory' );
+$lt->{AGGREGATED_DATA} = [];
+is( $lt->_sort_table, 0,
+  "Returns correctly because the configuration is ok and the data is just an empty array." );
 
-ok( $lt = $f->get_league_table_model, "Got LeagueTable" );
-isa_ok( $lt, 'ResultsSystem::Model::LeagueTable' );
+$lt->{AGGREGATED_DATA} = [ { average => 1 }, { average => 2 } ];
+is( $lt->_sort_table, 0,
+  "Returns correctly because the configuration is ok and the data is a valid array of hash refs."
+);
+is( $lt->{SORTED_TABLE}->[0]->{average}, 2, "The data is sorted into descending order!" );
+is( $lt->{SORTED_TABLE}->[1]->{average}, 1, "The data is sorted into descending order!" );
 
-ok( $lt->set_division('U9N.csv'), "Set division" );
-is( $lt->get_division, 'U9N.csv', "Get division" );
+$lt->{AGGREGATED_DATA} = [ { average => 1 }, { average => 'nan' } ];
+is( $lt->_sort_table, 1,
+  "Returns lives but returns an error because the configuration is ok but one of the 'average' keys is a string."
+);
 
-my $num_files = scalar( @{ $lt->_get_all_week_files } );
-ok( $num_files, "Got at least one data file " . $num_files );
-
-ok( $lt->gather_data, "gather_data" );
-
-is( scalar( @{ $lt->{WEEKDATA} } ),
-  $num_files, "Got a week data object for each week data file." );
-
-ok( $lt->_process_data, "_process_data" );
-
-my $data = $lt->_get_aggregated_data;
-is( ref($data), "ARRAY", "_get_aggregated_data returns an array ref" );
-
-my $expected_keys = 11;
-foreach my $d (@$data) {
-  is( ref($d), "HASH", "It is an array ref of hash refs" );
-  my $num_keys = keys(%$d);
-  is( $num_keys, $expected_keys, "It has the correct number of keys" ) || diag( Dumper $d);
-}
-
-ok( $lt->_sort_table, "Sort_table" );
-
-my $sorted_table = [];
-ok( $sorted_table = $lt->_get_sorted_table, "_get_sorted_table" );
-ok( scalar(@$sorted_table) > 1, "Sorted table has at least 2 rows" )
-  || diag( Dumper $sorted_table);
-
-my $lastpts = 999999;
-foreach my $l (@$sorted_table) {
-  ok( $l->{totalpts} <= $lastpts,
-    "Table is in descending order by total points. " . $l->{totalpts} );
-  $lastpts = $l->{totalpts};
-}
-
-#++++++++++++++++++++++++++++++++++
-
-my $old_table = clone $sorted_table;
-
-isa_ok( $lt, 'ResultsSystem::Model::LeagueTable' );
-
-ok( $lt->set_division('U9N.csv'), "Set division" );
-is( $lt->get_division, 'U9N.csv', "Get division" );
-my $data = $lt->create_league_table;
-is_deeply($data, $old_table, "Get the same table when I run it all at once");
-
+$lt->{AGGREGATED_DATA} = [ { average => undef }, { average => 1 } ];
+is( !$lt->_sort_table, 1,
+  "Returns correctly because the configuration is ok but one of the 'average' keys is undefined, but this is sorted as a zero."
+);
+is( $lt->{SORTED_TABLE}->[0]->{average}, 1,     "The data is sorted into descending order!" );
+is( $lt->{SORTED_TABLE}->[1]->{average}, undef, "The data is sorted into descending order!" );
 
 done_testing;
