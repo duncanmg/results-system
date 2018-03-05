@@ -5,8 +5,7 @@ use Test::Exception;
 use List::MoreUtils qw/any/;
 use Helper qw/get_config get_logger/;
 
-use_ok('WeekData');
-use_ok('ResultsConfiguration');
+use_ok('ResultsSystem::Model::WeekData');
 
 my $config = get_config;
 
