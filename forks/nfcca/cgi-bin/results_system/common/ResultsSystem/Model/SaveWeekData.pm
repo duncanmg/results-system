@@ -57,6 +57,10 @@ plus -division and -week.
     return $self;
   }
 
+=head2 get_labels
+
+=cut
+
   #***************************************
   sub get_labels {
 

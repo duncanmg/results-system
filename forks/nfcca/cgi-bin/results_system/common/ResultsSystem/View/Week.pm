@@ -109,6 +109,10 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
 =cut
 
+=head2 get_html
+
+=cut
+
   #***************************************
   sub get_html {
 

@@ -340,7 +340,7 @@ This call returns the current value without changing it.
     return $self->{NO_FILE};
   }
 
-=head2 get_filename
+=head2 get_dat_filename
 
 Returns the .dat filename for the week.
 

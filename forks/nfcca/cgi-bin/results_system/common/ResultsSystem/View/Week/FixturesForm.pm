@@ -204,6 +204,10 @@ There is no "else" or "default".
     return $row;
   }
 
+=head2 get_html
+
+=cut
+
   #***************************************
   sub get_html {
 

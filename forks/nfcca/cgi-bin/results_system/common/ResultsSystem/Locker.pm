@@ -46,7 +46,7 @@ use Carp;
 # Class variables
 $ResultsSystem::Locker::TIMEOUT = 105;
 
-=head2 Constructor
+=head2 new
 
   my $locker = 
     ResultsSystem::Locker->new( { -logger => $logger, -configuration => $config } );

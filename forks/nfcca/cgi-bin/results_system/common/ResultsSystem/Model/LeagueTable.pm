@@ -446,6 +446,10 @@ This method returns a reference to the table of sorted data.
     return $self->{SORTED_TABLE};
   }
 
+=head2 gather_data
+
+=cut
+
   #***************************************
   sub gather_data {
 

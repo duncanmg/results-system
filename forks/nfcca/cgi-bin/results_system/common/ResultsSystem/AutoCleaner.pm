@@ -40,7 +40,7 @@ use Time::localtime;
 
 use ResultsSystem::Exception;
 
-=head2 Constructor
+=head2 new
 
  my $cleaner = ResultsSystem::AutoCleaner->new(
    { -logger => $logger, -configuration => $configuration });

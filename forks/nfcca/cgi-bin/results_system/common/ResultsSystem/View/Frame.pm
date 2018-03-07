@@ -43,6 +43,10 @@ sub new {
   return $self;
 }
 
+=head2 run
+
+=cut
+
 sub run {
   my ( $self, $args ) = @_;
   my $data = $args->{-data};

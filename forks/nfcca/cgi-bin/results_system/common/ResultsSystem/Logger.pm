@@ -40,7 +40,7 @@ None
 
   our $CONF_FILE = "logger.conf";
 
-=head2 Constructor
+=head2 new
 
 Create the object and gives it an error object. Binds in the current values of
 the class variables LOGDIR, OLDFILE.
