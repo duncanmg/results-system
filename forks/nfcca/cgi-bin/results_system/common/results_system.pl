@@ -1,8 +1,16 @@
 #! /usr/bin/perl
 
-=head1 Name
+=head1 NAME
 
 results_system.pl
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
 
 =cut
 
@@ -23,6 +31,10 @@ use HTTP::Status qw/:constants status_message/;
 use ResultsSystem;
 
 my $logger;
+
+=head1 FUNCTIONS
+
+=cut
 
 =head2 main
 
