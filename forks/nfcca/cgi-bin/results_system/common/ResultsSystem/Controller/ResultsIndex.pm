@@ -9,10 +9,6 @@ ResultsSystem::Controller::ResultsIndex
 use strict;
 use warnings;
 
-=head1 Methods
-
-=cut
-
 =head1 SYNOPSIS
 
 =cut
