@@ -1,15 +1,3 @@
-# **********************************************************
-#
-# Name: LeagueTable.pm
-#
-# 0.1  - 24 Jun 08 - POD added. Debugged 000002.
-# 0.2  - 27 Jun 08 - It is now an error if there are no week files. 000003.
-# 0.3  - 01 Jul 08 - Sort by average or points. 000004.
-#
-# **********************************************************
-
-{
-
   package ResultsSystem::View::LeagueTable;
 
   use strict;
@@ -255,4 +243,3 @@ to the directory given by "table_dir" in the configuration file.
 
   1;
 
-}
