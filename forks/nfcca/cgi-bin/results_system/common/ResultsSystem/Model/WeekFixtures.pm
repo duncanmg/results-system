@@ -1,12 +1,11 @@
-# ******************************************************
-#
-# Name: WeekFixtures.pm
-#
-# 0.1  - 27 Jun 08 - POD added.
-#
-# ******************************************************
+=head1 NAME
 
-=head1 WeekFixtures.pm
+ResultsSystem::Model::WeekFixtures
+
+=cut
+
+=head1 SYNOPSIS
+
 
 Usage:
 
@@ -23,6 +22,20 @@ Usage:
 
 =cut
 
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
 package ResultsSystem::Model::WeekFixtures;
 
 use strict;
@@ -33,10 +46,6 @@ use ResultsSystem::Exception;
 use Params::Validate qw/:all/;
 
 use parent qw/ ResultsSystem::Model /;
-
-=head1 Public Methods
-
-=cut
 
 =head2 new
 
@@ -57,7 +66,7 @@ sub new {
   return $self;
 }
 
-=head1 run
+=head2 run
 
 =cut
 
@@ -95,7 +104,7 @@ sub run {
   return $data;
 }
 
-=head1 Private Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
@@ -179,7 +188,7 @@ sub get_fixtures_for_division_and_week {
   return $fixtures_for_week;
 }
 
-=head3 build_fixtures_full_filename
+=head2 build_fixtures_full_filename
 
 =cut
 
@@ -192,7 +201,7 @@ sub build_fixtures_full_filename {
   return $ff;
 }
 
-=head3 set_week_data
+=head2 set_week_data
 
 =cut
 
@@ -202,7 +211,7 @@ sub set_week_data {
   return $self;
 }
 
-=head3 get_week_data
+=head2 get_week_data
 
 =cut
 
@@ -211,7 +220,7 @@ sub get_week_data {
   return $self->{WEEK_DATA};
 }
 
-=head3 set_fixtures
+=head2 set_fixtures
 
 =cut
 
@@ -221,7 +230,7 @@ sub set_fixtures {
   return $self;
 }
 
-=head3 get_fixtures
+=head2 get_fixtures
 
 =cut
 
@@ -232,7 +241,7 @@ sub get_fixtures {
   return $self->{FIXTURES};
 }
 
-=head3 set_division
+=head2 set_division
 
 =cut
 
@@ -242,7 +251,7 @@ sub set_division {
   return $self;
 }
 
-=head3 get_division
+=head2 get_division
 
 =cut
 
@@ -251,7 +260,7 @@ sub get_division {
   return $self->{division};
 }
 
-=head3 set_week
+=head2 set_week
 
 =cut
 
@@ -261,7 +270,7 @@ sub set_week {
   return $self;
 }
 
-=head3 get_week
+=head2 get_week
 
 =cut
 

@@ -1,6 +1,26 @@
   package ResultsSystem::Model::TablesIndex;
 
-=head1 ResultsSystem::Model::TablesIndex
+=head1 NAME
+
+ResultsSystem::Model::TablesIndex
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -8,10 +28,6 @@
   use warnings;
   use ResultsSystem::Model;
   use parent qw/ResultsSystem::Model/;
-
-=head1 External Methods (Public)
-
-=cut
 
 =head2 new
 
@@ -77,7 +93,7 @@ Returns
 
   }
 
-=head1 Internal Methods (Private)
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

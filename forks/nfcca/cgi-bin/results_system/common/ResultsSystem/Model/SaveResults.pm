@@ -1,9 +1,3 @@
-  # **************************************************************
-  #
-  # Name: SaveResults.pm
-  #
-  # **************************************************************
-
   package ResultsSystem::Model::SaveResults;
 
   use strict;
@@ -19,19 +13,31 @@
     int          => qr/^-*\d+$/
   };
 
-=head1 SaveResults.pm
+=head1 NAME
+
+ResultsSystem::Model::SaveResults
 
 =cut
 
-=head1 Methods
+=head1 SYNOPSIS
 
 =cut
 
-=head3 External Methods (API)
+=head1 DESCRIPTION
 
 =cut
 
-=head3 new
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
 
 ResultsSystem::Model::SaveResults->new( { -logger => $logger, $configuration => $configuration } );
 
@@ -53,7 +59,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 run
+=head2 run
 
 =cut
 
@@ -76,7 +82,7 @@ Can also accept -division, -week
     return $reformatted;
   }
 
-=head3 reformat
+=head2 reformat
 
 =cut
 
@@ -104,7 +110,7 @@ Can also accept -division, -week
     return $out;
   }
 
-=head3 set_full_filename
+=head2 set_full_filename
 
 =cut
 
@@ -114,7 +120,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 get_full_filename
+=head2 get_full_filename
 
 =cut
 
@@ -123,7 +129,7 @@ Can also accept -division, -week
     return $self->{full_filename};
   }
 
-=head3 set_division
+=head2 set_division
 
 =cut
 
@@ -133,7 +139,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 get_division
+=head2 get_division
 
 =cut
 
@@ -142,7 +148,7 @@ Can also accept -division, -week
     return $self->{division};
   }
 
-=head3 set_week
+=head2 set_week
 
 =cut
 
@@ -152,7 +158,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 get_week
+=head2 get_week
 
 =cut
 
@@ -161,11 +167,11 @@ Can also accept -division, -week
     return $self->{week};
   }
 
-=head2 Internal (Private) Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 get_labels
+=head2 get_labels
 
 =cut
 
@@ -185,7 +191,7 @@ Can also accept -division, -week
     return @list;
   }
 
-=head3 file_not_found
+=head2 file_not_found
 
 This method is used to indicate whether any results were found by the read_file method. Returns 1
 if the file wasn't found.

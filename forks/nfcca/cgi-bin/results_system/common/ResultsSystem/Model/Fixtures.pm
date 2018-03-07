@@ -1,13 +1,14 @@
-# **********************************************************
-#
-# Name: Fixtures.pm
-#
-# 0.1  - 23 Jun 08 - POD updated.
-# 0.2  - 27 Jun 08 - _trim() moved to Parent.pm
-#
-# **********************************************************
+=head1 NAME
 
-=head1 Fixtures
+ResultsSystem::Model::Fixtures
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
 
 This module reads and validates a fixtures csv file and loads it into an internal data structure. A Fixtures object
 will inherit from Parent.pm.
@@ -49,6 +50,16 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
 
 =cut
 
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
 package ResultsSystem::Model::Fixtures;
 
 use strict;
@@ -63,8 +74,6 @@ use ResultsSystem::Exception;
 
 use ResultsSystem::Model;
 use parent qw/ResultsSystem::Model/;
-
-=head1 Public Methods
 
 =head2 new
 
@@ -98,6 +107,10 @@ sub new {
   return $self if $err == 0;
   return undef;
 }
+
+=head2 get_full_filename
+
+=cut
 
 #***************************************
 sub get_full_filename {
@@ -369,7 +382,7 @@ sub read_file {
   return $err;
 }
 
-=head1 Private Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

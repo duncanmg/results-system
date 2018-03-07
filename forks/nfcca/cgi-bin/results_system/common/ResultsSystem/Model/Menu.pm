@@ -1,16 +1,36 @@
-# ***************************************************************************
-#
-# Name: Menu.pm
-#
-# 0.1  - 25 Jun 08 - POD updated.
-#
-# ***************************************************************************
-
 package ResultsSystem::Model::Menu;
 
 use strict;
 use warnings;
 use parent qw/ ResultsSystem::Model/;
+
+=head1 NAME
+
+ResultsSystem::Model::Menu
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
+
+=cut
 
 sub new {
   my ( $class, $args ) = @_;
@@ -43,6 +63,10 @@ sub run {
   };
 
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;
 

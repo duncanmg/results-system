@@ -1,17 +1,32 @@
-
-=head1 ResultsSystem::Model::ResultsIndex
-
-=cut
-
-=head1 Methods
-
-=cut
-
 package ResultsSystem::Model::ResultsIndex;
 
 use strict;
 use warnings;
 use Params::Validate qw/:all/;
+
+=head1 NAME
+
+ResultsSystem::Model::ResultsIndex
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
 
 use ResultsSystem::Model;
 
@@ -161,6 +176,10 @@ sub get_fixtures_model {
   my $self = shift;
   return $self->{fixtures_model};
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;
 

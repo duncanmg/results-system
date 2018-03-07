@@ -3,6 +3,34 @@ package ResultsSystem::Model::Frame;
 use strict;
 use warnings;
 
+=head1 NAME
+
+ResultsSystem::Model::Frame
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
+
+=cut
+
 sub new {
   my ( $class, $args ) = @_;
   my $self = {};
@@ -10,11 +38,6 @@ sub new {
   $self->{logger} = $args->{-logger}        if $args->{-logger};
   $self->{conf}   = $args->{-configuration} if $args->{-configuration};
   return $self;
-}
-
-sub logger {
-  my $self = shift;
-  return $self->{logger};
 }
 
 =head2 run
@@ -60,6 +83,19 @@ sub run {
   $data->{BLANK_PAGE} = $cgi_path . "blank";
 
   return $data;
+}
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 logger
+
+=cut
+
+sub logger {
+  my $self = shift;
+  return $self->{logger};
 }
 
 1;

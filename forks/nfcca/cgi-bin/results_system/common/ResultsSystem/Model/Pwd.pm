@@ -1,13 +1,3 @@
-# *************************************************************
-#
-# Name: Pwd.pm
-#
-# 0.1  - 25 Jun 08 - POD added.
-#
-# *************************************************************
-
-{
-
   package ResultsSystem::Model::Pwd;
 
   use strict;
@@ -23,17 +13,33 @@
   my $too_many_tries =
     "<h3>You have entered an incorrect password too many times in one day.</h3>";
 
-=head1 Pwd
+=head1 NAME
+
+ResultsSystem::Model::Pwd
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
 
 Object which facilitates password handling.
 
 =cut
 
-=head2 External Methods
+=head1 INHERITS FROM
+
+None
 
 =cut
 
-=head3 new
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
 
 Constructor for the Pwd object. Accepts -config and -query arguments.
 
@@ -63,7 +69,7 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
     return $self;
   }
 
-=head3 check_pwd
+=head2 check_pwd
 
 This method interrogates the query object and retrieves the user and code parameters.
 It then reads the correct password for the user from the ResultsConfiguration object.
@@ -102,7 +108,7 @@ It returns an error code (1 for success) and a message.
 
   }
 
-=head3 set_pwd_dir
+=head2 set_pwd_dir
 
 =cut
 
@@ -114,11 +120,11 @@ It returns an error code (1 for success) and a message.
     $self->{PWDDIR} = shift;
   }
 
-=head2 Internal Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 check_code
+=head2 check_code
 
 Accepts two alphanumeric strings and the name of the user. It compares the 2 strings and
 if they do not match, it returns 1, otherwise it returns 0.
@@ -174,7 +180,7 @@ There is also the concept of the password being wrong or very wrong.
     return ( $ok, $msg );
   }    # End check_code()
 
-=head3 check_very_wrong
+=head2 check_very_wrong
 
 Accepts two alphanumeric strings and the name of the user. It compare the 2 strings, and
 if at least 3 characters are correct, it returns 0, otherwise it returns 1.
@@ -224,7 +230,7 @@ it issues a "Too Many Tries" message.
 
   }    # End check_very_wrong()
 
-=head3 _too_many_tries
+=head2 _too_many_tries
 
 Loop through file, if it exists, and count the incorrect tries.
 
@@ -241,7 +247,7 @@ Loop through file, if it exists, and count the incorrect tries.
     return ( $ok, undef );
   }
 
-=head3 _count_tries
+=head2 _count_tries
 
 Returns true if the number of occurrences of string in file is greater than or equal to
 max_tries.
@@ -269,7 +275,7 @@ Returns false if the file is missing or contains less occurrences than max_tries
     return $ok;
   }
 
-=head3 _write_tries
+=head2 _write_tries
 
 =cut
 
@@ -293,7 +299,7 @@ Returns false if the file is missing or contains less occurrences than max_tries
     return $ok;
   }
 
-=head3 _compare_characters
+=head2 _compare_characters
 
 $count = $self->_compare_characters($s1, $s2);
 
@@ -322,7 +328,7 @@ Returns the number of characters in s1 which are in the same position in s2.
 
   }
 
-=head3 _get_suffix
+=head2 _get_suffix
 
 Returns the day of the year and a 3 digit string pre-filled with zeroes.
 eg '035'
@@ -338,7 +344,7 @@ eg '035'
     return $suffix;
   }
 
-=head3 _get_wrong_file
+=head2 _get_wrong_file
 
 Returns the full filename of the wrong file.
 
@@ -352,7 +358,7 @@ Returns the full filename of the wrong file.
     return ( $self->get_pwd_dir || "" ) . '/' . ( $self->{WRONGFILE} || "" );
   }
 
-=head3 _get_vwrong_file
+=head2 _get_vwrong_file
 
 Returns the full filename of the very wrong file.
 
@@ -366,7 +372,7 @@ Returns the full filename of the very wrong file.
     return ( $self->get_pwd_dir || "" ) . '/' . ( $self->{VWRONGFILE} || "" );
   }
 
-=head3 _set_vwrong_file
+=head2 _set_vwrong_file
 
 Sets the name of the wrong file. No path.
 
@@ -385,7 +391,7 @@ Sets the name of the wrong file. No path.
     }
   }
 
-=head3 set_wrong_file
+=head2 set_wrong_file
 
 Sets the name of the very wrong file. No path.
 
@@ -404,7 +410,7 @@ Sets the name of the very wrong file. No path.
     }
   }
 
-=head3 get_pwd_dir
+=head2 get_pwd_dir
 
 Returns the directory which contains the wrong file and the very wrong file.
 
@@ -419,4 +425,3 @@ Returns the directory which contains the wrong file and the very wrong file.
   }
 
   1;
-}

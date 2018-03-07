@@ -1,13 +1,3 @@
-  # **********************************************************
-  #
-  # Name: LeagueTable.pm
-  #
-  # 0.1  - 24 Jun 08 - POD added. Debugged 000002.
-  # 0.2  - 27 Jun 08 - It is now an error if there are no week files. 000003.
-  # 0.3  - 01 Jul 08 - Sort by average or points. 000004.
-  #
-  # **********************************************************
-
   package ResultsSystem::Model::LeagueTable;
 
   use strict;
@@ -23,7 +13,13 @@
 
   use parent qw/ResultsSystem::Model/;
 
-=head1 ResultsSystem::Model::LeagueTable
+=head1 NAME
+
+ResultsSystem::Model::LeagueTable
+
+=cut
+
+=head1 SYNOPSIS
 
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
                                                  -configuration => $configuration,
@@ -34,7 +30,17 @@
 
 =cut
 
-=head1 External Methods (Public)
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -107,7 +113,7 @@ This is the constructor for a LeagueTable object.
     return $self->{division};
   }
 
-=head1 Internal Methods (Private)
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

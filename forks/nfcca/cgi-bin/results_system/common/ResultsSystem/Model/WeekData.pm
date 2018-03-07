@@ -1,9 +1,3 @@
-  # **************************************************************
-  #
-  # Name: WeekData.pm
-  #
-  # **************************************************************
-
   package ResultsSystem::Model::WeekData;
 
   use strict;
@@ -13,21 +7,33 @@
 
   use parent qw/ ResultsSystem::Model /;
 
-=head1 WeekData.pm
+=head1 NAME
+
+ResultsSystem::Model::WeekData
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
 
 Parent class for ResultsSystem::Model::WeekData::Reader and ResultsSystem::Model::WeekData::Writer.
 
 =cut
 
-=head1 Methods
+=head1 INHERITS FROM
+
+ResultsSystem::Model
 
 =cut
 
-=head3 External Methods (API)
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
-=head3 new
+=head2 new
 
 ResultsSystem::Model::WeekData->new( { -logger => $logger, $configuration => $configuration } );
 
@@ -55,7 +61,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 set_full_filename
+=head2 set_full_filename
 
 =cut
 
@@ -65,7 +71,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 get_full_filename
+=head2 get_full_filename
 
 =cut
 
@@ -74,7 +80,7 @@ Can also accept -division, -week
     return $self->{full_filename};
   }
 
-=head3 set_division
+=head2 set_division
 
 =cut
 
@@ -84,7 +90,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 get_division
+=head2 get_division
 
 =cut
 
@@ -93,7 +99,7 @@ Can also accept -division, -week
     return $self->{division};
   }
 
-=head3 set_week
+=head2 set_week
 
 =cut
 
@@ -103,7 +109,7 @@ Can also accept -division, -week
     return $self;
   }
 
-=head3 get_week
+=head2 get_week
 
 =cut
 
@@ -112,11 +118,11 @@ Can also accept -division, -week
     return $self->{week};
   }
 
-=head2 Internal (Private) Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 get_labels
+=head2 get_labels
 
 =cut
 
@@ -136,7 +142,7 @@ Can also accept -division, -week
     return @list;
   }
 
-=head3 file_not_found
+=head2 file_not_found
 
 This method is used to indicate whether any results were found by the read_file method. Returns 1
 if the file wasn't found.

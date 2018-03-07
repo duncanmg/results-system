@@ -1,17 +1,33 @@
-  # ***************************************************************************
-  #
-  # Name: Menu.pm
-  #
-  # 0.1  - 25 Jun 08 - POD updated.
-  #
-  # ***************************************************************************
-
   package ResultsSystem::Controller::Menu;
+
+=head1 NAME
+
+ResultsSystem::Controller::Menu
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
 
   use strict;
   use warnings;
 
-=head1 ResultsSystem::Controller::Menu
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
 
 =cut
 
@@ -25,6 +41,10 @@
     return $self;
   }
 
+=head2 run
+
+=cut
+
   sub run {
     my ( $self, $args ) = @_;
 
@@ -34,10 +54,22 @@
 
   }
 
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 get_menu_model
+
+=cut
+
   sub get_menu_model {
     my $self = shift;
     return $self->{menu_model};
   }
+
+=head2 get_menu_view
+
+=cut
 
   sub get_menu_view {
     my $self = shift;

@@ -7,11 +7,27 @@
 
   use parent qw/ ResultsSystem::Model /;
 
-=head1 WeekData.pm
+=head1 NAME
+
+ResultsSystem::ResultsSystem::Model::SaveWeekData
 
 =cut
 
-=head1 Methods
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -118,5 +134,9 @@ This writes the current contents of the data structure to the results file for t
     }
     return $line;
   }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
   1;

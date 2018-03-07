@@ -1,17 +1,37 @@
-# ***************************************************************************
-#
-# Name: MenuJs.pm
-#
-# 0.1  - 25 Jun 08 - POD updated.
-#
-# ***************************************************************************
-
 package ResultsSystem::Model::MenuJs;
 
 use strict;
 use warnings;
 use parent qw/ ResultsSystem::Model/;
 use Data::Dumper;
+
+=head1 NAME
+
+ResultsSystem::Model::MenuJs
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::Model
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
+
+=cut
 
 sub new {
   my ( $class, $args ) = @_;
@@ -146,6 +166,10 @@ sub get_fixtures {
   my $self = shift;
   return $self->{fixtures};
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;
 
