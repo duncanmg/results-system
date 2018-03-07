@@ -1,3 +1,28 @@
+=head1 NAME
+
+ResultsSystem::Factory
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+
 package ResultsSystem::Factory;
 
 use strict;
@@ -636,5 +661,9 @@ sub get_tables_index_view {
     }
   );
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;

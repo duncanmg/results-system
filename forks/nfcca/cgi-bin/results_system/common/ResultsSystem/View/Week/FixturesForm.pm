@@ -1,14 +1,27 @@
-# ******************************************************
-#
-# Name: FixturesForm.pm
-#
-# 0.1  - 27 Jun 08 - POD added.
-#
-# ******************************************************
+=head1 NAME
 
-=head1 FixturesForm.pm
+ResultsSystem::View::Week::FixturesForm
 
 =cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::View::Week
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
 
 {
 
@@ -22,10 +35,6 @@
   use ResultsSystem::View::Week;
 
   use parent qw/ResultsSystem::View::Week/;
-
-=head1 Public Methods
-
-=cut
 
 =head2 new
 
@@ -245,7 +254,7 @@ There is no "else" or "default".
 
   }
 
-=head1 Private Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

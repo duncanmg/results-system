@@ -4,13 +4,29 @@ use strict;
 use warnings;
 use Params::Validate qw/:all/;
 
-=head1 Model
+=head1 NAME
+
+ResultsSystem::Model
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
 
 Base class the the models.
 
 =cut
 
-=head1 Methods
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -70,5 +86,9 @@ sub set_arguments {
   }
   return 1;
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;

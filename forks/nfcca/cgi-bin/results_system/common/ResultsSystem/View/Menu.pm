@@ -6,6 +6,34 @@ use warnings;
 use ResultsSystem::View;
 use parent qw/ ResultsSystem::View/;
 
+=head1 NAME
+
+ResultsSystem::View::Menu
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
+
+=cut
+
 sub new {
   my ( $class, $args ) = @_;
   my $self = {};
@@ -15,12 +43,11 @@ sub new {
   return $self;
 }
 
-sub logger {
-  my $self = shift;
-  return $self->{logger};
-}
-
 # TODO print $q->header( -expires => "+2d" );
+
+=head2 run
+
+=cut
 
 sub run {
   my ( $self, $args ) = @_;
@@ -38,7 +65,11 @@ sub run {
   $self->render( { -data => $html } );
 }
 
-=head2 output_html
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 get_html
 
 This method returns the html for the menu page. No header or footer.
 
@@ -76,6 +107,15 @@ sub get_html {
     <a href="javascript: parent.location.href='[% RETURN_TO_LINK %]'">[% RETURN_TO_TITLE %]</a>
 };
   return $html;
+}
+
+=head2 logger
+
+=cut
+
+sub logger {
+  my $self = shift;
+  return $self->{logger};
 }
 
 1;

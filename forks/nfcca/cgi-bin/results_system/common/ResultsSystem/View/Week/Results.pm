@@ -1,14 +1,24 @@
-# ******************************************************
-#
-# Name: Week::Results.pm
-#
-# 0.1  - 27 Jun 08 - POD added.
-#
-# ******************************************************
+=head1 NAME
 
-=head1 ResultsSystem::View::Week::Results.pm
+ResultsSystem::View::Week::Results
 
-Creates the static HTML page for the results.
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::View
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -23,10 +33,6 @@ Creates the static HTML page for the results.
   use Data::Dumper;
 
   use parent qw/ResultsSystem::View/;
-
-=head1 Public Methods
-
-=cut
 
 =head2 new
 
@@ -114,6 +120,10 @@ Constructor for the Week::Results object.
     return $table;
   }
 
+=head2 get_html
+
+=cut
+
   #***************************************
   sub get_html {
 
@@ -174,7 +184,7 @@ Constructor for the Week::Results object.
 !;
   }
 
-=head1 Private Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

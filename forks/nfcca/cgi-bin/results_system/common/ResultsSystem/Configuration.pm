@@ -1,19 +1,28 @@
-# *******************************************************
-#
-# Name: ResultsSystem::Configuration.pm
-#
-# 0.1  - 25 Jun 08 - POD added.
-# 0.2  - 20 Jul 08 - get_calculation added. 000004.
-#
-# *******************************************************
+=head1 NAME
 
-=head1 ResultsSystem::Configuration.pm
+ResultsSystem::Configuration
 
 =cut
 
-=head1 Methods
+=head1 SYNOPSIS
 
 =cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+
 
 {
 
@@ -31,11 +40,7 @@
 
   use ResultsSystem::Exception;
 
-=head2 External Methods
-
-=cut
-
-=head3 new
+=head2 new
 
 Constructor for the ResultsSystem::Configuration object. Optionally accepts the full filename
 of the configuration file as an argument. Does not read the file at this point.
@@ -79,7 +84,7 @@ Requires -logger
     }
   }
 
-=head3 set_full_filename
+=head2 set_full_filename
 
 Sets the full filename of the configuration file. Filters out
 characters other than alphanumeric characters, "_", ".", or "/".
@@ -101,7 +106,7 @@ characters other than alphanumeric characters, "_", ".", or "/".
     return $err;
   }
 
-=head3 get_full_filename
+=head2 get_full_filename
 
 Returns the full filename of the configuration file.
 
@@ -120,7 +125,7 @@ Returns the full filename of the configuration file.
     return $self->{FULL_FILENAME};
   }
 
-=head3 set_system
+=head2 set_system
 
 =cut
 
@@ -130,7 +135,7 @@ Returns the full filename of the configuration file.
     return $self;
   }
 
-=head3 get_system
+=head2 get_system
 
 =cut
 
@@ -139,7 +144,7 @@ Returns the full filename of the configuration file.
     return $self->{system};
   }
 
-=head3 read_file
+=head2 read_file
 
 Read the configuration file. Returns an error if the file doesn't exist or the read fails.
 
@@ -213,7 +218,7 @@ Then the merged xml will be:
     return $err;
   }
 
-=head3 get_menu_names
+=head2 get_menu_names
 
 Returns a list of hash references sorted by menu_position. Each hash reference has 3 elements: menu_position, menu_name and csv_file.
 
@@ -261,7 +266,7 @@ Returns a list of hash references sorted by menu_position. Each hash reference h
 
   }
 
-=head3 get_name
+=head2 get_name
 
 This method returns the hash reference for the csv_file or menu_name passed as an argument.
 
@@ -291,7 +296,7 @@ This method returns the hash reference for the csv_file or menu_name passed as a
     return $t;    # Hash ref
   }
 
-=head3 get_path
+=head2 get_path
 
 This method accepts one mandatory named parameter and one optional named
 parameter. Returns the appropriate path from the configuration file.
@@ -359,7 +364,7 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
 
   }
 
-=head3 get_code
+=head2 get_code
 
 This method return the password for the user passed as an argument. Returns
 undefined if the user does not exist.
@@ -392,7 +397,7 @@ $pwd = $c->get_code( "fred" );
     return $self->_trim($code);
   }
 
-=head3 get_season
+=head2 get_season
 
 Returns the current season.
 
@@ -407,7 +412,7 @@ Returns the current season.
     return $self->_trim($s);
   }
 
-=head3 get_title
+=head2 get_title
 
 Returns the title.
 
@@ -422,7 +427,7 @@ Returns the title.
     return $self->_trim($s);
   }
 
-=head3 get_log_stem
+=head2 get_log_stem
 
 Appends the current season to the string passed as an argument.
 
@@ -455,7 +460,7 @@ Appends the current season to the string passed as an argument.
     return 0;
   }
 
-=head3 get_stylesheet
+=head2 get_stylesheet
 
 Returns a hash ref containing the name of the first stylesheet
 and whether it is to be copied.
@@ -485,7 +490,7 @@ have values of "yes" and "no".
     return { name => $name, copy => $copy };
   }
 
-=head3 get_stylesheets
+=head2 get_stylesheets
 
 Returns a list of stylesheets
 
@@ -507,7 +512,7 @@ Returns a list of stylesheets
     return @s;
   }
 
-=head3 get_return_page
+=head2 get_return_page
 
 The return link on the page will point here. Returns HTML
 within a <p> tag.
@@ -540,7 +545,7 @@ within a <p> tag.
     return ( $self->_trim($l), $self->_trim($t) );
   }
 
-=head3 get_descriptors
+=head2 get_descriptors
 
 Returns a string. $c->get_descriptors( title => "Y" ) or
 $c->get_descriptors( season => "Y" );
@@ -565,7 +570,7 @@ $c->get_descriptors( season => "Y" );
     return $self->_trim($d);
   }
 
-=head3 get_calculation
+=head2 get_calculation
 
 points or average eg $c->get_calculation( -order_by => "Y" );
 
@@ -584,7 +589,7 @@ points or average eg $c->get_calculation( -order_by => "Y" );
     return $self->_trim($v);
   }
 
-=head3 set_logger
+=head2 set_logger
 
 =cut
 
@@ -594,11 +599,11 @@ points or average eg $c->get_calculation( -order_by => "Y" );
     return $self;
   }
 
-=head2 Internal Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 logger
+=head2 logger
 
 =cut
 
@@ -607,7 +612,7 @@ points or average eg $c->get_calculation( -order_by => "Y" );
     return $self->{LOGGER};
   }
 
-=head3 _trim
+=head2 _trim
 
 Remove the leading and trailing whitespace from a string passed as as argument.
 
@@ -629,7 +634,7 @@ $s = $c->_trim( $s );
     return $s;
   }
 
-=head3 _get_tags
+=head2 _get_tags
 
 Internal method which gets the full data structure as read
 from the configuration file.
@@ -645,7 +650,7 @@ from the configuration file.
     return $self->{TAGS};
   }
 
-=head3 _read_file
+=head2 _read_file
 
 Does the hard work for read_file().
 
@@ -677,7 +682,7 @@ Does the hard work for read_file().
     return $err;
   }
 
-=head3 _get_local_and_main_filenames
+=head2 _get_local_and_main_filenames
 
 Analyze the full_filename to see if it is a local configuration.
 
@@ -695,7 +700,7 @@ If it is, return both the main filename and the local filename. Otherwise return
     return ( $main eq $full_filename ) ? ( $main, undef ) : ( $main, $full_filename );
   }
 
-=head3 _merge_files
+=head2 _merge_files
 
 =cut
 
@@ -708,7 +713,7 @@ If it is, return both the main filename and the local filename. Otherwise return
     return $main_xml;
   }
 
-=head3 _load_file
+=head2 _load_file
 
 Read the configuration file. Returns an error if the file doesn't exist or the read fails.
 
@@ -747,7 +752,7 @@ Read the configuration file. Returns an error if the file doesn't exist or the r
     return ( 0, $tags );
   }
 
-=head3 _construct_path
+=head2 _construct_path
 
 Accepts one argument, which must be a path element. The element can
 be in one of two forms:

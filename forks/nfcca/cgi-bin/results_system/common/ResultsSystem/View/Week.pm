@@ -1,12 +1,24 @@
-# ******************************************************
-#
-# Name: WeekFixtures.pm
-#
-# 0.1  - 27 Jun 08 - POD added.
-#
-# ******************************************************
+=head1 NAME
 
-=head1 WeekFixtures.pm
+ResultsSystem::View::Week
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::View
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -20,10 +32,6 @@
   use Data::Dumper;
 
   use parent qw/ResultsSystem::View/;
-
-=head1 Public Methods
-
-=cut
 
 =head2 new
 
@@ -97,6 +105,10 @@ Constructor for the WeekFixtures object. Inherits from Parent.
     return $table;
   }
 
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
   #***************************************
   sub get_html {
 
@@ -166,10 +178,6 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 </tr>
 !;
   }
-
-=head1 Private Methods
-
-=cut
 
 =head2 _blank_line
 

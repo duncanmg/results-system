@@ -1,6 +1,26 @@
 package ResultsSystem::View::SaveResults;
 
-=head1 ResultsSystem::View::SaveResults
+=head1 NAME
+
+ResultsSystem::View::SaveResults
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::View
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -9,10 +29,6 @@ use warnings;
 
 use ResultsSystem::View;
 use parent qw/ ResultsSystem::View/;
-
-=head1 External Methods (Public)
-
-=cut
 
 =head2 new
 
@@ -45,7 +61,7 @@ sub run {
   $self->render( { -data => $html } );
 }
 
-=head1 Internal Methods (Private)
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

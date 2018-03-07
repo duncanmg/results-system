@@ -1,11 +1,30 @@
+=head1 NAME
 
-=head1 ResultsSystem::AutoCleaner
+ResultsSystem::AutoCleaner
+
+=cut
+
+=head1 SYNOPSIS
 
   my $cleaner = ResultsSystem::AutoCleaner->new(
      { -logger => $logger, -configuration => $configuration });
   $cleaner->set_log_dir( $log_dir );
   $cleaner->set_logfile_stem( $stem );
   $cleaner->auto_clean;
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -21,11 +40,7 @@ use Time::localtime;
 
 use ResultsSystem::Exception;
 
-=head2 External Methods
-
-=cut
-
-=head3 Constructor
+=head2 Constructor
 
  my $cleaner = ResultsSystem::AutoCleaner->new(
    { -logger => $logger, -configuration => $configuration });
@@ -54,7 +69,7 @@ sub new
 
 }    # End constructor
 
-=head3 set_auto_clean
+=head2 set_auto_clean
 
 =cut
 
@@ -69,7 +84,7 @@ sub set_auto_clean {
   }
 }
 
-=head3 auto_clean
+=head2 auto_clean
 
 Does nothing unless get_auto_clean() returns "Y".
 
@@ -122,7 +137,7 @@ sub auto_clean {
   return 1;
 }
 
-=head3 set_logfile_stem
+=head2 set_logfile_stem
 
 =cut
 
@@ -135,7 +150,7 @@ sub set_logfile_stem {
   return $self;
 }
 
-=head3 set_log_dir
+=head2 set_log_dir
 
 Set the log directory.
 
@@ -154,11 +169,11 @@ sub set_log_dir
   return $self;
 }
 
-=head2 Internal Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 _keep_after_time
+=head2 _keep_after_time
 
 Returns the current time in seconds minus the number of seconds which a log file
 should be kept for. Uses _get_save_seconds.
@@ -180,7 +195,7 @@ sub _keep_after_time {
 
 }
 
-=head3 _get_save_seconds
+=head2 _get_save_seconds
 
 Return the number of seconds to save a log file. Converts the figure returned by
 get_save_days.
@@ -195,7 +210,7 @@ sub _get_save_seconds {
   return $self->get_save_days() * 24 * 60 * 60;
 }
 
-=head3 set_save_days
+=head2 set_save_days
 
 =cut
 
@@ -207,7 +222,7 @@ sub set_save_days {
   $self->{SAVE_DAYS} = shift;
 }
 
-=head3 get_save_days
+=head2 get_save_days
 
 Return the number of days to save a log file. Defaults to 30.
 
@@ -223,7 +238,7 @@ sub get_save_days {
   return $self->{SAVE_DAYS} || 30;
 }
 
-=head3 get_log_dir
+=head2 get_log_dir
 
 =cut
 
@@ -236,7 +251,7 @@ sub get_log_dir
   return $self->{LOGDIR};
 }
 
-=head3 logger
+=head2 logger
 
   $self->logger->debug( "A message." );
 
@@ -247,7 +262,7 @@ sub logger {
   return $self->{logger};
 }
 
-=head3 get_configuration
+=head2 get_configuration
 
 =cut
 
@@ -256,7 +271,7 @@ sub get_configuration {
   return $self->{configuration};
 }
 
-=head3 ready_for_deletion
+=head2 ready_for_deletion
 
 =cut
 
@@ -274,7 +289,7 @@ sub ready_for_deletion {
   return 1;
 }
 
-=head3 get_auto_clean
+=head2 get_auto_clean
 
 =cut
 
@@ -286,7 +301,7 @@ sub get_auto_clean {
   return $self->{AUTO_CLEAN};
 }
 
-=head3 get_logfile_stem
+=head2 get_logfile_stem
 
 =cut
 

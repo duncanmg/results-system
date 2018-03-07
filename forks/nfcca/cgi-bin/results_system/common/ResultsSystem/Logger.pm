@@ -1,5 +1,24 @@
+=head1 NAME
 
-=head1 ResultsSystem::Logger
+ResultsSystem::Logger
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -21,19 +40,7 @@
 
   our $CONF_FILE = "logger.conf";
 
-=head2 ISA Exporter
-
-=cut
-
-=head2 Functions
-
-=cut
-
-=head2 External Methods
-
-=cut
-
-=head3 Constructor
+=head2 Constructor
 
 Create the object and gives it an error object. Binds in the current values of
 the class variables LOGDIR, OLDFILE.
@@ -57,7 +64,7 @@ the class variables LOGDIR, OLDFILE.
 
   }    # End constructor
 
-=head3 logger
+=head2 logger
 
 $self->logger->debug( "Use the existing logger if there is one." );
 
@@ -85,7 +92,7 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
 
   }
 
-=head3 screen_logger
+=head2 screen_logger
 
 Log to screen (STDERR) using the default configuration.
 
@@ -106,7 +113,7 @@ $logger = $self->screen_logger();
 
   }
 
-=head3 logfile_name
+=head2 logfile_name
 
 Return the existing logfile_name or undef:
 
@@ -131,7 +138,7 @@ will set $logfile_name to "/tmp/rs28.log"
     return $self->{logfile_name};
   }
 
-=head3 set_log_dir
+=head2 set_log_dir
 
 Set the log directory.
 
@@ -150,7 +157,7 @@ Set the log directory.
     return $self;
   }
 
-=head3 set_log_file_stem
+=head2 set_log_file_stem
 
 =cut
 
@@ -160,7 +167,7 @@ Set the log directory.
     return $self;
   }
 
-=head3 open_log_file
+=head2 open_log_file
 
 Not needed any more. Will be removed at some point.
 
@@ -181,7 +188,7 @@ Not needed any more. Will be removed at some point.
     return ( $err, $LOGFILE );
   }    # End open_log_file()
 
-=head3 close_log_file
+=head2 close_log_file
 
 Don't need this any more.
 
@@ -198,11 +205,11 @@ Don't need this any more.
     return $err;
   }    # End close_log_file()
 
-=head2 Internal Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 default_conf
+=head2 default_conf
 
 Default configuration
 
@@ -220,7 +227,7 @@ Default configuration
     };
   }
 
-=head3 conf_with_logfile
+=head2 conf_with_logfile
 
 Used when a valid log file has been provided, but there is no configuration
 file.
@@ -245,7 +252,7 @@ file.
     };
   }
 
-=head3 get_logger
+=head2 get_logger
 
 $logger = get_logger($category, $file);
 
@@ -274,7 +281,7 @@ If the configuration file does not exists, undefined is returned.
 
   }
 
-=head3 get_conf
+=head2 get_conf
 
 Return the log configuration file if it exists.
 
@@ -290,7 +297,7 @@ Return the log configuration file if it exists.
     return $CONF_FILE;
   }
 
-=head3 get_log_dir
+=head2 get_log_dir
 
 =cut
 
@@ -303,7 +310,7 @@ Return the log configuration file if it exists.
     return $self->{LOGDIR};
   }
 
-=head3 _create_suffix
+=head2 _create_suffix
 
 =cut
 
@@ -344,7 +351,7 @@ Return the log configuration file if it exists.
 
   }
 
-  #=head3 get_log_file_name
+  #=head2 get_log_file_name
   #
   #Return the name of the open log file. If a parameter is provided then the path is
   #returned as well.
@@ -365,7 +372,7 @@ Return the log configuration file if it exists.
   #    return $name;
   #  }
 
-=head3 get_log_file_stem
+=head2 get_log_file_stem
 
 =cut
 

@@ -1,6 +1,26 @@
 package ResultsSystem::Starter;
 
-=head1 ResultsSystem::Starter
+=head1 NAME
+
+ResultsSystem::Starter
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -8,10 +28,6 @@ use strict;
 use warnings;
 
 use Params::Validate qw/:all/;
-
-=head1 Methods
-
-=cut
 
 =head2 new
 
@@ -79,5 +95,9 @@ sub get_configuration {
   my ($self) = @_;
   return $self->{configuration};
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;

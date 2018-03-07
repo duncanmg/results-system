@@ -1,19 +1,27 @@
+=head1 NAME
 
-# ***********************************************************
-#
-# Name: ResultsIndex.pm
-#
-# 0.1  - 27 Jun 08 - POD added.
-#
-# ***********************************************************
-
-=head1 ResultsSystem::View::ResultsIndex
+ResultsSystem::View::ResultsIndex
 
 =cut
 
-=head1 Methods
+=head1 SYNOPSIS
 
 =cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
 
 package ResultsSystem::View::ResultsIndex;
 
@@ -249,6 +257,10 @@ sub get_division_table_row_html {
 #    return ( $err, $line );
 #
 #  }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;
 

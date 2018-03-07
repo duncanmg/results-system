@@ -1,11 +1,3 @@
-  # *************************************************************
-  #
-  # Name: Pwd.pm
-  #
-  # 0.1  - 25 Jun 08 - POD added.
-  #
-  # *************************************************************
-
   package ResultsSystem::View::Pwd;
 
   use strict;
@@ -14,17 +6,33 @@
 
   use Data::Dumper;
 
-=head1 Pwd
+=head1 NAME
+
+ResultsSystem::View::Pwd
+
+=cut
+
+=head1 SYNOPSIS
 
 Object which facilitates password handling.
 
 =cut
 
-=head2 External Methods
+=head1 DESCRIPTION
 
 =cut
 
-=head3 new
+=head1 INHERITS FROM
+
+ResultsSystem::View
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
 
 Constructor for the Pwd object. Accepts -config and -query arguments.
 
@@ -41,7 +49,7 @@ Constructor for the Pwd object. Accepts -config and -query arguments.
     return $self;
   }
 
-=head3 get_pwd_fields
+=head2 get_pwd_fields
 
 Returns the HTML for a table containing 1 row and 2 cells. The first cell
 contains the user input field, the second contains the passwords input fields. 
@@ -58,7 +66,7 @@ The id and name attributes are the same and are set to "user" and "code" respect
     return $self->get_html;
   }
 
-=head3 get_html
+=head2 get_html
 
 =cut
 
@@ -74,5 +82,9 @@ The id and name attributes are the same and are set to "user" and "code" respect
 	  </table>
 	  !;
   }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
   1;

@@ -5,7 +5,27 @@ use warnings;
 
 use overload '""' => 'stringify';
 
-=head1 ResultsSystem::Exception
+=head1 NAME
+
+ResultsSystem::Exception
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -53,6 +73,10 @@ sub get_message { my $self = shift; return $self->{message}; }
 =cut
 
 sub get_previous { my $self = shift; return $self->{previous}; }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;
 

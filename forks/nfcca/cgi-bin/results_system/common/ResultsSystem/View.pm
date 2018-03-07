@@ -3,9 +3,29 @@ package ResultsSystem::View;
 use strict;
 use warnings;
 
-=head1 ResultsSystem::View
+=head1 NAME
+
+ResultsSystem::View
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
 
 Base class for views.
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -16,10 +36,6 @@ use Params::Validate qw/:all/;
 
 use JSON::Tiny qw(decode_json encode_json);
 use HTML::Entities qw();
-
-=head1 External Methods (Public)
-
-=cut
 
 =head2 new
 
@@ -99,7 +115,7 @@ sub encode_entities {
   return HTML::Entities::encode_entities($unencoded);
 }
 
-=head1 Templating Methods (Public)
+=head1 TEMPLATING METHODS (PUBLIC)
 
 =cut
 
@@ -394,5 +410,9 @@ sub merge_default_stylesheet {
 
   return $self->merge_stylesheets( $html, [$sheet] );
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;

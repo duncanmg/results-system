@@ -11,7 +11,17 @@ Lock file functionality.
 
 =cut
 
-=head1 METHODS
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -36,11 +46,7 @@ use Carp;
 # Class variables
 $ResultsSystem::Locker::TIMEOUT = 105;
 
-=head2 External Methods
-
-=cut
-
-=head3 Constructor
+=head2 Constructor
 
   my $locker = 
     ResultsSystem::Locker->new( { -logger => $logger, -configuration => $config } );
@@ -64,7 +70,7 @@ sub new
 
 }    # End constructor
 
-=head3 open_lock_file
+=head2 open_lock_file
 
 Create a file in the directory LOCKDIR with the name lockfile.lock where lockfile
 is the name passed as a parameter.
@@ -112,7 +118,7 @@ sub open_lock_file
 
 }    # End open_lock_file()
 
-=head3 close_lock_file
+=head2 close_lock_file
 
 Deletes the lockfile.
 
@@ -137,7 +143,7 @@ sub close_lock_file
   return 1;
 }
 
-=head3 check_lock_file_exists
+=head2 check_lock_file_exists
 
 =cut
 
@@ -146,7 +152,7 @@ sub check_lock_file_exists {
   return ( -e $self->get_lock_full_filename ) ? 1 : undef;
 }
 
-=head3 get_lock_full_filename
+=head2 get_lock_full_filename
 
 =cut
 
@@ -159,7 +165,7 @@ sub get_lock_full_filename
   return $self->get_lock_dir . '/' . $self->get_lock_file;
 }
 
-=head3 get_lock_file
+=head2 get_lock_file
 
 =cut
 
@@ -177,7 +183,7 @@ sub get_lock_file
   return $self->{LOCKFILE};
 }
 
-=head3 set_lock_file
+=head2 set_lock_file
 
 Cleans and sets the lock file.
 
@@ -193,7 +199,7 @@ sub set_lock_file {
   return $self;
 }
 
-=head3 get_lock_dir
+=head2 get_lock_dir
 
 =cut
 
@@ -215,7 +221,7 @@ sub get_lock_dir
   return $self->{LOCKDIR};
 }
 
-=head3 set_lock_dir
+=head2 set_lock_dir
 
 =cut
 
@@ -228,23 +234,23 @@ sub set_lock_dir
   $self->{LOCKDIR} = shift;
 }
 
-=head2 Internal Methods
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
-=head3 logger
+=head2 logger
 
 =cut
 
 sub logger { my $self = shift; return $self->{logger}; }
 
-=head3 get_configuration
+=head2 get_configuration
 
 =cut
 
 sub get_configuration { my $self = shift; return $self->{configuration}; }
 
-=head3 DESTROY
+=head2 DESTROY
 
 Close the lock file if this object opened it.
 

@@ -4,6 +4,34 @@ use strict;
 use warnings;
 use Params::Validate qw/:all/;
 
+=head1 NAME
+
+ResultsSystem::Router
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
+
+=cut
+
 sub new {
   my ( $class, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
   my $self = {};
@@ -61,15 +89,27 @@ sub route {
   };
 }
 
+=head2 get_factory
+
+=cut
+
 sub get_factory {
   my $self = shift;
   return $self->{factory};
 }
+
+=head2 set_factory
+
+=cut
 
 sub set_factory {
   my ( $self, $f ) = @_;
   $self->{factory} = $f;
   return $self;
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 1;

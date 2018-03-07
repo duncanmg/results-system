@@ -1,6 +1,26 @@
   package ResultsSystem::View::TablesIndex;
 
-=head1 ResultsSystem::View::TablesIndex
+=head1 NAME
+
+ResultsSystem::View::TablesIndex
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::View
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -58,7 +78,7 @@
 
   }
 
-=head1 Internal Methods (Private)
+=head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 

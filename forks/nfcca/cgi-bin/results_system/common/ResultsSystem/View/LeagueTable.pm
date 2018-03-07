@@ -9,7 +9,27 @@
   use ResultsSystem::View;
   use parent qw/ ResultsSystem::View/;
 
-=head1 Methods
+=head1 NAME
+
+ResultsSystem::View::LeagueTable
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+ResultsSystem::View
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -201,6 +221,10 @@ to the directory given by "table_dir" in the configuration file.
     close $FP;
     return 1;
   }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 =head2 build_full_filename
 
