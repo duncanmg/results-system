@@ -1,17 +1,39 @@
-  # ***************************************************************************
-  #
-  # Name: Blank.pm
-  #
-  # 0.1  - 25 Jun 08 - POD updated.
-  #
-  # ***************************************************************************
-
   package ResultsSystem::Controller::Blank;
 
   use strict;
   use warnings;
 
-=head1 ResultsSystem::Controller::Blank
+=head1 NAME
+
+ResultsSystem::Controller::Blank
+
+=cut
+
+=head1 SYNOPSIS
+
+Return a blank HTML page.
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
 
 =cut
 
@@ -19,10 +41,14 @@
     my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
-    $self->{logger}     = $args->{logger} if $args->{logger};
-    $self->{blank_view}  = $args->{-blank_view};
+    $self->{logger} = $args->{logger} if $args->{logger};
+    $self->{blank_view} = $args->{-blank_view};
     return $self;
   }
+
+=head2 run
+
+=cut
 
   sub run {
     my ( $self, $args ) = @_;
@@ -30,6 +56,14 @@
     $self->get_blank_view->run( { -data => {} } );
 
   }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 get_blank_view
+
+=cut
 
   sub get_blank_view {
     my $self = shift;

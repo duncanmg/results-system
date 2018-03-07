@@ -1,6 +1,8 @@
 package ResultsSystem::Controller::ResultsIndex;
 
-=head1 ResultsSystem::Controller::ResultsIndex
+=head1 NAME
+
+ResultsSystem::Controller::ResultsIndex
 
 =cut
 
@@ -8,6 +10,24 @@ use strict;
 use warnings;
 
 =head1 Methods
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
 
@@ -27,7 +47,7 @@ sub new {
   return $self;
 }
 
-=head3 run
+=head2 run
 
 =cut
 
@@ -38,6 +58,10 @@ sub run {
 
   $self->get_results_index_view()->run( { -data => $data } );
 }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
 
 =head2 logger
 

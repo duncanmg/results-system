@@ -3,6 +3,34 @@ package ResultsSystem::Controller::MenuJs;
 use strict;
 use warnings;
 
+=head1 NAME
+
+ResultsSystem::Controller::MenuJs
+
+=cut
+
+=head1 SYNOPSIS
+
+=cut
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 INHERITS FROM
+
+None
+
+=cut
+
+=head1 EXTERNAL (PUBLIC) METHODS
+
+=cut
+
+=head2 new
+
+=cut
+
 sub new {
   my ( $class, $args ) = @_;
   my $self = {};
@@ -13,10 +41,9 @@ sub new {
   return $self;
 }
 
-sub logger {
-  my $self = shift;
-  return $self->{logger};
-}
+=head2 run
+
+=cut
 
 sub run {
   my ( $self, $args ) = @_;
@@ -26,10 +53,31 @@ sub run {
   $self->get_menu_js_view()->run( { -data => $data } );
 }
 
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 logger
+
+=cut
+
+sub logger {
+  my $self = shift;
+  return $self->{logger};
+}
+
+=head2 get_menu_js_view
+
+=cut
+
 sub get_menu_js_view {
   my $self = shift;
   return $self->{menu_js_view};
 }
+
+=head2 get_menu_js_model
+
+=cut
 
 sub get_menu_js_model {
   my $self = shift;
