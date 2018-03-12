@@ -4,3 +4,5 @@ use Test::More;
 
 use_ok('ResultsSystem::View::SaveResults');
 
+done_testing;
+
