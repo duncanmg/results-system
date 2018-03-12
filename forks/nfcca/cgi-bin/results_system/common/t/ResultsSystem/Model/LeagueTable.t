@@ -18,7 +18,9 @@ my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
 my $config = get_config;
 
 my $lt;
-ok( $lt = ResultsSystem::Model::LeagueTable->new( -config => $config, -logger => get_logger() ),
-  "Created a LeagueTable object." );
+ok(
+  $lt = ResultsSystem::Model::LeagueTable->new( { -config => $config, -logger => get_logger() } ),
+  "Created a LeagueTable object."
+);
 
 done_testing;

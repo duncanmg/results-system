@@ -1,7 +1,8 @@
 use strict;
 use warnings;
-use Test::Morel
+use Test::More;
 
 use_ok('ResultsSystem::Controller::WeekFixtures');
+
 done_testing;
 
