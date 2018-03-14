@@ -1,0 +1,10 @@
+exclude = Subroutines::ProhibitBuiltinHomonyms Subroutines::RequireArgUnpacking
+[Subroutines::RequireArgUnpacking]
+allow_delegation_to = shift validate validate_pos
+[NamingConventions::Capitalization]
+severity = 5
+package_exemptions = ^mbfl2.*
+subroutine_exemptions = .*GET$ .*POST$
+[Modules::RequireExplicitPackage]
+allow_import_of = utf8
+

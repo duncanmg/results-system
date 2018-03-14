@@ -63,6 +63,8 @@ sub run {
     ->run( { -division => $query->param('division'), -week => $query->param('matchdate') } );
 
   $self->get_week_fixtures_view()->run( { -data => $data } );
+
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
