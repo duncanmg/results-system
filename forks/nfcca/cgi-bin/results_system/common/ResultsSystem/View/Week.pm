@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 ResultsSystem::View::Week
@@ -72,7 +73,7 @@ Constructor for the WeekFixtures object. Inherits from Parent.
         SEASON    => $d->{SEASON},
         WEEK      => $d->{WEEK},
         MENU_NAME => $d->{MENU_NAME},
-        TITLE => $d->{TITLE}
+        TITLE     => $d->{TITLE}
       }
     );
 

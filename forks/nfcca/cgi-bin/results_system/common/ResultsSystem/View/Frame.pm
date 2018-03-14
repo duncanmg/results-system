@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 ResultsSystem::View::Frame
@@ -21,7 +22,6 @@ ResultsSystem::View
 =head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
-
 
 package ResultsSystem::View::Frame;
 

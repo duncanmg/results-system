@@ -24,7 +24,6 @@ ResultsSystem::View
 
 =cut
 
-
 use strict;
 use warnings;
 use CGI;

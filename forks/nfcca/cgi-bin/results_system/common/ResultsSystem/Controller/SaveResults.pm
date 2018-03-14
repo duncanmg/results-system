@@ -42,7 +42,7 @@ sub new {
   $self->{league_table_model} = $args->{-league_table_model} if $args->{-league_table_model};
   $self->{league_table_view}  = $args->{-league_table_view}  if $args->{-league_table_view};
   $self->{week_results_view}  = $args->{-week_results_view}  if $args->{-week_results_view};
-  $self->{locker}  = $args->{-locker}  if $args->{-locker};
+  $self->{locker}             = $args->{-locker}             if $args->{-locker};
   return $self;
 }
 

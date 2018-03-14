@@ -55,7 +55,7 @@ my $expected = [
   },
 ];
 
-$lt->run({-data=>{ rows => $expected, division => 'U9N.csv'}});
+$lt->run( { -data => { rows => $expected, division => 'U9N.csv' } } );
 
 # ok( $lt->set_division('U9N.csv'), "Set division" );
 # is( $lt->get_division, 'U9N.csv', "Get division" );

@@ -8,14 +8,13 @@ unshift @INC, "../common";
 
 # *******************************************************
 sub can_use {
-# *******************************************************
+
+  # *******************************************************
   my $module = shift;
-  my $err = 0;
-  my $msg = "ok";
-  eval {
-    require $module;
-  };
-  if ( $@ ) {
+  my $err    = 0;
+  my $msg    = "ok";
+  eval { require $module; };
+  if ($@) {
     $err = 1;
     $msg = $@;
   }
@@ -24,40 +23,43 @@ sub can_use {
 
 # *******************************************************
 sub test_module_availability {
-# *******************************************************
+
+  # *******************************************************
   my ( $ret, $msg );
-  my $err = 0;
-  my @module_list = ( # Standard Perl modules
-                      "CGI.pm", "Test/More.pm", "Slurp.pm",
-                      "Regexp/Common.pm", "Test/Harness.pm",
-                      # Custom modules for project
-                      "Fcutils2.pm", "WeekFixtures.pm", "WeekData.pm",
-                      "Slurp.pm", "ResultsIndex.pm", "ResultsConfiguration.pm",
-                      "Pwd.pm", "Parent.pm", "Menu.pm",
-                      "LeagueTable.pm", "Fixtures.pm", "TablesIndex.pm"
-                      # Test scripts
-    );
-  
-  foreach my $m ( @module_list ) {
-  
-    ( $ret, $msg ) = can_use( $m );
+  my $err         = 0;
+  my @module_list = (    # Standard Perl modules
+    "CGI.pm",           "Test/More.pm", "Slurp.pm",
+    "Regexp/Common.pm", "Test/Harness.pm",
+
+    # Custom modules for project
+    "Fcutils2.pm",    "WeekFixtures.pm", "WeekData.pm",
+    "Slurp.pm",       "ResultsIndex.pm", "ResultsConfiguration.pm",
+    "Pwd.pm",         "Parent.pm",       "Menu.pm",
+    "LeagueTable.pm", "Fixtures.pm",     "TablesIndex.pm"
+
+      # Test scripts
+  );
+
+  foreach my $m (@module_list) {
+
+    ( $ret, $msg ) = can_use($m);
     ok( $ret == 0, "Module $m is available. $msg.<br/>" );
     if ( $ret != 0 ) {
       $err = 1;
-    }  
-    
+    }
+
   }
-  return $err;  
+  return $err;
 }
 
 my $builder = Test::More->builder;
 
 # Stops the number of tests being output at the beginning. "1 .. 10"
 # Needs to be set before ->plan is called.
-$builder->no_header( 1 );
+$builder->no_header(1);
 
 # Stops the trailer about the number of tests.
-$builder->no_ending( 1 );
+$builder->no_ending(1);
 
 # Sends the diagnostic and error messages to the standard output so that they display
 # in the browser.

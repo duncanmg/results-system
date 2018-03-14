@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 ResultsSystem::View::Week::FixturesForm
@@ -21,7 +22,6 @@ ResultsSystem::View::Week
 =head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
-
 
 {
 

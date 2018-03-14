@@ -4,9 +4,8 @@ use warnings;
 use Admin -command;
 
 sub execute {
-	print "Hello\n";
+  print "Hello\n";
 }
 
 1;
-
 

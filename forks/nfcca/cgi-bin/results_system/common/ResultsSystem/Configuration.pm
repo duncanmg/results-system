@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 ResultsSystem::Configuration
@@ -21,8 +22,6 @@ ResultsSystem::Configuration
 =head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
-
-
 
 {
 

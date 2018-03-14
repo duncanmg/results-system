@@ -31,8 +31,8 @@ sub test_pod_sections {
   my @lines = slurp $hr->{ff};
 
   my @head1_sections = (
-    "NAME",                      "SYNOPSIS",
-    "DESCRIPTION",               "INHERITS FROM",
+    "NAME",                        "SYNOPSIS",
+    "DESCRIPTION",                 "INHERITS FROM",
     'EXTERNAL \(PUBLIC\) METHODS', 'INTERNAL \(PRIVATE\) METHODS'
   );
 

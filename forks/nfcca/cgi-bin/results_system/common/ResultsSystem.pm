@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 ResultsSystem
@@ -21,7 +22,6 @@ None
 =head1 EXTERNAL (PUBLIC) METHODS
 
 =cut
-
 
 package ResultsSystem;
 
