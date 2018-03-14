@@ -51,6 +51,8 @@ sub run {
   my $data = $self->get_tables_index_model()->run();
 
   $self->get_tables_index_view()->run( { -data => $data } );
+
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS

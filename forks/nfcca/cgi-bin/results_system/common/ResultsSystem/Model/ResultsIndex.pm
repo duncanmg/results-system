@@ -152,7 +152,7 @@ sub build_filename {
 
   my $f = $division;    # The csv file
   my $w = $week;        # The csv file
-  $f =~ s/\..*$//;      # Remove extension
+  $f =~ s/\..*$//x;     # Remove extension
   $f = "$dir/${f}_$w.htm";    # Add the path
 
   return $f;

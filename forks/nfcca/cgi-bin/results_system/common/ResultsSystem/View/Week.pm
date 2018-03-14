@@ -23,16 +23,14 @@ ResultsSystem::View
 
 =cut
 
-{
+package ResultsSystem::View::Week;
 
-  package ResultsSystem::View::Week;
+use strict;
+use warnings;
 
-  use strict;
-  use warnings;
+use Data::Dumper;
 
-  use Data::Dumper;
-
-  use parent qw/ResultsSystem::View/;
+use parent qw/ResultsSystem::View/;
 
 =head2 new
 
@@ -40,71 +38,70 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
 =cut
 
+#***************************************
+sub new {
+
   #***************************************
-  sub new {
+  my ( $class, $args ) = @_;
+  my $self = {};
+  bless $self, $class;
 
-    #***************************************
-    my ( $class, $args ) = @_;
-    my $self = {};
-    bless $self, $class;
+  $self->set_logger( $args->{-logger} )               if $args->{-logger};
+  $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
 
-    $self->set_logger( $args->{-logger} )               if $args->{-logger};
-    $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
-
-    return $self;
-  }
+  return $self;
+}
 
 =head2 run
 
 =cut
 
-  sub run {
-    my ( $self, $data ) = @_;
+sub run {
+  my ( $self, $data ) = @_;
 
-    $DB::single = 1;
-    my $d = $data->{-data};
-    $self->logger->debug( Dumper $data);
-    my $table_rows = $self->create_table_rows( $d->{rows} );
+  my $d = $data->{-data};
+  $self->logger->debug( Dumper $data);
+  my $table_rows = $self->create_table_rows( $d->{rows} );
 
-    my $html = $self->merge_content(
-      $self->get_html,
-      { ROWS      => $table_rows,
-        SYSTEM    => $d->{SYSTEM},
-        SEASON    => $d->{SEASON},
-        WEEK      => $d->{WEEK},
-        MENU_NAME => $d->{MENU_NAME},
-        TITLE     => $d->{TITLE}
-      }
-    );
+  my $html = $self->merge_content(
+    $self->get_html,
+    { ROWS      => $table_rows,
+      SYSTEM    => $d->{SYSTEM},
+      SEASON    => $d->{SEASON},
+      WEEK      => $d->{WEEK},
+      MENU_NAME => $d->{MENU_NAME},
+      TITLE     => $d->{TITLE}
+    }
+  );
 
-    $self->render( { -data => $html } );
+  $self->render( { -data => $html } );
 
-    return 1;
-  }
+  return 1;
+}
 
 =head2 create_table_rows
 
 =cut
 
-  sub create_table_rows {
-    my ( $self, $rows ) = @_;
+sub create_table_rows {
+  my ( $self, $rows ) = @_;
 
-    my $table = "";
-    my $i     = 0;
-    for ( my $r = 0; $r < 10; $r++ ) {
+  my $table = "";
+  my $i     = 0;
+  for ( my $r = 0; $r < 10; $r++ ) {
 
-      last if !$rows->[$i];
+    last if !$rows->[$i];
 
-      $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
-      $i++;
-      $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
-      $i++;
-      $table .= $self->_blank_line;
+    $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
+    $i++;
+    $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
+    $i++;
+    $table .= $self->_blank_line;
 
-    }
-
-    return $table;
   }
+
+  return $table;
+}
 
 =head1 INTERNAL (PRIVATE) METHODS
 
@@ -114,13 +111,13 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
 =cut
 
+#***************************************
+sub get_html {
+
   #***************************************
-  sub get_html {
+  my $self = shift;
 
-    #***************************************
-    my $self = shift;
-
-    my $html = q~
+  my $html = <<'HTML';
       <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
       <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]<h1>
@@ -156,19 +153,19 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 
       <input type="submit" value="Save Changes"/>
       </form>
-~;
+HTML
 
-    return $html;
+  return $html;
 
-  }
+}
 
 =head2 get_row_html
 
 =cut
 
-  sub get_row_html {
+sub get_row_html {
 
-    return q!
+  return <<'HTML';
 <tr>
 <td>[% played %]</td>
 <td>[% result %]</td>
@@ -181,8 +178,8 @@ Constructor for the WeekFixtures object. Inherits from Parent.
 <td>[% penaltypts %]</td>
 <td>[% totalpts %]</td>
 </tr>
-!;
-  }
+HTML
+}
 
 =head2 _blank_line
 
@@ -191,61 +188,59 @@ with 11 cells. Each cell contains the &nbsp;
 
 =cut
 
+#***************************************
+sub _blank_line {
+
   #***************************************
-  sub _blank_line {
+  my $self = shift;
+  my %args = (@_);
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $line;
-
-    return q!
+  return <<'HTML';
     <tr>
     <td class="teamcol">&nbsp;</td><td colspan="10">&nbsp;</td>
     </tr>
-!;
-  }
-
-=head2 _fixture_line
-
-Returns an HTML string containing a table row.
-
-=cut
-
-  #***************************************
-  sub _fixture_line {
-
-    #***************************************
-    my $self = shift;
-
-    return q!
-    <tr>
-    <td> <input type="text" name="[% TEAM %]" id="[%TEAM %] size="32" readonly="readonly"/> </td>
-    <td> <select name="[% PLAYED %]" size="2" selected="[% SELECTED_PLAYED %]" onchange="calculate_points( this, [% ROW_NUMBER %] )">
-      <option value="Y">Y</option>
-      <option value="N">N</option>
-      <option value="A">A</option>
-      </select>
-    </td>
-    <td> <select name="[% RESULT %]" size="2" selected="[% SELECTED_RESULT %]" onchange="calculate_points( this, [% ROW_NUMBER %] )">
-      <option value="W">W</option>
-      <option value="L">L</option>
-      <option value="T">T</option>
-      </select>
-    </td>
-    <td> <input name="[% RUNS %]" id="[$ RUNS %]" type="number" min="0"/></td>
-    <td> <input name="[% WICKETS %]" id="[% WICKETS %]" type="number" min="0"/></td>
-    <td> <input type="text"  name="[% PERFORMANCES %]" id="[% PERFORMANCES %]"/></td>
-    <td> <input  name="[% RESULTPTS %]" id="[% RESULTPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% BATTINGPTS %]" id="[% BATTINGPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% BOWLINGPTS %]" id="[% BOWLINGPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% PENALTYPTS %]" id="[% PENALTYPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    <td> <input name="[% TOTALPTS %]" id="[% TOTALPTS %]" type="number" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
-    </tr>
-!;
-
-  }
-
-  1;
-
+HTML
 }
+
+#=head2 _fixture_line
+#
+#Returns an HTML string containing a table row.
+#
+#=cut
+#
+#  #***************************************
+#  sub _fixture_line {
+#
+#    #***************************************
+#    my $self = shift;
+#
+#    return <<'HTML';
+#    <tr>
+#    <td> <input type="text" name="[% TEAM %]" id="[%TEAM %] size="32" readonly="readonly"/> </td>
+#    <td> <select name="[% PLAYED %]" size="2" selected="[% SELECTED_PLAYED %]" onchange="calculate_points( this, [% ROW_NUMBER %] )">
+#      <option value="Y">Y</option>
+#      <option value="N">N</option>
+#      <option value="A">A</option>
+#      </select>
+#    </td>
+#    <td> <select name="[% RESULT %]" size="2" selected="[% SELECTED_RESULT %]" onchange="calculate_points( this, [% ROW_NUMBER %] )">
+#      <option value="W">W</option>
+#      <option value="L">L</option>
+#      <option value="T">T</option>
+#      </select>
+#    </td>
+#    <td> <input name="[% RUNS %]" id="[$ RUNS %]" type="number" min="0"/></td>
+#    <td> <input name="[% WICKETS %]" id="[% WICKETS %]" type="number" min="0"/></td>
+#    <td> <input type="text"  name="[% PERFORMANCES %]" id="[% PERFORMANCES %]"/></td>
+#    <td> <input  name="[% RESULTPTS %]" id="[% RESULTPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
+#    <td> <input name="[% BATTINGPTS %]" id="[% BATTINGPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
+#    <td> <input name="[% BOWLINGPTS %]" id="[% BOWLINGPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
+#    <td> <input name="[% PENALTYPTS %]" id="[% PENALTYPTS %]" type="number" min="0" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
+#    <td> <input name="[% TOTALPTS %]" id="[% TOTALPTS %]" type="number" onchange="calculate_points( this, [% ROW_NUMBER %] )"/></td>
+#    </tr>
+#HTML
+#
+#  }
+
+1;
+

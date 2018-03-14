@@ -52,6 +52,7 @@ None
 
     $self->get_menu_view->run( { -data => $data } );
 
+    return 1;
   }
 
 =head1 INTERNAL (PRIVATE) METHODS

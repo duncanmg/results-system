@@ -61,7 +61,7 @@ sub run {
         . $args->{-data}->{menu_names} . "\n"
     }
   );
-
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
