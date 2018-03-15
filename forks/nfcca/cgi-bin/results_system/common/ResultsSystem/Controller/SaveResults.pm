@@ -95,7 +95,7 @@ sub run {
     $locker->close_lock_file;
   };
 
-  # $self->get_save_results_view()->run( { -data => $data } );
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS

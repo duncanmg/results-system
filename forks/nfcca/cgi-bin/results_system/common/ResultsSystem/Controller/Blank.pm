@@ -55,6 +55,7 @@ None
 
     $self->get_blank_view->run( { -data => {} } );
 
+    return 1;
   }
 
 =head1 INTERNAL (PRIVATE) METHODS

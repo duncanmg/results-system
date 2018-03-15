@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use parent qw/ ResultsSystem::Model/;
 use Data::Dumper;
+use Carp;
 
 =head1 NAME
 
@@ -98,7 +99,7 @@ sub get_all_dates_by_division {
       1;
     } || do {
       my $err = $@;
-      die $err if ( $err !~ m/FILE_DOES_NOT_EXIST/ );
+      croak $err if ( $err !~ m/FILE_DOES_NOT_EXIST/ );
       $self->logger->warn(
         "$ff does not exist. Dates and fixtures for division will not be available.");
     };

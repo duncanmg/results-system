@@ -14,13 +14,13 @@ results_system.pl
 
 =cut
 
+use strict;
+use warnings;
+
 BEGIN {
   use LoadEnv;
   LoadEnv::run();
 }
-
-use strict;
-use warnings;
 
 use CGI;
 use Params::Validate qw/:all/;
@@ -29,8 +29,6 @@ use HTTP::Response;
 use HTTP::Status qw/:constants status_message/;
 
 use ResultsSystem;
-
-my $logger;
 
 =head1 FUNCTIONS
 

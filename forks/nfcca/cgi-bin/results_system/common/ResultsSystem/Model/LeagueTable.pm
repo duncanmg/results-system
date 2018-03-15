@@ -3,8 +3,9 @@
   use strict;
   use warnings;
   use Clone qw/clone/;
+  use Carp;
 
-  use List::MoreUtils qw / first_index /;
+  use List::MoreUtils qw / first_index any /;
   use Sort::Maker;
   use Data::Dumper;
 
@@ -108,7 +109,7 @@ This is the constructor for a LeagueTable object.
 
   sub get_division {
     my $self = shift;
-    die ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' )
+    croak ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' )
       if !$self->{division};
     return $self->{division};
   }
@@ -146,16 +147,17 @@ The method returns an error code and a reference to the list of week files.
     my $dir = $self->build_csv_path;
 
     my $csv = $self->get_division;
-    $csv =~ s/\..*$//g;    # Remove extension
+    $csv =~ s/\..*$//xg;    # Remove extension
 
-    opendir( $FP, $dir ) || do { die ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', $! ); };
+    opendir( $FP, $dir )
+      || do { croak ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', $! ); };
 
     @files = readdir $FP;
     $self->logger->debug( scalar(@files) . " files retrieved from $dir." );
     close $FP;
 
     my $pattern = $csv . "_";
-    @files = grep /^$pattern/, @files;
+    @files = grep {/^$pattern/x} @files;
     $self->logger->debug(
       scalar(@files) . " of these files are week files for the division. " . $csv );
 
@@ -175,7 +177,7 @@ The method returns an error code and a reference to the list of week files.
     my $season = $c->get_season;
     $dir = "$dir/$season";
 
-    die ResultsSystem::Exception->new( 'DIR_NOT_FOUND',
+    croak ResultsSystem::Exception->new( 'DIR_NOT_FOUND',
       "Directory for csv files not found. " . $dir )
       if !-d $dir;
     return $dir;
@@ -205,7 +207,7 @@ It returns an error code.
     foreach my $f (@$files_ref) {
 
       my $wk = $f;
-      $wk =~ s/^.*_(.*)\..*$/$1/;
+      $wk =~ s/^.*_(.*)\..*$/$1/x;
       $self->logger->debug( "Create WeekData object " . $self->get_division . " $wk" );
 
       my $wd = $self->get_week_data_reader_model;
@@ -253,12 +255,7 @@ the league table. The structure consists of an array of hash references.
     #***************************************
     my $self   = shift;
     my @all_wd = $self->_get_all_week_data;
-    my @labels;
-    my @table = ();
-
-    if ( $all_wd[0] ) {
-      @labels = $all_wd[0]->get_labels;
-    }
+    my @table  = ();
 
     # Loop through all the week data objects.
     foreach my $wd (@all_wd) {
@@ -292,22 +289,16 @@ the league table. The structure consists of an array of hash references.
           $i = scalar(@table) - 1;
         }
 
-        # Skip these fields because they play no part in the calculations
-        # and do not appear in the league table.
-        @labels = grep {
-          $_ !~ m/^(performances)|(team)|(runs)|(wickets)|(facilitiesmks)|(pitchmks)|(groundmks)$/
-        } @labels;
-
         # Skip if the match hasn't been played.
         next if $fields_hash_ref->{played} !~ m/Y/i;
 
         $table[$i]->{played} += 1;
 
-        $table[$i]->{won} += 1 if ( $fields_hash_ref->{result} =~ m/w/i );
+        $table[$i]->{won} += 1 if ( $fields_hash_ref->{result} =~ m/w/ix );
 
-        $table[$i]->{lost} += 1 if ( $fields_hash_ref->{result} =~ m/l/i );
+        $table[$i]->{lost} += 1 if ( $fields_hash_ref->{result} =~ m/l/ix );
 
-        $table[$i]->{tied} += 1 if ( $fields_hash_ref->{result} =~ m/t/i );
+        $table[$i]->{tied} += 1 if ( $fields_hash_ref->{result} =~ m/t/ix );
 
         # The rest of the fields are numeric so just add the new value to the previous value.
         foreach my $k (qw /resultpts battingpts bowlingpts penaltypts totalpts/) {
@@ -392,22 +383,22 @@ The sorted data in placed in a new list.
     my @sorted;
 
     my $table = $self->_get_aggregated_data;
-    die ResultsSystem::Exception->new( 'NO_AGGREGATED_DATA', 'No aggregated data to sort' )
+    croak ResultsSystem::Exception->new( 'NO_AGGREGATED_DATA', 'No aggregated data to sort' )
       if !$table;
 
     my $order = $self->get_configuration->get_calculation( -order_by => "Y" );
     $order = "totalpts" if ( $order ne "average" );
 
     my $sorter = make_sorter( 'ST', 'descending', number => '$_->{' . $order . '}' );
-    die ResultsSystem::Exception->new( 'NO_SORTER', "Unable to create sorter. " . $@ )
+    croak ResultsSystem::Exception->new( 'NO_SORTER', "Unable to create sorter. " . $@ )
       if !$sorter;
 
-    local $@;
+    local $@ = "";
     eval {
       @sorted = $sorter->(@$table);
       1;
     }
-      || die ResultsSystem::Exception->new( 'BAD_SORT',
+      || croak ResultsSystem::Exception->new( 'BAD_SORT',
       "Unable to sort table. $@" . Dumper($table) );
     $self->{SORTED_TABLE} = \@sorted;
 
@@ -426,7 +417,7 @@ The sorted data in placed in a new list.
     #***************************************
     my $self = shift;
     $self->{SORTED_TABLE} = shift;
-    return undef;
+    return;
   }
 
 =head2 _get_sorted_table
@@ -455,7 +446,7 @@ This method returns a reference to the table of sorted data.
 
     #***************************************
     my $self = shift;
-    my ( $files, $line );
+    my $files;
 
     $files = $self->_get_all_week_files;
 

@@ -1,3 +1,5 @@
+#! /usr/bin/perl
+
 # ****************************************************************************
 #
 # Name: checkfixtures.pl
@@ -51,7 +53,7 @@ sub main {
       my @fl = readdir($FP);
       close $FP;
       foreach my $f (@fl) {
-        if ( $f !~ m/\.csv$/ ) {
+        if ( $f !~ m/\.csv$/x ) {
           next;
         }
         push @file_list, "$file/$f";
@@ -63,7 +65,7 @@ sub main {
     }
   }
   elsif ( -f $file ) {
-    push @file_list, $file unless ( $file !~ m/\.csv$/ );
+    push @file_list, $file if ( $file =~ m/\.csv$/x );
   }
   else {
     print "$file does not exist.\n";
@@ -84,3 +86,4 @@ sub main {
 }
 
 main( $ARGV[0] );
+

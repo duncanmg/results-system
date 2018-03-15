@@ -123,15 +123,15 @@ The full filename must have been defined.
     my $err  = 0;
     my $l;
 
-    if ( $args{-type} !~ m/^((line)|(match))$/ ) {
+    if ( $args{-type} !~ m/^(?:line|match)$/x ) {
       $self->logger->error("get_field(): -type must be line or match.");
       $err = 1;
     }
-    if ( $args{-lineno} !~ m/^[0-9][0-9]*$/ ) {
+    if ( $args{-lineno} !~ m/^[0-9][0-9]*$/x ) {
       $self->logger->error("get_field(): -lineno must be a number.");
       $err = 1;
     }
-    if ( $args{-field} !~ m/^\w/ ) {
+    if ( $args{-field} !~ m/^\w/x ) {
       $self->logger->error( "get_field(): -field is invalid." . $args{-field} );
       $err = 1;
     }
@@ -139,7 +139,7 @@ The full filename must have been defined.
 
       $l = $args{-lineno} * 2;
       if ( $args{-type} eq "match" ) {
-        if ( $args{-team} !~ m/^((home)|(away))$/ ) {
+        if ( $args{-team} !~ m/^(?:home|away)$/x ) {
           $self->logger->error("-team must be home or away if -type is match.");
           $err = 1;
         }
@@ -278,7 +278,7 @@ Fields are : "team", "played", "result", "runs", "wickets",
 
     foreach my $l (@lines) {
 
-      my @bits = split /,/, $l;
+      my @bits = split /,/x, $l;
 
       my %team;
       for ( my $x = 0; $x < scalar(@labels); $x++ ) {
@@ -334,7 +334,7 @@ This call returns the current value without changing it.
     #***************************************
     my $self = shift;
     my $s    = shift;
-    if ( $s =~ m/[01]/ ) {
+    if ( $s =~ m/[01]/x ) {
       $self->{NO_FILE} = $s;
     }
     return $self->{NO_FILE};
@@ -356,9 +356,9 @@ Returns the .dat filename for the week.
     my $w = $self->get_week     || "";
     my $d = $self->get_division || "";
 
-    $d =~ s/\..*$//g;    # Remove extension
+    $d =~ s/\..*$//xg;    # Remove extension
     $f = $d . "_" . $w . ".dat";
-    $f =~ s/\s//g;
+    $f =~ s/\s//xg;
 
     return $f;
   }

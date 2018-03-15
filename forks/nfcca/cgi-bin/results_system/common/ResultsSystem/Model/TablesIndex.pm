@@ -71,7 +71,6 @@ Returns
 
     my $c     = $self->get_configuration;
     my @names = $c->get_menu_names;
-    my ( $line, $l );
     $self->logger->debug( scalar(@names) . " divisions to be listed." );
 
     $out->{title} =
@@ -107,7 +106,7 @@ Returns
     # *********************************************************
     my ( $self, $file ) = @_;
 
-    $file =~ s/\.csv$/\.htm/;
+    $file =~ s/\.csv$/\.htm/x;
 
     return $file;
   }

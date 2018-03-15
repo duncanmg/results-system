@@ -23,18 +23,16 @@ ResultsSystem::View::Week
 
 =cut
 
-{
+package ResultsSystem::View::Week::FixturesForm;
 
-  package ResultsSystem::View::Week::FixturesForm;
+use strict;
+use warnings;
+use Params::Validate qw/:all/;
 
-  use strict;
-  use warnings;
-  use Params::Validate qw/:all/;
+use Data::Dumper;
+use ResultsSystem::View::Week;
 
-  use Data::Dumper;
-  use ResultsSystem::View::Week;
-
-  use parent qw/ResultsSystem::View::Week/;
+use parent qw/ResultsSystem::View::Week/;
 
 =head2 new
 
@@ -42,75 +40,75 @@ Constructor for the FixturesForm object. Inherits from Parent.
 
 =cut
 
+#***************************************
+sub new {
+
   #***************************************
-  sub new {
+  my ( $class, $args ) = @_;
+  my $self = {};
+  bless $self, $class;
 
-    #***************************************
-    my ( $class, $args ) = @_;
-    my $self = {};
-    bless $self, $class;
+  $self->set_logger( $args->{-logger} )               if $args->{-logger};
+  $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
+  $self->set_pwd_view( $args->{-pwd_view} )           if $args->{-pwd_view};
 
-    $self->set_logger( $args->{-logger} )               if $args->{-logger};
-    $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
-    $self->set_pwd_view( $args->{-pwd_view} )           if $args->{-pwd_view};
-
-    return $self;
-  }
+  return $self;
+}
 
 =head2 run
 
 =cut
 
-  sub run {
-    my ( $self, $data ) = @_;
+sub run {
+  my ( $self, $data ) = @_;
 
-    my $d = $data->{-data};
-    $self->logger->debug( Dumper $data);
-    my $table_rows = $self->create_table_rows( $d->{rows} );
+  my $d = $data->{-data};
+  $self->logger->debug( Dumper $data);
+  my $table_rows = $self->create_table_rows( $d->{rows} );
 
-    my $html = $self->merge_content( $self->get_html,
-      { PASSWORD_TABLE => $self->get_pwd_view->get_pwd_fields } );
+  my $html = $self->merge_content( $self->get_html,
+    { PASSWORD_TABLE => $self->get_pwd_view->get_pwd_fields } );
 
-    $html = $self->merge_content(
-      $html,
-      { ROWS      => $table_rows,
-        SYSTEM    => $d->{SYSTEM},
-        SEASON    => $d->{SEASON},
-        WEEK      => $d->{WEEK},
-        MENU_NAME => $d->{MENU_NAME},
-        TITLE     => $d->{TITLE},
-        DIVISION  => $d->{DIVISION}
-      }
-    );
+  $html = $self->merge_content(
+    $html,
+    { ROWS      => $table_rows,
+      SYSTEM    => $d->{SYSTEM},
+      SEASON    => $d->{SEASON},
+      WEEK      => $d->{WEEK},
+      MENU_NAME => $d->{MENU_NAME},
+      TITLE     => $d->{TITLE},
+      DIVISION  => $d->{DIVISION}
+    }
+  );
 
-    $html = $self->merge_content( $self->html5_wrapper,
-      { CONTENT => $html, PAGETITLE => 'Results System' } );
+  $html = $self->merge_content( $self->html5_wrapper,
+    { CONTENT => $html, PAGETITLE => 'Results System' } );
 
-    $html = $self->merge_default_stylesheet($html);
+  $html = $self->merge_default_stylesheet($html);
 
-    $self->render( { -data => $html } );
+  $self->render( { -data => $html } );
 
-    return 1;
-  }
+  return 1;
+}
 
 =head2 merge_if_in_list
   
 =cut
 
-  sub merge_if_in_list {
-    my ( $self, $html, $label, $value, $targets, $replacements ) =
-      validate_pos( @_, 1, 1, 1, 1, { type => ARRAYREF }, { type => ARRAYREF } );
+sub merge_if_in_list {
+  my ( $self, $html, $label, $value, $targets, $replacements ) =
+    validate_pos( @_, 1, 1, 1, 1, { type => ARRAYREF }, { type => ARRAYREF } );
 
-    my $out = "";
-    my $i   = 0;
-    foreach my $t (@$targets) {
-      if ( ( $value || "" ) eq ( $t || "" ) ) {
-        $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
-        last;
-      }
+  my $out = "";
+  my $i   = 0;
+  foreach my $t (@$targets) {
+    if ( ( $value || "" ) eq ( $t || "" ) ) {
+      $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
+      last;
     }
-    return $out;
   }
+  return $out;
+}
 
 =head2 merge_if
 
@@ -128,93 +126,93 @@ There is no "else" or "default".
 
 =cut
 
-  sub merge_if {
-    my ( $self, $html, $label, $value, $target, $replacement ) =
-      validate_pos( @_, 1, 1, 1, 1, { type => SCALAR }, { type => SCALAR } );
+sub merge_if {
+  my ( $self, $html, $label, $value, $target, $replacement ) =
+    validate_pos( @_, 1, 1, 1, 1, { type => SCALAR }, { type => SCALAR } );
 
-    my $out = $html;
-    if ( ( $value || "" ) eq ( $target || "" ) ) {
-      $out = $self->merge_content( $html, { $label => $replacement } );
-    }
-    return $out;
+  my $out = $html;
+  if ( ( $value || "" ) eq ( $target || "" ) ) {
+    $out = $self->merge_content( $html, { $label => $replacement } );
   }
+  return $out;
+}
 
 =head2 create_table_rows
 
 =cut
 
-  sub create_table_rows {
-    my ( $self, $rows ) = validate_pos( @_, 1, { type => ARRAYREF } );
+sub create_table_rows {
+  my ( $self, $rows ) = validate_pos( @_, 1, { type => ARRAYREF } );
 
-    my $table   = "";
-    my $i       = 0;
-    my $matchno = 0;
-    for ( my $r = 0; $r < 10; $r++ ) {
-      my $r = $rows->[$i];
-      last if !$r;
+  my $table   = "";
+  my $i       = 0;
+  my $matchno = 0;
+  for ( my $r = 0; $r < 10; $r++ ) {
+    my $r = $rows->[$i];
+    last if !$r;
 
-      $r->{ha}        = 'home';
-      $r->{matchno}   = $matchno;
-      $r->{rownumber} = $i;
-      my $merged_row .= $self->merge_content( $self->get_row_html, $r );
+    $r->{ha}        = 'home';
+    $r->{matchno}   = $matchno;
+    $r->{rownumber} = $i;
+    my $merged_row = $self->merge_content( $self->get_row_html, $r );
 
-      $merged_row = $self->merge_select_boxes( $merged_row, $r );
+    $merged_row = $self->merge_select_boxes( $merged_row, $r );
 
-      $table .= $merged_row;
-      $i++;
-      $r              = $rows->[$i];
-      $r->{ha}        = 'away';
-      $r->{matchno}   = $matchno;
-      $r->{rownumber} = $i;
+    $table .= $merged_row;
+    $i++;
+    $r              = $rows->[$i];
+    $r->{ha}        = 'away';
+    $r->{matchno}   = $matchno;
+    $r->{rownumber} = $i;
 
-      $merged_row = $self->merge_content( $self->get_row_html, $r );
+    $merged_row = $self->merge_content( $self->get_row_html, $r );
 
-      $merged_row = $self->merge_select_boxes( $merged_row, $r );
+    $merged_row = $self->merge_select_boxes( $merged_row, $r );
 
-      $table .= $merged_row;
-      $i++;
+    $table .= $merged_row;
+    $i++;
 
-      $table .= $self->_blank_line;
+    $table .= $self->_blank_line;
 
-      $matchno++;
-    }
-
-    return $table;
+    $matchno++;
   }
+
+  return $table;
+}
 
 =head2 merge_select_boxes
 
 =cut
 
-  sub merge_select_boxes {
-    my ( $self, $row, $r ) = validate_pos( @_, 1, { type => SCALAR }, { type => HASHREF } );
+sub merge_select_boxes {
+  my ( $self, $row, $r ) = validate_pos( @_, 1, { type => SCALAR }, { type => HASHREF } );
 
-    $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"' );
+  $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"' );
 
-    $row = $self->merge_if( $row, 'played_n', $r->{played}, 'N', 'selected="selected"' );
+  $row = $self->merge_if( $row, 'played_n', $r->{played}, 'N', 'selected="selected"' );
 
-    $row = $self->merge_if( $row, 'played_a', $r->{played}, 'A', 'selected="selected"' );
+  $row = $self->merge_if( $row, 'played_a', $r->{played}, 'A', 'selected="selected"' );
 
-    $row = $self->merge_if( $row, 'result_w', $r->{result}, 'W', 'selected="selected"' );
+  $row = $self->merge_if( $row, 'result_w', $r->{result}, 'W', 'selected="selected"' );
 
-    $row = $self->merge_if( $row, 'result_l', $r->{result}, 'L', 'selected="selected"' );
+  $row = $self->merge_if( $row, 'result_l', $r->{result}, 'L', 'selected="selected"' );
 
-    $row = $self->merge_if( $row, 'result_t', $r->{result}, 'T', 'selected="selected"' );
+  $row = $self->merge_if( $row, 'result_t', $r->{result}, 'T', 'selected="selected"' );
 
-    return $row;
-  }
+  return $row;
+}
 
 =head2 get_html
 
 =cut
 
+#***************************************
+sub get_html {
+
   #***************************************
-  sub get_html {
+  my $self = shift;
 
-    #***************************************
-    my $self = shift;
-
-    my $html = q~
+  my $html = <<'HTML';
       <script src="/results_system/common/menu.js"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
       <h1>Fixtures For Division [% MENU_NAME %] Week [% WEEK %]</h1>
@@ -252,11 +250,11 @@ There is no "else" or "default".
       [% PASSWORD_TABLE %]
       <input type="submit" value="Save Changes"/>
       </form>
-~;
+HTML
 
-    return $html;
+  return $html;
 
-  }
+}
 
 =head1 INTERNAL (PRIVATE) METHODS
 
@@ -269,20 +267,19 @@ oith 11 cells. Each cell contains the &nbsp;
 
 =cut
 
+#***************************************
+sub _blank_line {
+
   #***************************************
-  sub _blank_line {
+  my $self = shift;
+  my %args = (@_);
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $line;
-
-    return q!
+  return <<'HTML';
     <tr>
     <td class="teamcol">&nbsp;</td><td colspan="10">&nbsp;</td>
     </tr>
-!;
-  }
+HTML
+}
 
 =head2 get_row_html
 
@@ -290,13 +287,13 @@ Returns an HTML string containing a table row.
 
 =cut
 
+#***************************************
+sub get_row_html {
+
   #***************************************
-  sub get_row_html {
+  my $self = shift;
 
-    #***************************************
-    my $self = shift;
-
-    return q!
+  return <<'HTML';
     <tr>
     <td> <input type="text" id="[% ha %]team[% matchno %]" name="[% ha %]team[% matchno %]" value="[% team %]" readonly/> </td>
     <td> <select name="[% ha %]played[% matchno %]" size="1" onchange="calculate_points( this, [% matchno %] )">
@@ -320,29 +317,27 @@ Returns an HTML string containing a table row.
     <td> <input name="[% ha %]penaltypts[% matchno %]" id="[% ha %]penaltypts[% matchno %]" type="number" min="0" onchange="calculate_points( this, [% matchno %] )" value="[% penaltypts %]"/></td>
     <td> <input name="[% ha %]totalpts[% matchno %]" id="[% ha %]totalpts[% matchno %]" type="number" onchange="calculate_points( this, [% matchno %] )" value="[% totalpts %]"/></td>
     </tr>
-!;
+HTML
 
-  }
+}
 
 =head2 get_pwd_view
 
 =cut
 
-  sub get_pwd_view {
-    my $self = shift;
-    return $self->{pwd_view};
-  }
+sub get_pwd_view {
+  my $self = shift;
+  return $self->{pwd_view};
+}
 
 =head2 set_pwd_view
 
 =cut
 
-  sub set_pwd_view {
-    my ( $self, $v ) = @_;
-    $self->{pwd_view} = $v;
-    return $self;
-  }
-
-  1;
-
+sub set_pwd_view {
+  my ( $self, $v ) = @_;
+  $self->{pwd_view} = $v;
+  return $self;
 }
+
+1;

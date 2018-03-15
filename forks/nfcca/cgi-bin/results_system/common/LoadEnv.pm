@@ -2,6 +2,8 @@ package LoadEnv;
 
 use strict;
 use warnings;
+use Carp;
+use Slurp;
 
 =head2 run
 
@@ -22,17 +24,25 @@ and a path.
 =cut
 
 sub run {
-  my $FP;
-  open( $FP, "<", "./env.ini" ) || die "Unable to open env.ini. " . $!;
-  while ( my $line = <$FP> ) {
-    if ( $line =~ m/^INC=/ ) {
-      $line =~ s/INC=//;
+  my @lines = slurp("./env.ini");
+  prepend_to_inc( \@lines );
+  return 1;
+}
+
+=head2 prepend_to_inc
+
+=cut
+
+sub prepend_to_inc {
+  my $lines = shift;
+  foreach my $line (@$lines) {
+    if ( $line =~ m/^INC=/x ) {
+      $line =~ s/INC=//x;
       chomp $line;
       unshift @INC, $line;
     }
-
   }
-  return close $FP;
+  return 1;
 }
 
 1;
