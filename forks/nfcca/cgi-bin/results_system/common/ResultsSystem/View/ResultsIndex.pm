@@ -151,11 +151,11 @@ sub blocks {
 =cut
 
 sub get_heading_html {
-  return q!
+  return <<'HTML';
         <h1>[% TITLE %] - [% SEASON %]</h1>
         <p><a href="[% RETURN_TO_LINK %]"/>[% RETURN_TO_TITLE %]</a></p>
 	[% CONTENT %]
-!;
+HTML
 }
 
 =head2 get_division_table_html
@@ -168,14 +168,14 @@ sub get_division_table_html {
   # *********************************************************
   my $self = shift;
 
-  return q!
+  return <<'HTML';
 
     <h2>[% name %]</h2>
 
     <table>
       [% division_table_rows %]
     </table>
-    !;
+HTML
 
 }
 
@@ -185,9 +185,10 @@ sub get_division_table_html {
 
 sub get_division_table_cell_html {
   my $self = shift;
-  return q!
+  return <<'HTML';
+
 <td><a href="[% url %]">[% matchdate %]</td>
-!;
+HTML
 
 }
 
@@ -197,9 +198,9 @@ sub get_division_table_cell_html {
 
 sub get_division_table_row_html {
   my $self = shift;
-  return q!
+  return <<'HTML';
    <tr>[% cells %]</tr>
- !
+HTML
 }
 
 #=head2 output_html

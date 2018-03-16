@@ -23,17 +23,16 @@ ResultsSystem::View
 
 =cut
 
-{
+package ResultsSystem::View::Week::Results;
 
-  package ResultsSystem::View::Week::Results;
+use strict;
+use warnings;
+use Carp;
+use Params::Validate qw/:all/;
 
-  use strict;
-  use warnings;
-  use Params::Validate qw/:all/;
+use Data::Dumper;
 
-  use Data::Dumper;
-
-  use parent qw/ResultsSystem::View/;
+use parent qw/ResultsSystem::View/;
 
 =head2 new
 
@@ -41,97 +40,97 @@ Constructor for the Week::Results object.
 
 =cut
 
+#***************************************
+sub new {
+
   #***************************************
-  sub new {
+  my ( $class, $args ) = @_;
+  my $self = {};
+  bless $self, $class;
 
-    #***************************************
-    my ( $class, $args ) = @_;
-    my $self = {};
-    bless $self, $class;
+  $self->set_logger( $args->{-logger} )               if $args->{-logger};
+  $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
 
-    $self->set_logger( $args->{-logger} )               if $args->{-logger};
-    $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
-
-    return $self;
-  }
+  return $self;
+}
 
 =head2 run
 
 =cut
 
-  sub run {
-    my ( $self, $data ) = @_;
+sub run {
+  my ( $self, $data ) = @_;
 
-    my $d = $data->{-data};
-    $self->logger->debug( Dumper $data);
+  my $d = $data->{-data};
+  $self->logger->debug( Dumper $data);
 
-    foreach my $r ( @{ $d->{rows} } ) {
-      $r->{team}        = $self->encode_entities( $r->{team} );
-      $r->{performanes} = $self->encode_entities( $r->{performances} );
-    }
-
-    my $table_rows = $self->create_table_rows( $d->{rows} );
-
-    my $c = $self->get_configuration;
-
-    my $html = $self->merge_content(
-      $self->get_html,
-      { ROWS      => $table_rows,
-        SYSTEM    => $d->{SYSTEM},
-        SEASON    => $c->get_descriptors( -season => "Y" ),
-        WEEK      => $d->{week},
-        MENU_NAME => $d->{MENU_NAME},
-        TITLE     => $c->get_descriptors( -title => "Y" ),
-        TIMESTAMP => localtime() . "",
-      }
-    );
-
-    $html = $self->merge_content( $self->html_wrapper,
-      { CONTENT => $html, PAGETITLE => 'Results System' } );
-
-    $html = $self->merge_default_stylesheet($html);
-
-    $self->set_division( $d->{division} )->set_week( $d->{week} );
-    $self->write_file($html);
-
-    return 1;
+  foreach my $r ( @{ $d->{rows} } ) {
+    $r->{team}        = $self->encode_entities( $r->{team} );
+    $r->{performanes} = $self->encode_entities( $r->{performances} );
   }
+
+  my $table_rows = $self->create_table_rows( $d->{rows} );
+
+  my $c = $self->get_configuration;
+
+  my $html = $self->merge_content(
+    $self->get_html,
+    { ROWS      => $table_rows,
+      SYSTEM    => $d->{SYSTEM},
+      SEASON    => $c->get_descriptors( -season => "Y" ),
+      WEEK      => $d->{week},
+      MENU_NAME => $d->{MENU_NAME},
+      TITLE     => $c->get_descriptors( -title => "Y" ),
+      TIMESTAMP => localtime() . "",
+    }
+  );
+
+  $html = $self->merge_content( $self->html_wrapper,
+    { CONTENT => $html, PAGETITLE => 'Results System' } );
+
+  $html = $self->merge_default_stylesheet($html);
+
+  $self->set_division( $d->{division} )->set_week( $d->{week} );
+  $self->write_file($html);
+
+  return 1;
+}
 
 =head2 create_table_rows
 
 =cut
 
-  sub create_table_rows {
-    my ( $self, $rows ) = @_;
+sub create_table_rows {
+  my ( $self, $rows ) = @_;
 
-    my $table = "";
-    my $i     = 0;
-    for ( my $r = 0; $r < 10; $r++ ) {
+  my $table = "";
+  my $i     = 0;
+  for ( my $r = 0; $r < 10; $r++ ) {
 
-      last if !$rows->[$i];
+    last if !$rows->[$i];
 
-      $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
-      $i++;
-      $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
-      $i++;
-      $table .= $self->_blank_line;
+    $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
+    $i++;
+    $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
+    $i++;
+    $table .= $self->_blank_line;
 
-    }
-
-    return $table;
   }
+
+  return $table;
+}
 
 =head2 get_html
 
 =cut
 
+#***************************************
+sub get_html {
+
   #***************************************
-  sub get_html {
+  my $self = shift;
 
-    #***************************************
-    my $self = shift;
-
-    my $html = q~
+  my $html = <<'HTML';
       <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
       <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]</h1>
@@ -156,19 +155,19 @@ Constructor for the Week::Results object.
       </table>
 
       <p class="timestamp">[% TIMESTAMP %]</p>
-~;
+HTML
 
-    return $html;
+  return $html;
 
-  }
+}
 
 =head2 get_row_html
 
 =cut
 
-  sub get_row_html {
+sub get_row_html {
 
-    return q!
+  return <<'HTML';
 <tr>
 <td class="teamcol">[% team %]</td>
 <td>[% played %]</td>
@@ -182,8 +181,8 @@ Constructor for the Week::Results object.
 <td>[% penaltypts %]</td>
 <td>[% totalpts %]</td>
 </tr>
-!;
-  }
+HTML
+}
 
 =head1 INTERNAL (PRIVATE) METHODS
 
@@ -196,20 +195,20 @@ with 11 cells. Each cell contains the &nbsp;
 
 =cut
 
+#***************************************
+sub _blank_line {
+
   #***************************************
-  sub _blank_line {
+  my $self = shift;
+  my %args = (@_);
+  my $line;
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $line;
-
-    return q!
+  return <<'HTML';
     <tr>
     <td class="teamcol">&nbsp;</td><td colspan="10">&nbsp;</td>
     </tr>
-!;
-  }
+HTML
+}
 
 =head2 write_file
 
@@ -221,83 +220,81 @@ to the directory given by "table_dir" in the configuration file.
 
 =cut
 
+#***************************************
+sub write_file {
+
   #***************************************
-  sub write_file {
+  my ( $self, $line ) = validate_pos( @_, 1, { type => SCALAR } );
 
-    #***************************************
-    my ( $self, $line ) = validate_pos( @_, 1, { type => SCALAR } );
-    my ( $f, $FP );
+  my $f = $self->build_full_filename;
 
-    $f = $self->build_full_filename;
+  open( my $FP, ">", $f )
+    || croak ResultsSystem::Exception->new( "WRITE_ERR",
+    "Unable to open file $f for writing. " . $! );
 
-    open( $FP, ">", $f )
-      || die ResultsSystem::Exception->new( "WRITE_ERR",
-      "Unable to open file $f for writing. " . $! );
-
-    print $FP $line;
-    close $FP;
-    return 1;
-  }
+  print $FP $line;
+  close $FP;
+  return 1;
+}
 
 =head2 build_full_filename
 
 =cut
 
-  sub build_full_filename {
-    my ( $self, $data ) = @_;
+sub build_full_filename {
+  my ( $self, $data ) = @_;
 
-    my $c = $self->get_configuration;
-    my $dir = $c->get_path( -results_dir_full => "Y" );
-    die ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
-      "Result directory $dir does not exist." )
-      if !-d $dir;
+  my $c = $self->get_configuration;
+  my $dir = $c->get_path( -results_dir_full => "Y" );
+  croak ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
+    "Result directory $dir does not exist." )
+    if !-d $dir;
 
-    my $f = $self->get_division;    # The csv file
-    my $w = $self->get_week;        # The csv file
-    $f =~ s/\..*$//;                # Remove extension
-    $f = "$dir/${f}_$w.htm";        # Add the path
+  my $f = $self->get_division;    # The csv file
+  my $w = $self->get_week;        # The csv file
+  $f =~ s/\..*$//x;               # Remove extension
+  $f = "$dir/${f}_$w.htm";        # Add the path
 
-    return $f;
-  }
+  return $f;
+}
 
 =head2 get_division
 
 =cut
 
-  sub get_division {
-    my $self = shift;
-    return $self->{division};
-  }
+sub get_division {
+  my $self = shift;
+  return $self->{division};
+}
 
 =head2 set_division
 
 =cut
 
-  sub set_division {
-    my ( $self, $v ) = @_;
-    $self->{division} = $v;
-    return $self;
-  }
+sub set_division {
+  my ( $self, $v ) = @_;
+  $self->{division} = $v;
+  return $self;
+}
 
 =head2 get_week
 
 =cut
 
-  sub get_week {
-    my $self = shift;
-    return $self->{week};
-  }
+sub get_week {
+  my $self = shift;
+  return $self->{week};
+}
 
 =head2 set_week
 
 =cut
 
-  sub set_week {
-    my ( $self, $v ) = @_;
-    $self->{week} = $v;
-    return $self;
-  }
-
-  1;
-
+sub set_week {
+  my ( $self, $v ) = @_;
+  $self->{week} = $v;
+  return $self;
 }
+
+1;
+

@@ -72,7 +72,7 @@ The id and name attributes are the same and are set to "user" and "code" respect
 
   sub get_html {
     my $self = shift;
-    return q!
+    return <<'HTML';
 	  <table>
 	  <tr><td>User:</td>
 	  <td><input type="text" size="20" name="user" id="user"/><td>
@@ -80,7 +80,7 @@ The id and name attributes are the same and are set to "user" and "code" respect
 	  <td><input type="password" size="20" name="code" id="code"/><td>
 	  </tr>
 	  </table>
-	  !;
+HTML
   }
 
 =head1 INTERNAL (PRIVATE) METHODS

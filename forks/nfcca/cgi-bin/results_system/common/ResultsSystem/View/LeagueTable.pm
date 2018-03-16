@@ -2,6 +2,7 @@
 
   use strict;
   use warnings;
+  use Carp;
 
   use Data::Dumper;
   use Params::Validate qw/:all/;
@@ -71,7 +72,7 @@ accept the standard arguments of a Parent object. The two most important are -qu
     my $html = $self->create_document($args);
 
     $self->write_file($html);
-
+    return 1;
   }
 
 =head2 create_document
@@ -91,7 +92,7 @@ accept the standard arguments of a Parent object. The two most important are -qu
 
     $self->set_division( $args->{-data}->{division} );
 
-    $args->{-data}->{division} =~ s/\.csv//;
+    $args->{-data}->{division} =~ s/\.csv//x;
 
     my $p =
         $c->get_path( "-cgi_dir" => "Y", -allow_not_exists => 1 )
@@ -123,21 +124,21 @@ accept the standard arguments of a Parent object. The two most important are -qu
     return $html;
   }
 
-=head2 _d
-
-This method sets an undefined value to 0. $v = $lt->_d( $v );
-
-=cut
-
-  #***************************************
-  # Sets undefined values to 0.
-  #***************************************
-  sub _d {
-
-    #***************************************
-    my $v = shift;
-    return $v ? $v : 0;
-  }
+  #=head2 _d
+  #
+  #This method sets an undefined value to 0. $v = $lt->_d( $v );
+  #
+  #=cut
+  #
+  #  #***************************************
+  #  # Sets undefined values to 0.
+  #  #***************************************
+  #  sub _d {
+  #
+  #    #***************************************
+  #    my $v = shift;
+  #    return $v ? $v : 0;
+  #  }
 
 =head2 get_html
 
@@ -145,7 +146,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
 
   sub get_html {
     my $self = shift;
-    return q!
+    return <<'HTML';
 
 <h1>[% DESCRIPTOR %] [% SEASON %]</h1>
 <h2>Division: [% DIVISION %]</h2>
@@ -167,7 +168,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
 [% TABLE_ROWS %]
 </table>
 <p class="timestamp">[% TIMESTAMP %]</p>
-!;
+HTML
   }
 
 =head2 get_row_html
@@ -177,7 +178,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
   sub get_row_html {
     my $self = shift;
 
-    return q!
+    return <<'HTML';
 	<tr>
 	<td class="teamcol">[% team %]</td>
 	<td>[% played %]</td>
@@ -190,7 +191,7 @@ This method sets an undefined value to 0. $v = $lt->_d( $v );
 	<td>[% totalpts %]</td>
 	<td>[% average %]</td>
 	</tr>
-!;
+HTML
 
   }
 
@@ -209,16 +210,19 @@ to the directory given by "table_dir" in the configuration file.
 
     #***************************************
     my ( $self, $line ) = validate_pos( @_, 1, { type => SCALAR } );
-    my ( $f, $FP );
 
-    $f = $self->build_full_filename;
+    my $f = $self->build_full_filename;
 
-    open( $FP, ">", $f )
-      || die ResultsSystem::Exception->new( "WRITE_ERR",
-      "Unable to open file $f for writing. " . $! );
+    my $error = sub {
+      my $err = shift;
+      croak ResultsSystem::Exception->new( "WRITE_ERR",
+        "Unable to open file $f for writing. " . $err );
+    };
 
+    open( my $FP, ">", $f ) || $error->($!);
     print $FP $line;
     close $FP;
+
     return 1;
   }
 
@@ -235,12 +239,12 @@ to the directory given by "table_dir" in the configuration file.
 
     my $c = $self->get_configuration;
     my $dir = $c->get_path( -table_dir_full => "Y" );
-    die ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
+    croak ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
       "Table directory $dir does not exist." )
       if !-d $dir;
 
     my $f = $self->get_division;    # The csv file
-    $f =~ s/\..*$/\.htm/;           # Change the extension to .htm
+    $f =~ s/\..*$/\.htm/x;           # Change the extension to .htm
     $f = "$dir/$f";                 # Add the path
 
     return $f;

@@ -59,6 +59,7 @@ sub run {
     { CONTENT => $html, PAGETITLE => 'Results System', STYLESHEETS => "" } );
 
   $self->render( { -data => $html } );
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -71,7 +72,7 @@ sub run {
 
 sub get_html {
 
-  my $output = qq{
+  my $output = <<'HTML';
 
   <frameset rows="30%,*">
   <frame noresize="noresize" src="[% MENU_PAGE %]" id = "f_menu"
@@ -84,8 +85,8 @@ sub get_html {
   </noframes>
   </frameset>
 
-};
-
+HTML
+  return $output;
 }
 
 =head2 logger

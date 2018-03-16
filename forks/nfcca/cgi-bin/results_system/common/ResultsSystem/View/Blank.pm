@@ -55,6 +55,7 @@ sub run {
     { CONTENT => '<p>&nbsp;</p>', PAGETITLE => 'Results System', STYLESHEETS => "" } );
 
   $self->render( { -data => $html } );
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS

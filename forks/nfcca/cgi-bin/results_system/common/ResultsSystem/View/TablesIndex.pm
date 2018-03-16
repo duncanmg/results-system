@@ -88,7 +88,7 @@ ResultsSystem::View
 
   sub get_html {
     my $self = shift;
-    return q!
+    return <<'HTML';
 <h1>[% title %]</h1>
 <h2>Index of League Tables</h2>
 <p><a href="[% return_to_url %]">[% return_to_title %]</a></p>
@@ -96,7 +96,7 @@ ResultsSystem::View
 [% list_items %]
 </ul>
 
-!;
+HTML
   }
 
 =head2 get_item_html
@@ -105,9 +105,9 @@ ResultsSystem::View
 
   sub get_item_html {
     my $self = shift;
-    return q!
+    return <<'HTML';
 <li><a href="[% link %]">[% name %]</a></li>
-!;
+HTML
   }
 
   1;
