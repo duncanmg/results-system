@@ -63,6 +63,7 @@ sub run {
   $html = $self->merge_default_stylesheet($html);
 
   $self->render( { -data => $html } );
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -86,7 +87,7 @@ sub get_html {
   #***************************************
   my $self = shift;
 
-  my $html = q{
+  my $html = <<'HTML';
     <script language="JavaScript" type="text/javascript" src="results_system.pl?system=[% SYSTEM %]&page=menu_js"></script>
     <script language="JavaScript" type="text/javascript" src="[% HTDOCS %]/menu.js"></script>
 
@@ -105,7 +106,7 @@ sub get_html {
     gFirstSaturday='30 April 2016'; gLastSaturday='3 Sep 2016';
     </script>
     <a href="javascript: parent.location.href='[% RETURN_TO_LINK %]'">[% RETURN_TO_TITLE %]</a>
-};
+HTML
   return $html;
 }
 

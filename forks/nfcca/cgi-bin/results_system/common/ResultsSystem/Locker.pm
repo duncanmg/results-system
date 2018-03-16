@@ -90,6 +90,7 @@ sub open_lock_file
 {
   my ( $self, $lockfile ) = validate_pos( @_, 1, 0 );
   my $count = 0;
+  my $LOCKFILE;
 
   $self->set_lock_file($lockfile) if $lockfile;
 
@@ -105,14 +106,15 @@ sub open_lock_file
       "Unable to create lock file after $ResultsSystem::Locker::TIMEOUT tries. Overwrite it.");
   }
 
-  open( LOCKFILE, ">" . $ff ) || do {
-    die ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_FILE', "Unable to open file. $ff. " . $! );
+  open( $LOCKFILE, ">", $ff ) || do {
+    croak ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_FILE',
+      "Unable to open file. $ff. " . $! );
   };
 
-  print LOCKFILE $ff . "\n";
-  close LOCKFILE;
+  print $LOCKFILE $ff . "\n";
+  close $LOCKFILE;
   $self->logger->debug("Lockfile created. $ff");
-  $self->{IOPENEDLOCKFILE} = 1;
+  $self->{ IOPENED $LOCKFILE} = 1;
 
   return 1
 
@@ -191,10 +193,10 @@ Cleans and sets the lock file.
 
 sub set_lock_file {
   my ( $self, $lockfile ) = validate_pos( @_, 1, { -type => SCALAR } );
-  $lockfile =~ s/[^A-Za-z0-9._]//g;    # Clean the filename.
+  $lockfile =~ s/[^A-Za-z0-9._]//xg;    # Clean the filename.
 
-  if ( $lockfile !~ m/\./ ) { $lockfile = $lockfile . "."; }
-  if ( $lockfile !~ m/\.[a-zA-Z0-9_-]{1,}$/ ) { $lockfile =~ s/\.[^.]*$/\.lock/; }
+  if ( $lockfile !~ m/\./x ) { $lockfile = $lockfile . "."; }
+  if ( $lockfile !~ m/\.[a-zA-Z0-9_-]{1,}$/x ) { $lockfile =~ s/\.[^.]*$/\.lock/x; }
   $self->{LOCKFILE} = $lockfile;
   return $self;
 }
@@ -215,7 +217,7 @@ sub get_lock_dir
     $self->set_lock_dir( $c->get_path( -log_dir => 'Y' ) ) if $c;
   }
 
-  die ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
+  croak ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
     'Lock dir does not exist ' . $self->{LOCKDIR} )
     if !-d $self->{LOCKDIR};
   return $self->{LOCKDIR};
@@ -232,6 +234,7 @@ sub set_lock_dir
 {
   my $self = shift;
   $self->{LOCKDIR} = shift;
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -261,7 +264,7 @@ sub DESTROY {
   my $self = shift;
   $self->logger->debug( "In DESTROY " . ( $self->{IOPENEDLOCKFILE} || "" ) );
   $self->close_lock_file() if $self->{IOPENEDLOCKFILE};
-  1;
+  return 1;
 }
 
 1;

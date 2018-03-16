@@ -144,7 +144,7 @@ sub render {
 
   print $response->headers->as_string . "\n\n";
   print $response->content . "\n";
-
+  return 1;
 }
 
 =head2 render_javascript
@@ -172,6 +172,7 @@ sub render_javascript {
 
   print $response->headers->as_string . "\n\n";
   print $response->content . "\n";
+  return 1;
 
 }
 
@@ -204,6 +205,7 @@ sub render_json {
 
   print $response->headers->as_string . "\n\n";
   print $response->content . "\n";
+  return 1;
 
 }
 
@@ -261,7 +263,7 @@ Returns the static html for the frame. Two placeholders PAGETITLE and CONTENT.
 sub html_frame_wrapper {
   my $self = shift;
 
-  my $output = q{
+  my $output = <<'HTML';
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
@@ -288,7 +290,7 @@ sub html_frame_wrapper {
 </head>
   [% CONTENT %]
 </html>
-};
+HTML
   return $output;
 }
 
@@ -302,7 +304,7 @@ Three tags PAGETITLE, STYLESHEETS and CONTENT.
 sub html_wrapper {
   my $self = shift;
 
-  my $output = q{
+  my $output = <<'HTML';
 <!DOCTYPE html
   	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 		 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -331,7 +333,7 @@ sub html_wrapper {
   [% CONTENT %]
   </body>
 </html>
-};
+HTML
 
   return $output;
 }
@@ -346,7 +348,7 @@ Three tags PAGETITLE, STYLESHEETS and CONTENT.
 sub html5_wrapper {
   my $self = shift;
 
-  my $output = q{
+  my $output = <<'HTML';
 <!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
@@ -372,7 +374,7 @@ sub html5_wrapper {
   [% CONTENT %]
   </body>
 </html>
-};
+HTML
 
   return $output;
 }

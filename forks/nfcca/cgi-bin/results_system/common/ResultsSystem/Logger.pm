@@ -23,23 +23,21 @@ None
 
 =cut
 
-{
+package ResultsSystem::Logger;
 
-  package ResultsSystem::Logger;
+use strict;
+use warnings;
+use Carp;
 
-  use strict;
-  use warnings;
-  use Log::Log4perl;
-  use Log::Log4perl::Level;
-  use Data::Dumper;
-  use Params::Validate qw/ :all /;
-  use DateTime::Tiny;
+use Log::Log4perl;
+use Log::Log4perl::Level;
+use Data::Dumper;
+use Params::Validate qw/ :all /;
+use DateTime::Tiny;
 
-  use ResultsSystem::Exception;
+use ResultsSystem::Exception;
 
-  our @ISA = qw/ Exporter /;
-
-  our $CONF_FILE = "logger.conf";
+our $CONF_FILE = "logger.conf";
 
 =head2 new
 
@@ -48,22 +46,22 @@ the class variables LOGDIR, OLDFILE.
 
 =cut
 
+#*****************************************************************************
+sub new
+
   #*****************************************************************************
-  sub new
+{
+  my $class = shift;
+  my $self  = {};
+  bless $self, $class;
+  my %args = (@_);
 
-    #*****************************************************************************
-  {
-    my $self = {};
-    bless $self;
-    shift;
-    my %args = (@_);
+  $self->set_log_dir( $args{-log_dir} )            if $args{-log_dir};
+  $self->set_log_file_stem( $args{-logfile_stem} ) if $args{-logfile_stem};
 
-    $self->set_log_dir( $args{-log_dir} )            if $args{-log_dir};
-    $self->set_log_file_stem( $args{-logfile_stem} ) if $args{-logfile_stem};
+  return $self;
 
-    return $self;
-
-  }    # End constructor
+}    # End constructor
 
 =head2 logger
 
@@ -75,23 +73,23 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
 
 =cut
 
-  sub logger {
-    my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
+sub logger {
+  my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
 
-    die ResultsSystem::Exception->new( "LOGDIR_DOES_NOT_EXIST",
-      "Log dir does not exist " . $self->get_log_dir )
-      if !-d $self->get_log_dir;
+  croak ResultsSystem::Exception->new( "LOGDIR_DOES_NOT_EXIST",
+    "Log dir does not exist " . $self->get_log_dir )
+    if !-d $self->get_log_dir;
 
-    my $file = $self->logfile_name;
-    die ResultsSystem::Exception->new( "LOGFILENAME_NOT_SET", "The log file is not set " . $file )
-      if !$file;
+  my $file = $self->logfile_name;
+  croak ResultsSystem::Exception->new( "LOGFILENAME_NOT_SET", "The log file is not set " . $file )
+    if !$file;
 
-    $ENV{LOGFILENAME} = $file;
-    Log::Log4perl::init( $self->get_conf );
+  local $ENV{LOGFILENAME} = $file;
+  Log::Log4perl::init( $self->get_conf );
 
-    return Log::Log4perl::get_logger($category);
+  return Log::Log4perl::get_logger($category);
 
-  }
+}
 
 =head2 screen_logger
 
@@ -101,18 +99,18 @@ $logger = $self->screen_logger();
 
 =cut
 
-  sub screen_logger {
-    my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
+sub screen_logger {
+  my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
 
-    my $conf = $self->default_conf();
+  my $conf = $self->default_conf();
 
-    Log::Log4perl::init($conf);
+  Log::Log4perl::init($conf);
 
-    my $logger = Log::Log4perl::get_logger($category);
+  my $logger = Log::Log4perl::get_logger($category);
 
-    return $logger;
+  return $logger;
 
-  }
+}
 
 =head2 logfile_name
 
@@ -130,14 +128,13 @@ will set $logfile_name to "/tmp/rs28.log"
 
 =cut
 
-  sub logfile_name {
-    my ($self) = validate_pos( @_, 1 );
-    my $now = DateTime::Tiny->now();
-    $self->{logfile_name} = sprintf( "%s/%s%02d.log",
-      ( $self->get_log_dir || "" ),
-      $self->get_log_file_stem, $now->day );
-    return $self->{logfile_name};
-  }
+sub logfile_name {
+  my ($self) = validate_pos( @_, 1 );
+  my $now = DateTime::Tiny->now();
+  $self->{logfile_name} =
+    sprintf( "%s/%s%02d.log", ( $self->get_log_dir || "" ), $self->get_log_file_stem, $now->day );
+  return $self->{logfile_name};
+}
 
 =head2 set_log_dir
 
@@ -145,28 +142,28 @@ Set the log directory.
 
 =cut
 
-  #*****************************************************************************
-  sub set_log_dir
+#*****************************************************************************
+sub set_log_dir
 
-    #*****************************************************************************
-  {
-    my $self = shift;
-    $self->{LOGDIR} = shift;
-    if ( !-d $self->get_log_dir ) {
-      $self->{logger}->error( "Log directory does not exist. " . $self->get_log_dir );
-    }
-    return $self;
+  #*****************************************************************************
+{
+  my $self = shift;
+  $self->{LOGDIR} = shift;
+  if ( !-d $self->get_log_dir ) {
+    $self->{logger}->error( "Log directory does not exist. " . $self->get_log_dir );
   }
+  return $self;
+}
 
 =head2 set_log_file_stem
 
 =cut
 
-  sub set_log_file_stem {
-    my ( $self, $v ) = @_;
-    $self->{LOG_FILE_STEM} = $v;
-    return $self;
-  }
+sub set_log_file_stem {
+  my ( $self, $v ) = @_;
+  $self->{LOG_FILE_STEM} = $v;
+  return $self;
+}
 
 =head2 open_log_file
 
@@ -174,20 +171,20 @@ Not needed any more. Will be removed at some point.
 
 =cut
 
+#*****************************************************************************
+sub open_log_file
+
   #*****************************************************************************
-  sub open_log_file
+{
+  my ( $self, $logfile ) = @_;
+  my $err   = 0;
+  my $count = 0;
+  my $LOGFILE;
 
-    #*****************************************************************************
-  {
-    my ( $self, $logfile ) = @_;
-    my $err   = 0;
-    my $count = 0;
-    my $LOGFILE;
+  $self->{logger}->debug("open_log_file called()");
 
-    $self->{logger}->debug("open_log_file called()");
-
-    return ( $err, $LOGFILE );
-  }    # End open_log_file()
+  return ( $err, $LOGFILE );
+}    # End open_log_file()
 
 =head2 close_log_file
 
@@ -195,16 +192,16 @@ Don't need this any more.
 
 =cut
 
+#*****************************************************************************
+sub close_log_file
+
   #*****************************************************************************
-  sub close_log_file
+{
+  my $self = shift;
+  my $err  = 0;
 
-    #*****************************************************************************
-  {
-    my $self = shift;
-    my $err  = 0;
-
-    return $err;
-  }    # End close_log_file()
+  return $err;
+}    # End close_log_file()
 
 =head1 INTERNAL (PRIVATE) METHODS
 
@@ -216,17 +213,17 @@ Default configuration
 
 =cut
 
-  sub default_conf {
-    my $self = shift;
-    return {
-      "log4perl.rootLogger"             => "INFO , Screen",
-      "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
-      "log4perl.appender.Screen.stderr" => 1,
-      "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
-      "log4perl.appender.Screen.layout.ConversionPattern" =>
-        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
-    };
-  }
+sub default_conf {
+  my $self = shift;
+  return {
+    "log4perl.rootLogger"             => "INFO , Screen",
+    "log4perl.appender.Screen"        => "Log::Log4perl::Appender::Screen",
+    "log4perl.appender.Screen.stderr" => 1,
+    "log4perl.appender.Screen.layout" => "Log::Log4perl::Layout::PatternLayout",
+    "log4perl.appender.Screen.layout.ConversionPattern" =>
+      "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n"
+  };
+}
 
 =head2 conf_with_logfile
 
@@ -235,23 +232,23 @@ file.
 
 =cut
 
-  sub conf_with_logfile {
-    my $self = shift;
-    my $file = shift;
-    return {
-      "log4perl.rootLogger"                    => "INFO , LOGFILE",
-      "log4perl.category.ResultsConfiguration" => "INFO , LOGFILE",
-      "log4perl.category.Fixtures"             => "INFO , LOGFILE",
-      "log4perl.category.WeekFixtures"         => "INFO , LOGFILE",
-      "log4perl.category.WeekData"             => "INFO , LOGFILE",
-      "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
-      "log4perl.appender.LOGFILE.filename"     => $file,
-      "log4perl.appender.LOGFILE.mode"         => "append",
-      "log4perl.appender.LOGFILE.layout"       => "Log::Log4perl::Layout::PatternLayout",
-      "log4perl.appender.LOGFILE.layout.ConversionPattern" =>
-        "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n",
-    };
-  }
+sub conf_with_logfile {
+  my $self = shift;
+  my $file = shift;
+  return {
+    "log4perl.rootLogger"                    => "INFO , LOGFILE",
+    "log4perl.category.ResultsConfiguration" => "INFO , LOGFILE",
+    "log4perl.category.Fixtures"             => "INFO , LOGFILE",
+    "log4perl.category.WeekFixtures"         => "INFO , LOGFILE",
+    "log4perl.category.WeekData"             => "INFO , LOGFILE",
+    "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
+    "log4perl.appender.LOGFILE.filename"     => $file,
+    "log4perl.appender.LOGFILE.mode"         => "append",
+    "log4perl.appender.LOGFILE.layout"       => "Log::Log4perl::Layout::PatternLayout",
+    "log4perl.appender.LOGFILE.layout.ConversionPattern" =>
+      "[%d{dd/MMM/yyyy:HH:mm:ss}] %c %p %F{1} %M %L - %m%n",
+  };
+}
 
 =head2 get_logger
 
@@ -267,20 +264,20 @@ If the configuration file does not exists, undefined is returned.
 
 =cut
 
-  sub get_logger {
-    my ( $self, $category, $file ) = validate_pos( @_, 1, 1, 0 );
+sub get_logger {
+  my ( $self, $category, $file ) = validate_pos( @_, 1, 1, 0 );
 
-    $category = 'Default' if !$category;
-    my $conf = $self->get_conf($file);
-    return if !$conf;
+  $category = 'Default' if !$category;
+  my $conf = $self->get_conf($file);
+  return if !$conf;
 
-    Log::Log4perl::init($conf);
+  Log::Log4perl::init($conf);
 
-    my $logger = Log::Log4perl::get_logger($category);
+  my $logger = Log::Log4perl::get_logger($category);
 
-    return $logger;
+  return $logger;
 
-  }
+}
 
 =head2 get_conf
 
@@ -288,99 +285,98 @@ Return the log configuration file if it exists.
 
 =cut
 
-  sub get_conf {
-    my $self = shift;
+sub get_conf {
+  my $self = shift;
 
-    die ResultsSystem::Exception->new( "LOG_CONF_DOES_NOT_EXIST",
-      "Log configuration file does not exist " . $CONF_FILE )
-      if !-f $CONF_FILE;
+  croak ResultsSystem::Exception->new( "LOG_CONF_DOES_NOT_EXIST",
+    "Log configuration file does not exist " . $CONF_FILE )
+    if !-f $CONF_FILE;
 
-    return $CONF_FILE;
-  }
+  return $CONF_FILE;
+}
 
 =head2 get_log_dir
 
 =cut
 
-  #*****************************************************************************
-  sub get_log_dir
-
-    #*****************************************************************************
-  {
-    my $self = shift;
-    return $self->{LOGDIR};
-  }
-
-=head2 _create_suffix
-
-=cut
+#*****************************************************************************
+sub get_log_dir
 
   #*****************************************************************************
-  # Use a function to calculate the suffix.
-  sub _create_suffix {
+{
+  my $self = shift;
+  return $self->{LOGDIR};
+}
 
-    #*****************************************************************************
-    my $self = shift;
-    my $lt   = localtime();
+#=head2 _create_suffix
+#
+#=cut
+#
+##*****************************************************************************
+## Use a function to calculate the suffix.
+#sub _create_suffix {
+#
+#  #*****************************************************************************
+#  my $self = shift;
+#  my $lt   = localtime();
+#
+#  my $tmp = $lt->yday;
+#  while ( length $tmp < 3 ) { $tmp = '0' . $tmp; }
+#  my $suffix = $tmp;
+#
+#  if ( $self->get_append_logfile() eq 'N' ) {
+#
+#    $tmp = $lt->hour;
+#    while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+#    $suffix = $suffix . $tmp;
+#
+#    $tmp = $lt->min;
+#    while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+#    $suffix = $suffix . $tmp;
+#
+#    $tmp = $lt->sec;
+#    while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+#    $suffix = $suffix . $tmp;
+#
+#    $tmp = int( rand(100) );
+#    while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
+#
+#    $suffix = $suffix . $tmp;
+#
+#  }
+#
+#  return $suffix;
+#
+#}
 
-    my $tmp = $lt->yday;
-    while ( length $tmp < 3 ) { $tmp = '0' . $tmp; }
-    my $suffix = $tmp;
-
-    if ( $self->get_append_logfile() eq 'N' ) {
-
-      $tmp = $lt->hour;
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-      $suffix = $suffix . $tmp;
-
-      $tmp = $lt->min;
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-      $suffix = $suffix . $tmp;
-
-      $tmp = $lt->sec;
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-      $suffix = $suffix . $tmp;
-
-      $tmp = int( rand(100) );
-      while ( length $tmp < 2 ) { $tmp = '0' . $tmp; }
-
-      $suffix = $suffix . $tmp;
-
-    }
-
-    return $suffix;
-
-  }
-
-  #=head2 get_log_file_name
-  #
-  #Return the name of the open log file. If a parameter is provided then the path is
-  #returned as well.
-  #
-  #=cut
-  #
-  #  #*****************************************************************************
-  #  sub get_log_file_name
-  #
-  #    #*****************************************************************************
-  #  {
-  #    my $self = shift;
-  #    my $full = shift;
-  #    my $name = $self->{LOGFILENAME};
-  #    if ( $full eq undef ) {
-  #      $name =~ s/^.*?([^\/\\]{1,})$/$1/;
-  #    }
-  #    return $name;
-  #  }
+#=head2 get_log_file_name
+#
+#Return the name of the open log file. If a parameter is provided then the path is
+#returned as well.
+#
+#=cut
+#
+#  #*****************************************************************************
+#  sub get_log_file_name
+#
+#    #*****************************************************************************
+#  {
+#    my $self = shift;
+#    my $full = shift;
+#    my $name = $self->{LOGFILENAME};
+#    if ( $full eq undef ) {
+#      $name =~ s/^.*?([^\/\\]{1,})$/$1/;
+#    }
+#    return $name;
+#  }
 
 =head2 get_log_file_stem
 
 =cut
 
-  sub get_log_file_stem {
-    my $self = shift;
-    return $self->{LOG_FILE_STEM} || 'rs';
-  }
-
-  1;
+sub get_log_file_stem {
+  my $self = shift;
+  return $self->{LOG_FILE_STEM} || 'rs';
 }
+
+1;

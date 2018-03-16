@@ -23,21 +23,20 @@ ResultsSystem::Configuration
 
 =cut
 
-{
+package ResultsSystem::Configuration;
 
-  package ResultsSystem::Configuration;
+use strict;
+use warnings;
+use Carp;
 
-  use strict;
-  use warnings;
+use XML::Simple;
+use Sort::Maker;
+use List::MoreUtils qw/ first_value any /;
+use Regexp::Common qw /whitespace/;
+use Data::Dumper;
+use Params::Validate qw/:all/;
 
-  use XML::Simple;
-  use Sort::Maker;
-  use List::MoreUtils qw/ first_value any /;
-  use Regexp::Common qw /whitespace/;
-  use Data::Dumper;
-  use Params::Validate qw/:all/;
-
-  use ResultsSystem::Exception;
+use ResultsSystem::Exception;
 
 =head2 new
 
@@ -58,30 +57,30 @@ Requires -logger
 
 =cut
 
+#***************************************
+sub new {
+
   #***************************************
-  sub new {
+  my ( $class, %args ) = @_;
+  my $self = {};
+  bless $self, $class;
+  my $err = 0;
 
-    #***************************************
-    my ( $class, %args ) = @_;
-    my $self = {};
-    bless $self, $class;
-    my $err = 0;
+  $self->set_logger( $args{-logger} );
 
-    $self->set_logger( $args{-logger} );
-
-    # $self->set_full_filename("../custom/results_system.ini");
-    if ( $args{-full_filename} ) {
-      $err = $self->set_full_filename( $args{-full_filename} );
-    }
-
-    if ( $err == 0 ) {
-      return $self;
-    }
-    else {
-      $self->logger->error("Could not create object.");
-      return undef;
-    }
+  # $self->set_full_filename("../custom/results_system.ini");
+  if ( $args{-full_filename} ) {
+    $err = $self->set_full_filename( $args{-full_filename} );
   }
+
+  if ( $err == 0 ) {
+    return $self;
+  }
+  else {
+    $self->logger->error("Could not create object.");
+    return;
+  }
+}
 
 =head2 set_full_filename
 
@@ -90,20 +89,20 @@ characters other than alphanumeric characters, "_", ".", or "/".
 
 =cut
 
-  #***************************************
-  sub set_full_filename {
+#***************************************
+sub set_full_filename {
 
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    $self->{FULL_FILENAME} = shift;
-    $self->{FULL_FILENAME} =~ s/[^\w\.\/ -]//g;
-    if ( !-f $self->{FULL_FILENAME} ) {
-      $self->logger->error( $self->{FULL_FILENAME} . " does not exist." );
-      $err = 1;
-    }
-    return $err;
+  #***************************************
+  my $self = shift;
+  my $err  = 0;
+  $self->{FULL_FILENAME} = shift;
+  $self->{FULL_FILENAME} =~ s/[^\w\.\/ -]//xg;
+  if ( !-f $self->{FULL_FILENAME} ) {
+    $self->logger->error( $self->{FULL_FILENAME} . " does not exist." );
+    $err = 1;
   }
+  return $err;
+}
 
 =head2 get_full_filename
 
@@ -111,37 +110,37 @@ Returns the full filename of the configuration file.
 
 =cut
 
-  #***************************************
-  sub get_full_filename {
+#***************************************
+sub get_full_filename {
 
-    #***************************************
-    my $self = shift;
-    return $self->{FULL_FILENAME} if $self->{FULL_FILENAME};
-    my $system = $self->get_system;
-    if ($system) {
-      $self->set_full_filename("../custom/$system/$system.ini");
-    }
-    return $self->{FULL_FILENAME};
+  #***************************************
+  my $self = shift;
+  return $self->{FULL_FILENAME} if $self->{FULL_FILENAME};
+  my $system = $self->get_system;
+  if ($system) {
+    $self->set_full_filename("../custom/$system/$system.ini");
   }
+  return $self->{FULL_FILENAME};
+}
 
 =head2 set_system
 
 =cut
 
-  sub set_system {
-    my ( $self, $system ) = @_;
-    $self->{system} = $system;
-    return $self;
-  }
+sub set_system {
+  my ( $self, $system ) = @_;
+  $self->{system} = $system;
+  return $self;
+}
 
 =head2 get_system
 
 =cut
 
-  sub get_system {
-    my $self = shift;
-    return $self->{system};
-  }
+sub get_system {
+  my $self = shift;
+  return $self->{system};
+}
 
 =head2 read_file
 
@@ -204,18 +203,18 @@ Then the merged xml will be:
 
 =cut
 
+#***************************************
+sub read_file {
+
   #***************************************
-  sub read_file {
+  my $self = shift;
+  my $err  = 0;
 
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
+  $err = $self->_read_file();
+  return $err if $err;
 
-    $err = $self->_read_file();
-    return $err if $err;
-
-    return $err;
-  }
+  return $err;
+}
 
 =head2 get_menu_names
 
@@ -226,44 +225,44 @@ Returns a list of hash references sorted by menu_position. Each hash reference h
 
 =cut
 
+#***************************************
+sub get_menu_names {
+
   #***************************************
-  sub get_menu_names {
-
-    #***************************************
-    my $self = shift;
-    my $tags = $self->_get_tags();
-    my @sorted_list;
-    my $div_array_ref = $tags->{divisions}[0]{division};
-    if ( !$div_array_ref ) {
-      return;
-    }
-    my @div_array = @$div_array_ref;
-
-    # print $div_array[1]{menu_position}[0] . "\n";
-
-    foreach my $d (@div_array) {
-      my %h = (
-        menu_position => $d->{menu_position}[0],
-        menu_name     => $d->{menu_name}[0],
-        csv_file      => $d->{csv_file}[0]
-      );
-      $h{menu_position} = $self->_trim( $h{menu_position} );
-      $h{menu_name}     = $self->_trim( $h{menu_name} );
-      $h{csv_file}      = $self->_trim( $h{csv_file} );
-      push @sorted_list, \%h;
-    }
-
-    my $sorter = make_sorter(
-      qw( ST ),
-      number => {
-        code       => '$_->{menu_position}',
-        descending => 0
-      }
-    );
-    @sorted_list = $sorter->(@sorted_list);
-    return @sorted_list;
-
+  my $self = shift;
+  my $tags = $self->_get_tags();
+  my @sorted_list;
+  my $div_array_ref = $tags->{divisions}[0]{division};
+  if ( !$div_array_ref ) {
+    return;
   }
+  my @div_array = @$div_array_ref;
+
+  # print $div_array[1]{menu_position}[0] . "\n";
+
+  foreach my $d (@div_array) {
+    my %h = (
+      menu_position => $d->{menu_position}[0],
+      menu_name     => $d->{menu_name}[0],
+      csv_file      => $d->{csv_file}[0]
+    );
+    $h{menu_position} = $self->_trim( $h{menu_position} );
+    $h{menu_name}     = $self->_trim( $h{menu_name} );
+    $h{csv_file}      = $self->_trim( $h{csv_file} );
+    push @sorted_list, \%h;
+  }
+
+  my $sorter = make_sorter(
+    qw( ST ),
+    number => {
+      code       => '$_->{menu_position}',
+      descending => 0
+    }
+  );
+  @sorted_list = $sorter->(@sorted_list);
+  return @sorted_list;
+
+}
 
 =head2 get_name
 
@@ -277,23 +276,23 @@ This method returns the hash reference for the csv_file or menu_name passed as a
 
 =cut
 
+#***************************************
+sub get_name {
+
   #***************************************
-  sub get_name {
+  my $self = shift;
+  my %args = (@_);
+  my $t;
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $t;
-
-    my @list = $self->get_menu_names;
-    if ( $args{-menu_name} ) {
-      $t = first_value { $_->{menu_name} eq $args{-menu_name} } @list;
-    }
-    else {
-      $t = first_value { $_->{csv_file} eq $args{-csv_file} } @list;
-    }
-    return $t;    # Hash ref
+  my @list = $self->get_menu_names;
+  if ( $args{-menu_name} ) {
+    $t = first_value { $_->{menu_name} eq $args{-menu_name} } @list;
   }
+  else {
+    $t = first_value { $_->{csv_file} eq $args{-csv_file} } @list;
+  }
+  return $t;    # Hash ref
+}
 
 =head2 get_path
 
@@ -315,53 +314,53 @@ $path = $c->get_path( -htdocs => "Y", -allow_not_exists => 1 );
 
 =cut
 
+#***************************************
+sub get_path {
+
   #***************************************
-  sub get_path {
+  my ( $self, %args ) = @_;
 
-    #***************************************
-    my ( $self, %args ) = @_;
+  my $p;
+  my $err = 0;
 
-    my $p;
-    my $err = 0;
+  my $allow_not_exists = $args{"-allow_not_exists"};
+  delete $args{"-allow_not_exists"};
 
-    my $allow_not_exists = $args{"-allow_not_exists"};
-    delete $args{"-allow_not_exists"};
+  $self->logger->debug( "get_path() called. " . Dumper(%args) ) if !$args{-log_dir};
+  croak ResultsSystem::Exception->new( 'NO_PATHS_DEFINED', 'No paths defined' )
+    if !exists $self->_get_tags->{paths};
 
-    $self->logger->debug( "get_path() called. " . Dumper(%args) ) if !$args{-log_dir};
-    die ResultsSystem::Exception->new( 'NO_PATHS_DEFINED', 'No paths defined' )
-      if !exists $self->_get_tags->{paths};
-
-    my @keys        = keys %args;
-    my $key         = shift @keys;
-    my @valid_paths = (
-      "-csv_files",   "-log_dir",          "-pwd_dir", "-table_dir",
-      "-results_dir", "-htdocs",           "-cgi_dir", "-root",
-      '-htdocs_full', '-results_dir_full', '-table_dir_full'
-    );
-    if ( !( any { $key eq $_ } @valid_paths ) ) {
-      $self->logger->warn("$key is not in the list of valid paths.");
-      $self->logger->warn( Dumper caller );
-    }
-
-    my $k = $key;
-    $k =~ s/^-//;
-    $p = $self->_get_tags->{paths}[0]{$k}[0];
-    die ResultsSystem::Exception->new( 'PATH_NOT_IN_TAGS', $k ) if !$p;
-
-    $p = $self->_construct_path( -path => $p );
-    $p = $self->_trim($p);
-
-    if ( ( !$allow_not_exists ) && ( !-d $p ) ) {
-
-      # Report this as a warning rather than a serious error.
-      $self->logger->warn( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
-      $self->logger->warn( Dumper caller );
-    }
-    $self->logger->debug( "get_path() returning: " . $p . " was called with " . Dumper(%args) )
-      if !$args{-log_dir};
-    return $p;
-
+  my @keys        = keys %args;
+  my $key         = shift @keys;
+  my @valid_paths = (
+    "-csv_files",   "-log_dir",          "-pwd_dir", "-table_dir",
+    "-results_dir", "-htdocs",           "-cgi_dir", "-root",
+    '-htdocs_full', '-results_dir_full', '-table_dir_full'
+  );
+  if ( !( any { $key eq $_ } @valid_paths ) ) {
+    $self->logger->warn("$key is not in the list of valid paths.");
+    $self->logger->warn( Dumper caller );
   }
+
+  my $k = $key;
+  $k =~ s/^-//x;
+  $p = $self->_get_tags->{paths}[0]{$k}[0];
+  croak ResultsSystem::Exception->new( 'PATH_NOT_IN_TAGS', $k ) if !$p;
+
+  $p = $self->_construct_path( -path => $p );
+  $p = $self->_trim($p);
+
+  if ( ( !$allow_not_exists ) && ( !-d $p ) ) {
+
+    # Report this as a warning rather than a serious error.
+    $self->logger->warn( "Path does not exist. " . join( ", ", keys(%args) ) . " " . $p );
+    $self->logger->warn( Dumper caller );
+  }
+  $self->logger->debug( "get_path() returning: " . $p . " was called with " . Dumper(%args) )
+    if !$args{-log_dir};
+  return $p;
+
+}
 
 =head2 get_code
 
@@ -373,28 +372,29 @@ $pwd = $c->get_code( "fred" );
 
 =cut
 
+#***************************************
+sub get_code {
+
   #***************************************
-  sub get_code {
+  my $self = shift;
+  my $user = shift;
+  my $tags;
+  $tags = $self->_get_tags->{users} if $self->_get_tags;
+  my $code;
 
-    #***************************************
-    my $self = shift;
-    my $user = shift;
-    my $tags = $self->_get_tags->{users} if $self->_get_tags;
-    my $code;
-
-    if ( !$user ) {
-      return;
-    }
-
-    foreach my $u (@$tags) {
-
-      if ( $u->{user}[0] eq $user ) {
-        $code = $u->{code}[0];
-        last;
-      }
-    }
-    return $self->_trim($code);
+  if ( !$user ) {
+    return;
   }
+
+  foreach my $u (@$tags) {
+
+    if ( $u->{user}[0] eq $user ) {
+      $code = $u->{code}[0];
+      last;
+    }
+  }
+  return $self->_trim($code);
+}
 
 =head2 get_season
 
@@ -402,14 +402,14 @@ Returns the current season.
 
 =cut
 
-  #***************************************
-  sub get_season {
+#***************************************
+sub get_season {
 
-    #***************************************
-    my $self = shift;
-    my $s    = $self->_get_tags->{descriptors}[0]{season}[0];
-    return $self->_trim($s);
-  }
+  #***************************************
+  my $self = shift;
+  my $s    = $self->_get_tags->{descriptors}[0]{season}[0];
+  return $self->_trim($s);
+}
 
 =head2 get_title
 
@@ -417,14 +417,14 @@ Returns the title.
 
 =cut
 
-  #***************************************
-  sub get_title {
+#***************************************
+sub get_title {
 
-    #***************************************
-    my $self = shift;
-    my $s    = $self->_get_tags->{descriptors}[0]{title}[0];
-    return $self->_trim($s);
-  }
+  #***************************************
+  my $self = shift;
+  my $s    = $self->_get_tags->{descriptors}[0]{title}[0];
+  return $self->_trim($s);
+}
 
 =head2 get_log_stem
 
@@ -432,32 +432,32 @@ Appends the current season to the string passed as an argument.
 
 =cut
 
+#***************************************
+sub get_log_stem {
+
   #***************************************
-  sub get_log_stem {
-
-    #***************************************
-    my $self   = shift;
-    my $system = shift;
-    my $stem   = "results_system";
-    if ($system) {
-      $stem = $system;
-    }
-    my $s = $self->get_season;
-    if ($s) {
-      $stem = $stem . $s;
-    }
-
-    return $stem;
+  my $self   = shift;
+  my $system = shift;
+  my $stem   = "results_system";
+  if ($system) {
+    $stem = $system;
+  }
+  my $s = $self->get_season;
+  if ($s) {
+    $stem = $stem . $s;
   }
 
-  # For testing purposes only.
-  sub _set_stylesheet {
-    my $self  = shift;
-    my $h_ref = shift;
-    $self->{TAGS}->{stylesheets}[0]{sheet}[0] = $h_ref->{name};
-    $self->{TAGS}->{stylesheets}[0]{copy}[0]  = $h_ref->{copy};
-    return 0;
-  }
+  return $stem;
+}
+
+## For testing purposes only.
+#sub _set_stylesheet {
+#  my $self  = shift;
+#  my $h_ref = shift;
+#  $self->{TAGS}->{stylesheets}[0]{sheet}[0] = $h_ref->{name};
+#  $self->{TAGS}->{stylesheets}[0]{copy}[0]  = $h_ref->{copy};
+#  return 0;
+#}
 
 =head2 get_stylesheet
 
@@ -469,25 +469,25 @@ have values of "yes" and "no".
 
 =cut
 
-  #***************************************
-  sub get_stylesheet {
+#***************************************
+sub get_stylesheet {
 
-    #***************************************
-    my $self = shift;
-    my $name = $self->_get_tags->{stylesheets}[0]{sheet}[0];
-    my $copy = $self->_get_tags->{stylesheets}[0]{copy}[0];
-    $name = $self->_trim($name);
-    $copy = "no" if !$copy;
-    $copy = ( $copy =~ m/yes/i ) ? "yes" : "no";
-    if ( !$name ) {
-      $self->logger->debug("get_stylesheet() No sheet element found.");
-      if ( $self->_get_tags->{stylesheets}[0] =~ m/\w+/ ) {
-        $name = $self->_get_tags->{stylesheets}[0];
-        $self->logger->debug("get_stylesheet() Return $name instead.");
-      }
+  #***************************************
+  my $self = shift;
+  my $name = $self->_get_tags->{stylesheets}[0]{sheet}[0];
+  my $copy = $self->_get_tags->{stylesheets}[0]{copy}[0];
+  $name = $self->_trim($name);
+  $copy = "no" if !$copy;
+  $copy = ( $copy =~ m/yes/i ) ? "yes" : "no";
+  if ( !$name ) {
+    $self->logger->debug("get_stylesheet() No sheet element found.");
+    if ( $self->_get_tags->{stylesheets}[0] =~ m/\w+/x ) {
+      $name = $self->_get_tags->{stylesheets}[0];
+      $self->logger->debug("get_stylesheet() Return $name instead.");
     }
-    return { name => $name, copy => $copy };
   }
+  return { name => $name, copy => $copy };
+}
 
 =head2 get_stylesheets
 
@@ -495,21 +495,21 @@ Returns a list of stylesheets
 
 =cut
 
+#***************************************
+# Return a list of stylesheets
+#***************************************
+sub get_stylesheets {
+
   #***************************************
-  # Return a list of stylesheets
-  #***************************************
-  sub get_stylesheets {
+  my $self = shift;
+  my @s    = @{ $self->_get_tags->{stylesheets}[0]{sheet} };
 
-    #***************************************
-    my $self = shift;
-    my @s    = @{ $self->_get_tags->{stylesheets}[0]{sheet} };
-
-    foreach my $sheet (@s) {
-      $sheet = $self->_trim($sheet);
-    }
-
-    return @s;
+  foreach my $sheet (@s) {
+    $sheet = $self->_trim($sheet);
   }
+
+  return @s;
+}
 
 =head2 get_return_page
 
@@ -523,26 +523,26 @@ within a <p> tag.
 
 =cut
 
+#***************************************
+# The return link on the page will point
+# here.
+#***************************************
+sub get_return_page {
+
   #***************************************
-  # The return link on the page will point
-  # here.
-  #***************************************
-  sub get_return_page {
+  my $self = shift;
+  my %args = (@_);
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
+  my $l = $self->_get_tags->{return_to}[0]{menu}[0]{href}[0];
+  my $t = $self->_get_tags->{return_to}[0]{menu}[0]{title}[0];
 
-    my $l = $self->_get_tags->{return_to}[0]{menu}[0]{href}[0];
-    my $t = $self->_get_tags->{return_to}[0]{menu}[0]{title}[0];
-
-    if ( $args{-results_index} ) {
-      $l = $self->_get_tags->{return_to}[0]{results_index}[0]{href}[0];
-      $t = $self->_get_tags->{return_to}[0]{results_index}[0]{title}[0];
-    }
-
-    return ( $self->_trim($l), $self->_trim($t) );
+  if ( $args{-results_index} ) {
+    $l = $self->_get_tags->{return_to}[0]{results_index}[0]{href}[0];
+    $t = $self->_get_tags->{return_to}[0]{results_index}[0]{title}[0];
   }
+
+  return ( $self->_trim($l), $self->_trim($t) );
+}
 
 =head2 get_descriptors
 
@@ -551,23 +551,23 @@ $c->get_descriptors( season => "Y" );
 
 =cut
 
+#***************************************
+sub get_descriptors {
+
   #***************************************
-  sub get_descriptors {
+  my $self = shift;
+  my %args = (@_);
+  my $d;
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $d;
-
-    if ( $args{-title} ) {
-      $d = $self->_get_tags->{descriptors}[0]{title}[0];
-    }
-    if ( $args{-season} ) {
-      $d = $self->_get_tags->{descriptors}[0]{season}[0];
-    }
-
-    return $self->_trim($d);
+  if ( $args{-title} ) {
+    $d = $self->_get_tags->{descriptors}[0]{title}[0];
   }
+  if ( $args{-season} ) {
+    $d = $self->_get_tags->{descriptors}[0]{season}[0];
+  }
+
+  return $self->_trim($d);
+}
 
 =head2 get_calculation
 
@@ -575,28 +575,28 @@ points or average eg $c->get_calculation( -order_by => "Y" );
 
 =cut
 
-  #***************************************
-  sub get_calculation {
+#***************************************
+sub get_calculation {
 
-    #***************************************
-    my $self = shift;
-    my %args = (@_);
-    my $v;
-    if ( $args{-order_by} ) {
-      $v = $self->_get_tags->{calculations}[0]{order_by}[0];
-    }
-    return $self->_trim($v);
+  #***************************************
+  my $self = shift;
+  my %args = (@_);
+  my $v;
+  if ( $args{-order_by} ) {
+    $v = $self->_get_tags->{calculations}[0]{order_by}[0];
   }
+  return $self->_trim($v);
+}
 
 =head2 set_logger
 
 =cut
 
-  sub set_logger {
-    my ( $self, $logger ) = @_;
-    $self->{LOGGER} = $logger;
-    return $self;
-  }
+sub set_logger {
+  my ( $self, $logger ) = @_;
+  $self->{LOGGER} = $logger;
+  return $self;
+}
 
 =head1 INTERNAL (PRIVATE) METHODS
 
@@ -606,10 +606,10 @@ points or average eg $c->get_calculation( -order_by => "Y" );
 
 =cut
 
-  sub logger {
-    my $self = shift;
-    return $self->{LOGGER};
-  }
+sub logger {
+  my $self = shift;
+  return $self->{LOGGER};
+}
 
 =head2 _trim
 
@@ -619,19 +619,19 @@ $s = $c->_trim( $s );
 
 =cut
 
+#***************************************
+sub _trim {
+
   #***************************************
-  sub _trim {
+  my $self = shift;
+  my $s    = shift;
+  return $s if !defined $s;
+  $s =~ s/$RE{ws}{crop}//xg;
 
-    #***************************************
-    my $self = shift;
-    my $s    = shift;
-    return $s if !defined $s;
-    $s =~ s/$RE{ws}{crop}//g;
-
-    #$s =~ s/^\s*([^\s])/$1/;
-    #$s =~ s/([^\s])\s*$/$1/;
-    return $s;
-  }
+  #$s =~ s/^\s*([^\s])/$1/;
+  #$s =~ s/([^\s])\s*$/$1/;
+  return $s;
+}
 
 =head2 _get_tags
 
@@ -640,14 +640,14 @@ from the configuration file.
 
 =cut
 
-  #***************************************
-  sub _get_tags {
+#***************************************
+sub _get_tags {
 
-    #***************************************
-    my $self = shift;
-    die ResultsSystem::Exception->new( 'NO_TAGS_DEFINED', 'No tags defined' ) if !$self->{TAGS};
-    return $self->{TAGS};
-  }
+  #***************************************
+  my $self = shift;
+  croak ResultsSystem::Exception->new( 'NO_TAGS_DEFINED', 'No tags defined' ) if !$self->{TAGS};
+  return $self->{TAGS};
+}
 
 =head2 _read_file
 
@@ -655,31 +655,31 @@ Does the hard work for read_file().
 
 =cut
 
+#***************************************
+sub _read_file {
+
   #***************************************
-  sub _read_file {
+  my $self = shift;
+  my $err  = 0;
+  my ( $main_filename, $local_filename, $main_xml, $local_xml );
 
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    my ( $main_filename, $local_filename, $main_xml, $local_xml );
+  ( $main_filename, $local_filename ) = $self->_get_local_and_main_filenames();
 
-    ( $main_filename, $local_filename ) = $self->_get_local_and_main_filenames();
+  ( $err, $main_xml ) = $self->_load_file($main_filename);
+  return $err if $err;
 
-    ( $err, $main_xml ) = $self->_load_file($main_filename);
-    return $err if $err;
+  $self->{TAGS} = $main_xml;
+  return $err if !$local_filename;
 
-    $self->{TAGS} = $main_xml;
-    return $err if !$local_filename;
+  ( $err, $local_xml ) = $self->_load_file($local_filename);
+  return $err if $err;
 
-    ( $err, $local_xml ) = $self->_load_file($local_filename);
-    return $err if $err;
+  $self->{TAGS} = $self->_merge_files( $local_xml, $main_xml );
 
-    $self->{TAGS} = $self->_merge_files( $local_xml, $main_xml );
+  $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
 
-    $self->logfile_name( $self->get_path( -log_dir => 'Y' ) );
-
-    return $err;
-  }
+  return $err;
+}
 
 =head2 _get_local_and_main_filenames
 
@@ -689,28 +689,28 @@ If it is, return both the main filename and the local filename. Otherwise return
 
 =cut
 
-  sub _get_local_and_main_filenames {
-    my $self = shift;
+sub _get_local_and_main_filenames {
+  my $self = shift;
 
-    my $full_filename = $self->get_full_filename();
-    my $main          = $full_filename;
-    $main =~ s/_local(\.ini)$/$1/;
+  my $full_filename = $self->get_full_filename();
+  my $main          = $full_filename;
+  $main =~ s/_local(\.ini)$/$1/x;
 
-    return ( $main eq $full_filename ) ? ( $main, undef ) : ( $main, $full_filename );
-  }
+  return ( $main eq $full_filename ) ? ( $main, undef ) : ( $main, $full_filename );
+}
 
 =head2 _merge_files
 
 =cut
 
-  sub _merge_files {
-    my ( $self, $local_xml, $main_xml ) = @_;
-    foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
-      next if !$local_xml->{$k};
-      $main_xml->{$k} = $local_xml->{$k};
-    }
-    return $main_xml;
+sub _merge_files {
+  my ( $self, $local_xml, $main_xml ) = @_;
+  foreach my $k (qw/paths descriptors return_to stylesheets divisions users calculations/) {
+    next if !$local_xml->{$k};
+    $main_xml->{$k} = $local_xml->{$k};
   }
+  return $main_xml;
+}
 
 =head2 _load_file
 
@@ -720,36 +720,37 @@ Read the configuration file. Returns an error if the file doesn't exist or the r
 
 =cut
 
+#***************************************
+sub _load_file {
+
   #***************************************
-  sub _load_file {
+  my ( $self, $full_filename ) = @_;
+  my $err = 0;
+  my ($tags);
 
-    #***************************************
-    my ( $self, $full_filename ) = @_;
-    my $err = 0;
-    my ($tags);
+  my $xml = XML::Simple->new();
+  return 1 if !$xml;
 
-    my $xml = XML::Simple->new();
-    return 1 if !$xml;
-
-    if ( !-f $full_filename ) {
-      $self->logger->error( "_load_file(): File does not exist. " . $full_filename );
-      return 1;
-    }
-
-    eval {
-      $tags = $xml->XMLin(
-        $full_filename,
-        NoAttr        => 1,
-        ForceArray    => 1,
-        SuppressEmpty => ""
-      );
-    };
-    if ($@) { $self->logger->error($@); return 1; }
-
-    $self->logger(1)->debug("File read");
-
-    return ( 0, $tags );
+  if ( !-f $full_filename ) {
+    $self->logger->error( "_load_file(): File does not exist. " . $full_filename );
+    return 1;
   }
+
+  eval {
+    $tags = $xml->XMLin(
+      $full_filename,
+      NoAttr        => 1,
+      ForceArray    => 1,
+      SuppressEmpty => ""
+    );
+    1;
+  }
+    || do { $self->logger->error($@); return 1; };
+
+  $self->logger(1)->debug("File read");
+
+  return ( 0, $tags );
+}
 
 =head2 _construct_path
 
@@ -770,34 +771,32 @@ So if "path" is /x/y/z then this method will return /x/y/z/a/b/c.
 
 =cut
 
+#***************************************
+sub _construct_path {
+
   #***************************************
-  sub _construct_path {
+  my $self = shift;
+  my (%args) = validate( @_, { -path => { type => SCALAR | HASHREF } } );
+  my $tags = $self->_get_tags;
 
-    #***************************************
-    my $self = shift;
-    my (%args) = validate( @_, { -path => { type => SCALAR | HASHREF } } );
-    my $tags = $self->_get_tags;
+  return $args{-path} if !ref( $args{-path} );
+  my $p = $args{-path};
 
-    return $args{-path} if !ref( $args{-path} );
-    my $p = $args{-path};
+  croak ResultsSystem::Exception( 'MISSING_KEYS', 'Path must contsin the keys prefix and value' )
+    if !( $p->{prefix} && $p->{value} );
+  my $prefix = $p->{prefix}[0];
 
-    die ResultsSystem::Exception( 'MISSING_KEYS', 'Path must contsin the keys prefix and value' )
-      if !( $p->{prefix} && $p->{value} );
-    my $prefix = $p->{prefix}[0];
+  my $path;
+  $self->logger->debug( "Compound path. About to call get_path for prefix " . $prefix );
+  $prefix = $self->get_path( '-' . $prefix => 'Y' );
+  my $value = $p->{value}[0];
+  $path = "$prefix/$value";
+  $path =~ s://:/:xg;    # Change // to /.
 
-    my $path;
-    $self->logger->debug( "Compound path. About to call get_path for prefix " . $prefix );
-    $prefix = $self->get_path( '-' . $prefix => 'Y' );
-    my $value = $p->{value}[0];
-    $path = "$prefix/$value";
-    $path =~ s://:/:g;    # Change // to /.
-
-    return $path;
-  }
-
-  1;
-
+  return $path;
 }
+
+1;
 
 __END__
 

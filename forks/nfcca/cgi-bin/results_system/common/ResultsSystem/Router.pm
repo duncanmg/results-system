@@ -3,6 +3,7 @@ package ResultsSystem::Router;
 use strict;
 use warnings;
 use Params::Validate qw/:all/;
+use Carp;
 
 =head1 NAME
 
@@ -85,8 +86,9 @@ sub route {
   } || do {
     my $e = $@;
     $self->get_factory->get_file_logger( { -category => ref($self) } )->error($e);
-    die 'Error. See log';
+    croak 'Error. See log';
   };
+  return 1;
 }
 
 =head2 get_factory

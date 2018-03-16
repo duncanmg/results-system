@@ -1,3 +1,5 @@
+#! /usr/bin/perl
+
 use strict;
 use warnings;
 use Test::More;
@@ -9,7 +11,8 @@ use Test::Differences;
   package Conf;
 
   sub new {
-    return bless {};
+    my $class = shift;
+    return bless {}, $class;
   }
 
   sub get_path   { return "../../../results_system/fixtures/nfcca"; }
@@ -22,7 +25,8 @@ use Test::Differences;
   package Logger;
 
   sub new {
-    return bless {};
+    my $class = shift;
+    return bless {}, $class;
   }
   sub debug { return 1; }
   sub info  { return 1; }

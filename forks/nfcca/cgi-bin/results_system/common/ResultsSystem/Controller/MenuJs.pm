@@ -51,6 +51,8 @@ sub run {
   my $data = $self->get_menu_js_model()->run($args);
 
   $self->get_menu_js_view()->run( { -data => $data } );
+
+  return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS

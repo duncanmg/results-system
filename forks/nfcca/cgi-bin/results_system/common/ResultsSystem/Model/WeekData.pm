@@ -2,6 +2,7 @@
 
   use strict;
   use warnings;
+  use Carp;
 
   use ResultsSystem::Exception;
 
@@ -165,7 +166,7 @@ This call returns the current value without changing it.
     #***************************************
     my $self = shift;
     my $s    = shift;
-    if ( $s =~ m/[01]/ ) {
+    if ( $s =~ m/[01]/x ) {
       $self->{NO_FILE} = $s;
     }
     return $self->{NO_FILE};
@@ -187,12 +188,12 @@ Returns the .dat filename for the week.
     my $w = $self->get_week;
     my $d = $self->get_division;
 
-    die ResultsSystem::Exception->new( 'NO_DAT_WEEK',     'Week is not set.' )     if !$w;
-    die ResultsSystem::Exception->new( 'NO_DAT_DIVISION', 'Division is not set.' ) if !$d;
+    croak ResultsSystem::Exception->new( 'NO_DAT_WEEK',     'Week is not set.' )     if !$w;
+    croak ResultsSystem::Exception->new( 'NO_DAT_DIVISION', 'Division is not set.' ) if !$d;
 
-    $d =~ s/\..*$//g;    # Remove extension
+    $d =~ s/\..*$//xg;    # Remove extension
     $f = $d . "_" . $w . ".dat";
-    $f =~ s/\s//g;
+    $f =~ s/\s//xg;
 
     return $f;
   }

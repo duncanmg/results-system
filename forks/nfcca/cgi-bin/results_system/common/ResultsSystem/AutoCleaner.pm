@@ -38,6 +38,7 @@ use Data::Dumper;
 use Params::Validate qw/ :all /;
 use File::stat;
 use Time::localtime;
+use Carp;
 
 use ResultsSystem::Exception;
 
@@ -80,9 +81,10 @@ sub set_auto_clean {
   #*****************************************************************************
   my $self = shift;
   my $v    = shift;
-  if ( $v =~ m/^[yn]$/i ) {
+  if ( $v =~ m/^[yn]$/xi ) {
     $self->{AUTO_CLEAN} = uc($v);
   }
+  return 1;
 }
 
 =head2 auto_clean
@@ -111,7 +113,7 @@ sub auto_clean {
 
   my $d = $self->get_log_dir;
   opendir( $FP, $d )
-    || die ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', "Unable to open log dir $d." );
+    || croak ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', "Unable to open log dir $d." );
 
   my @files = readdir $FP;
 
@@ -221,6 +223,7 @@ sub set_save_days {
   #*****************************************************************************
   my $self = shift;
   $self->{SAVE_DAYS} = shift;
+  return 1;
 }
 
 =head2 get_save_days
@@ -283,7 +286,7 @@ sub ready_for_deletion {
   my $stem = $self->get_logfile_stem;
   my $st   = stat($full_filename);
 
-  return if !( $full_filename =~ m/^$stem.*log$/ );
+  return if !( $full_filename =~ m/^$stem.*log$/x );
 
   return if !( $st->mtime < $t );
 
@@ -311,7 +314,7 @@ sub get_logfile_stem {
 
   #*****************************************************************************
   my $self = shift;
-  die ResultsSystem::Exception->new( 'LOGFILE_STEM_NOT_SET', 'The logfile stem is not set' )
+  croak ResultsSystem::Exception->new( 'LOGFILE_STEM_NOT_SET', 'The logfile stem is not set' )
     if !$self->{LOGFILE_STEM};
   return $self->{LOGFILE_STEM};
 }
