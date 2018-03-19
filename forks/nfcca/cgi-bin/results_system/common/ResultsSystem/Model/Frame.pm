@@ -62,7 +62,6 @@ sub run {
   my %args = (@_);
   my $c    = $self->{conf};
   my $err  = 0;
-  my @file_lines;
 
   my $data = {};
 

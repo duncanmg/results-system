@@ -41,6 +41,7 @@ package ResultsSystem::Model::WeekFixtures;
 
 use strict;
 use warnings;
+use Carp;
 
 use Data::Dumper;
 use ResultsSystem::Exception;
@@ -144,8 +145,8 @@ sub reformat_team_names {
     my $hr = {};
     foreach my $l (@labels) {
       if ( !exists( $t->{$l} ) ) {
-        if ( $l =~ m/^(team|performances|played|result)$/ ) {
-          $hr->{$l} = ""  if ( $l =~ m/^(team|performances)$/ );
+        if ( $l =~ m/^(team|performances|played|result)$/x ) {
+          $hr->{$l} = ""  if ( $l =~ m/^(team|performances)$/x );
           $hr->{$l} = 'N' if $l eq 'played';
           $hr->{$l} = 'W' if $l eq 'result';
         }
@@ -198,7 +199,7 @@ sub build_fixtures_full_filename {
   my $c      = $self->get_configuration;
   my $season = $c->get_season;
   my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
-  die ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) if !-f $ff;
+  croak ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) if !-f $ff;
   return $ff;
 }
 
@@ -237,7 +238,7 @@ sub set_fixtures {
 
 sub get_fixtures {
   my $self = shift;
-  die ResultsSystem::Exception->new( 'MISSING_DEPENDENCY', 'No Fixtures object' )
+  croak ResultsSystem::Exception->new( 'MISSING_DEPENDENCY', 'No Fixtures object' )
     if !$self->{FIXTURES};
   return $self->{FIXTURES};
 }

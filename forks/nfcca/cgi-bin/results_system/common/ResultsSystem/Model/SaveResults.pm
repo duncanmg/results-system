@@ -9,8 +9,8 @@
   use parent qw/ ResultsSystem::Model /;
 
   my $types = {
-    positive_int => qr/^\d+$/,
-    int          => qr/^-*\d+$/
+    positive_int => qr/^\d+$/x,
+    int          => qr/^-*\d+$/x
   };
 
 =head1 NAME
@@ -93,7 +93,7 @@ Can also accept -division, -week
 
     foreach my $key ( keys %$hr ) {
 
-      my ( $ha, $name, $num ) = $key =~ m/^(home|away)(.*\D)(\d+)$/;
+      my ( $ha, $name, $num ) = $key =~ m/^(home|away)(.*\D)(\d+)$/x;
       next if !$ha;
 
       $tmp_hr->{$num}->{$ha} = {} if !exists $tmp_hr->{$num};
@@ -214,7 +214,7 @@ This call returns the current value without changing it.
     #***************************************
     my $self = shift;
     my $s    = shift;
-    if ( $s =~ m/[01]/ ) {
+    if ( $s =~ m/[01]/x ) {
       $self->{NO_FILE} = $s;
     }
     return $self->{NO_FILE};
@@ -236,9 +236,9 @@ Returns the .dat filename for the week.
     my $w = $self->get_week;
     my $d = $self->get_division;
 
-    $d =~ s/\..*$//g;    # Remove extension
+    $d =~ s/\..*$//xg;    # Remove extension
     $f = $d . "_" . $w . ".dat";
-    $f =~ s/\s//g;
+    $f =~ s/\s//xg;
 
     return $f;
   }

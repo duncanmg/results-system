@@ -42,7 +42,6 @@ This writes the current contents of the data structure to the results file for t
 
     #***************************************
     my ( $self, $lines ) = validate_pos( @_, 1, { type => ARRAYREF } );
-    my $FP;
 
     $self->logger->debug('write_file');
 
@@ -56,20 +55,21 @@ This writes the current contents of the data structure to the results file for t
     # my $lines = $self->get_lines;
     return if !scalar @$lines;
 
-    open( $FP, ">", $ff ) || do {
-      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
-      return;
-    };
-
+    my $out = [];
     foreach my $line (@$lines) {
 
       $line = $self->validate_line($line);
 
-      my $out = join( ",", map { $line->{$_} } @labels );
-      print $FP $out . "\n";
+      push @$out, join( ",", map { $line->{$_} } @labels );
 
     }
 
+    open( my $FP, ">", $ff ) || do {
+      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
+      return;
+    };
+
+    print $FP join( "\n", @$out );
     close($FP) if $FP;
 
     return 1;
@@ -85,13 +85,13 @@ This writes the current contents of the data structure to the results file for t
     my @labels = $self->get_labels;
     foreach my $label (@labels) {
 
-      if ( $label =~ m/^(team)|(played)|(result[^p]*)|(performances)$/ ) {
+      if ( $label =~ m/^(team)|(played)|(result[^p]*)|(performances)$/x ) {
         $line->{$label} ||= "";
-        $line->{$label} =~ s/[,<>|\n]/ /g;
+        $line->{$label} =~ s/[,<>|\n]/ /xg;
       }
       else {
         $line->{$label} ||= 0;
-        $line->{$label} =~ s/[^\d-]//g;
+        $line->{$label} =~ s/[^\d-]//xg;
       }
     }
     return $line;

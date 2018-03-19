@@ -42,9 +42,9 @@ plus -division and -week.
   sub new {
 
     #***************************************
-    my $self = {};
-    bless $self;
-    shift;
+    my $class = shift;
+    my $self  = {};
+    bless $self, $class;
     my %args = (@_);
 
     if ( $args{-division} ) {
@@ -88,7 +88,6 @@ This writes the current contents of the data structure to the results file for t
 
     #***************************************
     my ( $self, $lines ) = validate_pos( @_, 1, { type => ARRAYREF } );
-    my $FP;
 
     my @labels = $self->get_labels;
 
@@ -97,20 +96,21 @@ This writes the current contents of the data structure to the results file for t
     # my $lines = $self->get_lines;
     return if !scalar @$lines;
 
-    open( $FP, ">", $ff ) || do {
-      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
-      return;
-    };
-
+    my $out = [];
     foreach my $line (@$lines) {
 
       $line = $self->validate_line($line);
 
-      my $out = join( ",", map { $line->{$_} } @labels );
-      print $FP $out . "\n";
+      push @$out, join( ",", map { $line->{$_} } @labels );
 
     }
 
+    open( my $FP, ">", $ff ) || do {
+      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
+      return;
+    };
+
+    print $FP join( "\n", @$out );
     close($FP) if $FP;
 
     return 1;
@@ -126,12 +126,12 @@ This writes the current contents of the data structure to the results file for t
     my @labels = $self->get_labels;
     foreach my $label (@labels) {
 
-      if ( $label =~ m/(team)|(played)|(result[^p])|(performances)/ ) {
-        $line->{$label} =~ s/[,<>|\n]/ /g;
+      if ( $label =~ m/(team)|(played)|(result[^p])|(performances)/x ) {
+        $line->{$label} =~ s/[,<>|\n]/ /xg;
         $line->{$label} ||= "";
       }
       else {
-        $line->{$label} =~ s/[^\d-]//g;
+        $line->{$label} =~ s/[^\d-]//xg;
         $line->{$label} ||= 0;
       }
     }

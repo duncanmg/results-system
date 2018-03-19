@@ -118,6 +118,7 @@ It returns an error code (1 for success) and a message.
     #*****************************************************************************
     my $self = shift;
     $self->{PWDDIR} = shift;
+    return 1;
   }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -150,7 +151,7 @@ There is also the concept of the password being wrong or very wrong.
 
     foreach my $p ( $real_pwd, $user_pwd, $teamfile ) {
       $p ||= "";
-      $p =~ s/\W//g;
+      $p =~ s/\W//xg;
       if ( !$p ) {
         $self->logger->error(
           "One or more arguments is undefined." . Dumper( $real_pwd, $user_pwd, $teamfile ) );
@@ -268,7 +269,7 @@ Returns false if the file is missing or contains less occurrences than max_tries
     if ( -f $file ) {
       @lines = slurp($file);
     }
-    my $count = grep /^$string$/, @lines;
+    my $count = grep { $_ =~ m/^$string$/x } @lines;
     if ( $count >= $max_tries ) {
       $ok = 0;
     }
@@ -286,17 +287,13 @@ Returns false if the file is missing or contains less occurrences than max_tries
     my $self   = shift;
     my $file   = shift;
     my $string = shift;
-    my $ok     = 0;
-    my $FP;
-    if ( !open( $FP, ">>", $file ) ) {
+    open( my $FP, ">>", $file ) || do {
       $self->logger->error("Unable to open $file or writing.");
-      $ok = 0;
-    }
-    else {
-      print $FP $string . "\n";
-      close $FP;
-    }
-    return $ok;
+      return 0;
+    };
+    print $FP $string . "\n";
+    close $FP;
+    return 1;
   }
 
 =head2 _compare_characters
@@ -389,6 +386,7 @@ Sets the name of the wrong file. No path.
       my $vw = $stem . $s . ".log";
       $self->{VWRONGFILE} = $vw;
     }
+    return 1;
   }
 
 =head2 set_wrong_file
@@ -408,6 +406,7 @@ Sets the name of the very wrong file. No path.
       my $vw = $stem . $s . ".log";
       $self->{WRONGFILE} = $vw;
     }
+    return 1;
   }
 
 =head2 get_pwd_dir
