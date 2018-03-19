@@ -65,8 +65,10 @@ package ResultsSystem::Model::Fixtures;
 
 use strict;
 use warnings;
+use Carp;
 
 use Regexp::Common;
+use List::MoreUtils qw/any/;
 
 use Slurp;
 use Data::Dumper;
@@ -106,7 +108,7 @@ sub new {
   $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
 
   return $self if $err == 0;
-  return undef;
+  return;
 }
 
 =head2 get_full_filename
@@ -124,7 +126,7 @@ sub get_full_filename {
     my $s = $c->get_season;
     $self->{FULLFILENAME} = join( '/', $p, $s, $self->get_division );
   }
-  die ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} )
+  croak ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} )
     if !( -f $self->{FULLFILENAME} );
   return $self->{FULLFILENAME};
 }
@@ -313,7 +315,7 @@ sub get_all_teams {
 
   # From: http://www.antipope.org/Charlie/attic/perl/one-liner.html
   # Sort and eliminate duplicates.
-  @teams = sort grep( ( ( $h{$_}++ == 1 ) || 0 ), @allteams );
+  @teams = sort ( grep { ( $h{$_}++ == 1 ) || 0 } @allteams );
 
   @teams = map( { { team => $_ } } @teams );
 
@@ -342,9 +344,9 @@ sub read_file {
     @lines = slurp( $self->get_full_filename );
     1;
   } || do {
-    my $err = $@;
-    die $err if $err . "" !~ m/FILE_DOES_NOT_EXIST/;
-    $self->logger->error($@);
+    my $err2 = $@;
+    croak $err2 if $err2 . "" !~ m/FILE_DOES_NOT_EXIST/;
+    $self->logger->error($err2);
   };
 
   my $lines    = scalar(@lines);
@@ -372,7 +374,7 @@ sub read_file {
       }
     }
     else {
-      $dividers++ if ( $l =~ m/^==========/ );
+      $dividers++ if ( $l =~ m/^==========/x );
     }
 
   }
@@ -396,7 +398,7 @@ so the following are valid: 10 May, 1 May, 01 May, 01 Mayxxxxx, 22 May,
 
 The following are not valid: 10-06-08, 10-06, 10-may
 
-The three letters must match a date eg Jan, Feb, Mar, but not Fre.
+The three letters must match a month eg Jan, Feb, Mar, but not Fre.
 
 =cut
 
@@ -407,26 +409,8 @@ sub _is_date {
   my $self = shift;
   my $d    = shift;
   my $ret  = 0;
-  if ( $d =~ m/^[0-9]{1,2}[ -][A-Z][a-z]{2}/ ) {
-    if (
-      $d =~ m/
-         (Jan)
-        |(Feb)
-        |(Mar)
-        |(Apr)
-        |(May)
-        |(Jun)
-        |(Jul)
-        |(Aug)
-        |(Sep)
-        |(Oct)
-        |(Nov)
-        |(Dec)
-      /x
-      )
-    {
-      $ret = 1;
-    }
+  if ( $d =~ m/^[0-9]{1,2}[ -][A-Z][a-z]{2}/x ) {
+    $ret = 1 if any { $d =~ m/$_/x } qw / Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec /;
   }
   return $ret;
 }
@@ -457,7 +441,7 @@ sub _is_fixture {
   my $ret  = 0;
   if ( !( $self->_is_date($f) ) ) {
 
-    if ( $f =~ m/[\w.]\s*,\s*\w/ ) {
+    if ( $f =~ m/[\w.]\s*,\s*\w/x ) {
       $ret = 1;
     }
 
@@ -480,8 +464,8 @@ sub _add_date {
   my $self = shift;
   my $d    = shift;
   $d = $self->_trim($d);
-  $d =~ s/^0//;                                  # Remove leading zero.
-  $d =~ s/^(\d{1,2}-[A-Z][A-Za-z]{2}).*$/$1/;    # Remove trailing commas etc.
+  $d =~ s/^0//x;                                  # Remove leading zero.
+  $d =~ s/^(\d{1,2}-[A-Z][A-Za-z]{2}).*$/$1/x;    # Remove trailing commas etc.
   push @{ $self->{DATES} }, $d;
   return 0;
 }
@@ -500,7 +484,7 @@ sub _get_last_date {
   my $d_ref = $self->{DATES};
   if ( !$d_ref ) {
     $self->logger->warn("_get_last_date() No dates defined.");
-    return undef;
+    return;
   }
   my @d_array = @$d_ref;
   my $d       = $d_array[ scalar(@d_array) - 1 ];
@@ -571,14 +555,14 @@ sub _get_fixture_hash {
   $self->logger->debug( "_get_fixtures_hash() " . Dumper(%args) );
   $self->logger->debug( "_get_fixtures_hash() " . Dumper( $self->{FIXTURES} ) );
 
-  die ResultsSystem::Exception->new( 'FIXTURES_NOT_DEFINED', 'Has read_file been run?' )
+  croak ResultsSystem::Exception->new( 'FIXTURES_NOT_DEFINED', 'Has read_file been run?' )
     if !defined $self->{FIXTURES};
   my $l = $self->{FIXTURES}{ $args{-date} }[ $args{-index} ];
 
   if ($l) {
     $self->logger->debug( "_get_fixtures_hash() " . Dumper( $self->{FIXTURES} ) );
     $self->logger->debug( "_get_fixture_hash() " . $l );
-    my @bits = split /,/, $l;
+    my @bits = split /,/x, $l;
     $h{home} = $self->_trim( $bits[0] );
     $h{away} = $self->_trim( $bits[1] );
 
@@ -612,7 +596,7 @@ sub _trim {
   #***************************************
   my $self = shift;
   my $l    = shift;
-  $l =~ s/$RE{ws}{crop}//g;
+  $l =~ s/$RE{ws}{crop}//xg;
 
   #$l =~ s/^\s*([^\s])/$1/;
   #$l =~ s/([^\s])\s*$/$1/;
