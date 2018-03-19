@@ -313,9 +313,8 @@ sub get_all_teams {
 
   }
 
-  # From: http://www.antipope.org/Charlie/attic/perl/one-liner.html
   # Sort and eliminate duplicates.
-  @teams = sort ( grep { ( $h{$_}++ == 1 ) || 0 } @allteams );
+  @teams = sort ( grep { ( ++$h{$_} == 1 ) || 0 } @allteams );
 
   @teams = map( { { team => $_ } } @teams );
 
