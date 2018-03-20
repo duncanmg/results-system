@@ -223,7 +223,7 @@ will return "<p>Mary had a little lamb.</p>".
 =cut
 
 sub merge_content {
-  my ( $self, $html, $data ) = @_;
+  my ( $self, $html, $data ) = validate_pos( @_, 1, { type => SCALAR }, { type => HASHREF } );
 
   foreach my $k ( keys %$data ) {
 

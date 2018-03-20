@@ -61,7 +61,7 @@ sub run {
     HTDOCS          => $c->get_path( -htdocs => "Y", -allow_not_exists => "Y" ) . "/common",
     SYSTEM          => $c->get_system
   };
-  return 1;
+  return $data;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
