@@ -1,16 +1,19 @@
 package Check;
 
+use strict;
+use warnings;
+
 use Slurp;
 use List::MoreUtils qw/ uniq /;
 use Regexp::Common qw /whitespace/;
 use Params::Validate qw/:all/;
 use Data::Dumper;
 
-use parent Exporter;
+use parent qw/Exporter/;
 our @EXPORT_OK = qw/ check_dates_and_separators check_match_lines check /;
 
-$week_separator_pattern = "^={10,}[,\\s\\n]*\$";
-$date_pattern           = "^[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
+my $week_separator_pattern = "^={10,}[,\\s\\n]*\$";
+my $date_pattern           = "^[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
 
 =head1 checkfixtures.pl
 
@@ -80,9 +83,9 @@ sub check_dates_and_separators {
   my ($lines) = validate_pos( @_, { type => ARRAYREF } );
   my $err = 0;
 
-  my $num_week_separators = grep( /$week_separator_pattern/, @$lines );
+  my $num_week_separators = grep { $_ =~ m/$week_separator_pattern/x } @$lines;
 
-  my $num_date_lines = grep( /$date_pattern/, @$lines );
+  my $num_date_lines = grep { $_ =~ m/$date_pattern/x } @$lines;
 
   if ( $num_week_separators != $num_date_lines ) {
     print "File does not have the same number of week separators as date lines.\n";
@@ -108,19 +111,18 @@ sub check_match_lines {
 
   # ********************************************************
   my ($lines) = validate_pos( @_, { type => ARRAYREF } );
-  my @teams;
   my $err = 0;
 
   # Eliminate the date lines and line separators. Anything left should be a fixture.
-  my @match_lines = grep( !/($week_separator_pattern)|($date_pattern)/, @$lines );
+  my @match_lines = grep { $_ !~ m/?:($week_separator_pattern)|($date_pattern)/x } @$lines;
 
-  my @num_commas = grep( /\s*,\s*$/, @match_lines );
+  my @num_commas = grep { $_ =~ m/\s*,\s*$/x } @match_lines;
 
   my $team_counts = {};
   foreach my $t (@match_lines) {
-    my @bits = split( /,/, $t );
-    $bits[0] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
-    $bits[1] =~ s/$RE{ws}{crop}//g;    # Delete surrounding whitespace
+    my @bits = split( /,/x, $t );
+    $bits[0] =~ s/$RE{ws}{crop}//xg;    # Delete surrounding whitespace
+    $bits[1] =~ s/$RE{ws}{crop}//xg;    # Delete surrounding whitespace
 
     $team_counts->{ $bits[0] } = 0 if !$team_counts->{ $bits[0] };
     $team_counts->{ $bits[1] } = 0 if !$team_counts->{ $bits[1] };

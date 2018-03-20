@@ -2,6 +2,7 @@ package Helper;
 
 use strict;
 use warnings;
+use Carp;
 use ResultsSystem;
 
 use parent qw/Exporter/;
@@ -44,7 +45,7 @@ sub get_factory {
 
 sub get_system_full_filename {
   if ( !( $ARGV[0] || $ENV{NFCCA_CONFIG} ) ) {
-    die "Need a filename in ARGV. <"
+    croak "Need a filename in ARGV. <"
       . ( $ARGV[0] || "" )
       . "> or NFCCA_CONFIG must be set. <"
       . ( $ENV{NFCCA_CONFIG} || "" ) . ">";
