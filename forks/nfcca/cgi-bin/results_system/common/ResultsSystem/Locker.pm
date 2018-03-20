@@ -114,7 +114,7 @@ sub open_lock_file
   print $LOCKFILE $ff . "\n";
   close $LOCKFILE;
   $self->logger->debug("Lockfile created. $ff");
-  $self->{ IOPENED $LOCKFILE} = 1;
+  $self->{IOPENEDLOCKFILE} = 1;
 
   return 1
 
