@@ -76,12 +76,15 @@ $self->logger($dir, 1)->debug( "Always use a new logger. Write to file in $dir" 
 sub logger {
   my ( $self, $category ) = validate_pos( @_, 1, { type => SCALAR } );
 
-  croak ResultsSystem::Exception->new( "LOGDIR_DOES_NOT_EXIST",
-    "Log dir does not exist " . $self->get_log_dir )
-    if !-d $self->get_log_dir;
+  croak(
+    ResultsSystem::Exception->new(
+      "LOGDIR_DOES_NOT_EXIST", "Log dir does not exist " . $self->get_log_dir
+    )
+  ) if !-d $self->get_log_dir;
 
   my $file = $self->logfile_name;
-  croak ResultsSystem::Exception->new( "LOGFILENAME_NOT_SET", "The log file is not set " . $file )
+  croak(
+    ResultsSystem::Exception->new( "LOGFILENAME_NOT_SET", "The log file is not set " . $file ) )
     if !$file;
 
   local $ENV{LOGFILENAME} = $file;
@@ -288,9 +291,11 @@ Return the log configuration file if it exists.
 sub get_conf {
   my $self = shift;
 
-  croak ResultsSystem::Exception->new( "LOG_CONF_DOES_NOT_EXIST",
-    "Log configuration file does not exist " . $CONF_FILE )
-    if !-f $CONF_FILE;
+  croak(
+    ResultsSystem::Exception->new(
+      "LOG_CONF_DOES_NOT_EXIST", "Log configuration file does not exist " . $CONF_FILE
+    )
+  ) if !-f $CONF_FILE;
 
   return $CONF_FILE;
 }

@@ -199,7 +199,7 @@ sub build_fixtures_full_filename {
   my $c      = $self->get_configuration;
   my $season = $c->get_season;
   my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
-  croak ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) if !-f $ff;
+  croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) ) if !-f $ff;
   return $ff;
 }
 
@@ -238,7 +238,7 @@ sub set_fixtures {
 
 sub get_fixtures {
   my $self = shift;
-  croak ResultsSystem::Exception->new( 'MISSING_DEPENDENCY', 'No Fixtures object' )
+  croak( ResultsSystem::Exception->new( 'MISSING_DEPENDENCY', 'No Fixtures object' ) )
     if !$self->{FIXTURES};
   return $self->{FIXTURES};
 }

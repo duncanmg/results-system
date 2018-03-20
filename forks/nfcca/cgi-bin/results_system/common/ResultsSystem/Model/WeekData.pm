@@ -188,8 +188,8 @@ Returns the .dat filename for the week.
     my $w = $self->get_week;
     my $d = $self->get_division;
 
-    croak ResultsSystem::Exception->new( 'NO_DAT_WEEK',     'Week is not set.' )     if !$w;
-    croak ResultsSystem::Exception->new( 'NO_DAT_DIVISION', 'Division is not set.' ) if !$d;
+    croak( ResultsSystem::Exception->new( 'NO_DAT_WEEK',     'Week is not set.' ) )     if !$w;
+    croak( ResultsSystem::Exception->new( 'NO_DAT_DIVISION', 'Division is not set.' ) ) if !$d;
 
     $d =~ s/\..*$//xg;    # Remove extension
     $f = $d . "_" . $w . ".dat";

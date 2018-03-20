@@ -113,7 +113,8 @@ sub auto_clean {
 
   my $d = $self->get_log_dir;
   opendir( $FP, $d )
-    || croak ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', "Unable to open log dir $d." );
+    || croak(
+    ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', "Unable to open log dir $d." ) );
 
   my @files = readdir $FP;
 
@@ -314,7 +315,7 @@ sub get_logfile_stem {
 
   #*****************************************************************************
   my $self = shift;
-  croak ResultsSystem::Exception->new( 'LOGFILE_STEM_NOT_SET', 'The logfile stem is not set' )
+  croak( ResultsSystem::Exception->new( 'LOGFILE_STEM_NOT_SET', 'The logfile stem is not set' ) )
     if !$self->{LOGFILE_STEM};
   return $self->{LOGFILE_STEM};
 }

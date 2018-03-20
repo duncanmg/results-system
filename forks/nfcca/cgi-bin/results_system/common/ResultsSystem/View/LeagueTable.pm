@@ -215,8 +215,11 @@ to the directory given by "table_dir" in the configuration file.
 
     my $error = sub {
       my $err = shift;
-      croak ResultsSystem::Exception->new( "WRITE_ERR",
-        "Unable to open file $f for writing. " . $err );
+      croak(
+        ResultsSystem::Exception->new(
+          "WRITE_ERR", "Unable to open file $f for writing. " . $err
+        )
+      );
     };
 
     open( my $FP, ">", $f ) || $error->($!);
@@ -239,12 +242,14 @@ to the directory given by "table_dir" in the configuration file.
 
     my $c = $self->get_configuration;
     my $dir = $c->get_path( -table_dir_full => "Y" );
-    croak ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
-      "Table directory $dir does not exist." )
-      if !-d $dir;
+    croak(
+      ResultsSystem::Exception->new(
+        'DIR_DOES_NOT_EXIST', "Table directory $dir does not exist."
+      )
+    ) if !-d $dir;
 
     my $f = $self->get_division;    # The csv file
-    $f =~ s/\..*$/\.htm/x;           # Change the extension to .htm
+    $f =~ s/\..*$/\.htm/x;          # Change the extension to .htm
     $f = "$dir/$f";                 # Add the path
 
     return $f;

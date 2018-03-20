@@ -50,7 +50,8 @@ sub start {
   my ( $self, $system ) = validate_pos( @_, 1, 0 );
 
   $self->set_system($system) if $system;
-  croak ResultsSystem::Exception->new( 'NO_SYSYEM', 'System is not set.' ) if !$self->get_system;
+  croak( ResultsSystem::Exception->new( 'NO_SYSYEM', 'System is not set.' ) )
+    if !$self->get_system;
 
   my $conf = $self->get_configuration;
   $conf->set_system($system);

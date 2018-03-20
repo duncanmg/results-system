@@ -645,7 +645,8 @@ sub _get_tags {
 
   #***************************************
   my $self = shift;
-  croak ResultsSystem::Exception->new( 'NO_TAGS_DEFINED', 'No tags defined' ) if !$self->{TAGS};
+  croak( ResultsSystem::Exception->new( 'NO_TAGS_DEFINED', 'No tags defined' ) )
+    if !$self->{TAGS};
   return $self->{TAGS};
 }
 
@@ -782,7 +783,8 @@ sub _construct_path {
   return $args{-path} if !ref( $args{-path} );
   my $p = $args{-path};
 
-  croak ResultsSystem::Exception( 'MISSING_KEYS', 'Path must contsin the keys prefix and value' )
+  croak(
+    ResultsSystem::Exception( 'MISSING_KEYS', 'Path must contsin the keys prefix and value' ) )
     if !( $p->{prefix} && $p->{value} );
   my $prefix = $p->{prefix}[0];
 

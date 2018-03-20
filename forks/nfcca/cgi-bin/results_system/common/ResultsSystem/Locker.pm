@@ -107,8 +107,8 @@ sub open_lock_file
   }
 
   open( $LOCKFILE, ">", $ff ) || do {
-    croak ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_FILE',
-      "Unable to open file. $ff. " . $! );
+    croak(
+      ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_FILE', "Unable to open file. $ff. " . $! ) );
   };
 
   print $LOCKFILE $ff . "\n";
@@ -217,9 +217,11 @@ sub get_lock_dir
     $self->set_lock_dir( $c->get_path( -log_dir => 'Y' ) ) if $c;
   }
 
-  croak ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
-    'Lock dir does not exist ' . $self->{LOCKDIR} )
-    if !-d $self->{LOCKDIR};
+  croak(
+    ResultsSystem::Exception->new(
+      'DIR_DOES_NOT_EXIST', 'Lock dir does not exist ' . $self->{LOCKDIR}
+    )
+  ) if !-d $self->{LOCKDIR};
   return $self->{LOCKDIR};
 }
 

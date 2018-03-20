@@ -229,8 +229,8 @@ sub write_file {
   my $f = $self->build_full_filename;
 
   open( my $FP, ">", $f )
-    || croak ResultsSystem::Exception->new( "WRITE_ERR",
-    "Unable to open file $f for writing. " . $! );
+    || croak(
+    ResultsSystem::Exception->new( "WRITE_ERR", "Unable to open file $f for writing. " . $! ) );
 
   print $FP $line;
   close $FP;
@@ -246,9 +246,11 @@ sub build_full_filename {
 
   my $c = $self->get_configuration;
   my $dir = $c->get_path( -results_dir_full => "Y" );
-  croak ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST',
-    "Result directory $dir does not exist." )
-    if !-d $dir;
+  croak(
+    ResultsSystem::Exception->new(
+      'DIR_DOES_NOT_EXIST', "Result directory $dir does not exist."
+    )
+  ) if !-d $dir;
 
   my $f = $self->get_division;    # The csv file
   my $w = $self->get_week;        # The csv file

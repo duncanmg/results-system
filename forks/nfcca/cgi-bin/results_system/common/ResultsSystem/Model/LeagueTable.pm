@@ -109,7 +109,7 @@ This is the constructor for a LeagueTable object.
 
   sub get_division {
     my $self = shift;
-    croak ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' )
+    croak( ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' ) )
       if !$self->{division};
     return $self->{division};
   }
@@ -150,7 +150,7 @@ The method returns an error code and a reference to the list of week files.
     $csv =~ s/\..*$//xg;    # Remove extension
 
     opendir( $FP, $dir )
-      || do { croak ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', $! ); };
+      || do { croak( ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', $! ) ); };
 
     @files = readdir $FP;
     $self->logger->debug( scalar(@files) . " files retrieved from $dir." );
@@ -177,9 +177,11 @@ The method returns an error code and a reference to the list of week files.
     my $season = $c->get_season;
     $dir = "$dir/$season";
 
-    croak ResultsSystem::Exception->new( 'DIR_NOT_FOUND',
-      "Directory for csv files not found. " . $dir )
-      if !-d $dir;
+    croak(
+      ResultsSystem::Exception->new(
+        'DIR_NOT_FOUND', "Directory for csv files not found. " . $dir
+      )
+    ) if !-d $dir;
     return $dir;
   }
 
@@ -383,14 +385,14 @@ The sorted data in placed in a new list.
     my @sorted;
 
     my $table = $self->_get_aggregated_data;
-    croak ResultsSystem::Exception->new( 'NO_AGGREGATED_DATA', 'No aggregated data to sort' )
+    croak( ResultsSystem::Exception->new( 'NO_AGGREGATED_DATA', 'No aggregated data to sort' ) )
       if !$table;
 
     my $order = $self->get_configuration->get_calculation( -order_by => "Y" );
     $order = "totalpts" if ( $order ne "average" );
 
     my $sorter = make_sorter( 'ST', 'descending', number => '$_->{' . $order . '}' );
-    croak ResultsSystem::Exception->new( 'NO_SORTER', "Unable to create sorter. " . $@ )
+    croak( ResultsSystem::Exception->new( 'NO_SORTER', "Unable to create sorter. " . $@ ) )
       if !$sorter;
 
     local $@ = "";
@@ -398,8 +400,8 @@ The sorted data in placed in a new list.
       @sorted = $sorter->(@$table);
       1;
     }
-      || croak ResultsSystem::Exception->new( 'BAD_SORT',
-      "Unable to sort table. $@" . Dumper($table) );
+      || croak(
+      ResultsSystem::Exception->new( 'BAD_SORT', "Unable to sort table. $@" . Dumper($table) ) );
     $self->{SORTED_TABLE} = \@sorted;
 
     $self->logger->debug( "Table sorted by $order " . Dumper( $self->{SORTED_TABLE} ) );
