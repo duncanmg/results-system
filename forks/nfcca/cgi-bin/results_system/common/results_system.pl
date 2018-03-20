@@ -73,4 +73,7 @@ sub main {
   return 1;
 }
 
-main;
+main if !caller;
+
+1;
+
