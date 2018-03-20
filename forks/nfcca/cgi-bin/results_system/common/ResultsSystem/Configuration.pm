@@ -327,7 +327,7 @@ sub get_path {
   delete $args{"-allow_not_exists"};
 
   $self->logger->debug( "get_path() called. " . Dumper(%args) ) if !$args{-log_dir};
-  croak ResultsSystem::Exception->new( 'NO_PATHS_DEFINED', 'No paths defined' )
+  croak( ResultsSystem::Exception->new( 'NO_PATHS_DEFINED', 'No paths defined' ) )
     if !exists $self->_get_tags->{paths};
 
   my @keys        = keys %args;
@@ -345,7 +345,7 @@ sub get_path {
   my $k = $key;
   $k =~ s/^-//x;
   $p = $self->_get_tags->{paths}[0]{$k}[0];
-  croak ResultsSystem::Exception->new( 'PATH_NOT_IN_TAGS', $k ) if !$p;
+  croak( ResultsSystem::Exception->new( 'PATH_NOT_IN_TAGS', $k ) ) if !$p;
 
   $p = $self->_construct_path( -path => $p );
   $p = $self->_trim($p);

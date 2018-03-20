@@ -126,7 +126,7 @@ sub get_full_filename {
     my $s = $c->get_season;
     $self->{FULLFILENAME} = join( '/', $p, $s, $self->get_division );
   }
-  croak ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} )
+  croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} ) )
     if !( -f $self->{FULLFILENAME} );
   return $self->{FULLFILENAME};
 }
@@ -554,7 +554,7 @@ sub _get_fixture_hash {
   $self->logger->debug( "_get_fixtures_hash() " . Dumper(%args) );
   $self->logger->debug( "_get_fixtures_hash() " . Dumper( $self->{FIXTURES} ) );
 
-  croak ResultsSystem::Exception->new( 'FIXTURES_NOT_DEFINED', 'Has read_file been run?' )
+  croak( ResultsSystem::Exception->new( 'FIXTURES_NOT_DEFINED', 'Has read_file been run?' ) )
     if !defined $self->{FIXTURES};
   my $l = $self->{FIXTURES}{ $args{-date} }[ $args{-index} ];
 
