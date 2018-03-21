@@ -1,3 +1,5 @@
+#! /usr/bin/perl
+#
 
 =head1 admin2.pl
 

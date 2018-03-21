@@ -3,8 +3,9 @@
 use strict;
 use warnings;
 use Carp::Assert;
+use Carp;
 use CGI;
-use ResultsConfiguration;
+use ResultsSystem::Configuration;
 use File::Slurp qw/ slurp /;
 use File::Copy;
 use Data::Dumper;
@@ -48,7 +49,7 @@ sub main() {
   my $system = $params->{system};
 
   my $config_file = "../custom/$system/$system.ini";
-  my $config = ResultsConfiguration->new( -full_filename => $config_file );
+  my $config = ResultsSystem::Configuration->new( -full_filename => $config_file );
 
   $config->read_file;
   $placeholders->{system}     = $system;
@@ -75,6 +76,7 @@ sub main() {
 
   $template->process( 'admin.tt', $placeholders );
 
+  return 1;
 }
 
 =head3 load_csv_file
@@ -91,7 +93,7 @@ sub load_csv_file {
 
   my $target;
   foreach my $k ( keys %$params ) {
-    my ($menu_name) = $k =~ m/(^.*)_checkbox$/;
+    my ($menu_name) = $k =~ m/(^.*)_checkbox$/x;
     next if !$menu_name;
     $target = firstval { $_->{menu_name} eq $menu_name; } @$menu_names;
     last;
@@ -100,25 +102,25 @@ sub load_csv_file {
   my $data = $params->{csv_file};
   print STDERR Dumper $data;
 
-  my @lines = split( /\n/, $data );
+  my @lines = split( /\n/x, $data );
   my $err = Check::check( $target->{csv_file}, \@lines );
 
   if ( !$err ) {
 
-    my $FP;
     my $path = $config->get_path( "-csv_files" => "Y" );
     my $filename = "$path/$target->{csv_file}";
     if ( -f $filename ) {
       copy( $filename, $filename . '.' . time() )
-        || die "Unable to copy $filename to " . $filename . '.' . time() . " " . $!;
+        || croak "Unable to copy $filename to " . $filename . '.' . time() . " " . $!;
     }
 
-    open( $FP, '>', $filename ) || die "Unable to open $filename for writing. $!";
+    open( my $FP, '>', $filename ) || croak "Unable to open $filename for writing. $!";
     print $FP $data;
     close $FP;
 
   }
 
+  return 1;
 }
 
 =head3 increment_season
@@ -147,20 +149,19 @@ It makes a backup of the config file before changing it.
 #*************************************************************************
 sub increment_season {
   my ( $season, $config, $config_file ) = @_;
-  my $FP;
 
   my ( undef, undef, undef, undef, undef, $year ) = localtime;
   $year += 1900;
   if ( $season >= $year ) {
     $placeholders->{messages} .= "The season cannot be incremented beyond this year ($year)<br/>";
-    return undef;
+    return;
   }
   my $new_season = $season + 1;
 
   # eg /home/duncan/results_system/forks/hcl/results_system/htdocs/custom/test/2012/tables
   foreach my $path (qw/ table_dir_full results_dir_full /) {
     my ( $stem, $current, $leaf ) =
-      $config->get_path( "-" . $path => 'Y' ) =~ m~^(.*)/(\d{4})/([a-zA-Z]+)$~;
+      $config->get_path( "-" . $path => 'Y' ) =~ m~^(.*)/(\d{4})/([a-zA-Z]+)$~x;
     mkdir("$stem/$new_season")
       || do { $placeholders->{messages} .= "Unable to create directory $stem/$new_season" };
     mkdir("$stem/$new_season/$leaf")
@@ -173,12 +174,13 @@ sub increment_season {
 
   my @lines = slurp $config_file;
   foreach my $l (@lines) {
-    $l =~ s/$season/$new_season/g;
+    $l =~ s/$season/$new_season/xg;
   }
-  move( $config_file, "$config_file." . time() ) || die;
-  open( $FP, '>', $config_file ) || die;
+  move( $config_file, "$config_file." . time() ) || croak;
+  open( my $FP, '>', $config_file ) || croak;
   print $FP @lines;
   close $FP;
+  return 1;
 }
 
 main();

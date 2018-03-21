@@ -9,15 +9,19 @@ perl admin2.pl help season
 
 =cut
 
+## no critic (NamingConventions::Capitalization NamingConventions::ProhibitAmbiguousName)
+
 package Admin::Command::season;
+
 use strict;
 use warnings;
 use File::Slurp qw/ slurp /;
 use Admin -command;
+use Carp;
 
 use Data::Dumper;
 
-use ResultsConfiguration;
+use ResultsSystem::Configuration;
 
 my $args = [qw(system year)];
 
@@ -29,13 +33,15 @@ my $args = [qw(system year)];
 
 =cut
 
-sub usage_desc {"admin2.pl season system year [-yu] [long options...]"}
+sub usage_desc { return "admin2.pl season system year [-yu] [long options...]" }
 
 =head3 abstract
 
 =cut
 
-sub abstract {"Set up the new season."}
+sub abstract {
+  return "Set up the new season.";
+}
 
 =head3 description
 
@@ -70,10 +76,11 @@ sub opt_spec {
 =cut
 
 sub validate_args {
-  my ( $self, $opt, $args ) = @_;
+  my ( $self, $opt, $args2 ) = @_;
 
   # no args allowed but options!
-  $self->usage_error("Two arguments required") if ( scalar(@$args) != 2 );
+  $self->usage_error("Two arguments required") if ( scalar(@$args2) != 2 );
+  return 1;
 }
 
 =head3 execute
@@ -81,16 +88,15 @@ sub validate_args {
 =cut
 
 sub execute {
-  my ( $self, $opt, $args ) = @_;
-  my ( $conf_file, $year ) = @$args;
-  $DB::single = 1;
+  my ( $self, $opt, $args2 ) = @_;
+  my ( $conf_file, $year ) = @$args2;
   if ( !-f $conf_file ) {
     print "File $conf_file does not exist.\n";
     return;
   }
-  my $conf = ResultsConfiguration->new( -full_filename => $conf_file );
+  my $conf = ResultsSystem::Configuration->new( -full_filename => $conf_file );
   if ( !$conf ) {
-    print "Could not create ResultsConfiguration object.\n";
+    print "Could not create ResultsSystem::Configuration object.\n";
     return;
   }
   $conf->read_file() && return;
@@ -104,6 +110,7 @@ sub execute {
   $self->increment_season( $year, $conf, $conf_file, $opt );
 
   print "New season!\n";
+  return 1;
 }
 
 =head2 Custom Methods And Functions
@@ -120,7 +127,7 @@ sub increment_html_directories {
   # eg /home/duncan/results_system/forks/hcl/results_system/htdocs/custom/test/2012/tables
   foreach my $path (qw/ table_dir_full results_dir_full /) {
     my ( $stem, $current, $leaf ) =
-      $config->get_path( "-" . $path => 'Y' ) =~ m~^(.*)/(\d{4})/([a-zA-Z]+)$~;
+      $config->get_path( "-" . $path => 'Y' ) =~ m~^(.*)/(\d{4})/([a-zA-Z]+)$~x;
     my $upper = "$stem/$new_season";
     my $lower = "$upper/$leaf";
     if ($dry_run) {
@@ -133,6 +140,7 @@ sub increment_html_directories {
       mkdir($lower) || do { print "Unable to create directory $lower\n" };
     }
   }
+  return 1;
 }
 
 =head3 increment_csv_directory
@@ -150,6 +158,7 @@ sub increment_csv_directory {
     mkdir("$dir")
       || do { print "Unable to create directory $dir\n" };
   }
+  return 1;
 }
 
 =head3 update_config_file
@@ -163,27 +172,27 @@ $new_season cannot be greater than the current calendar year.
 sub update_config_file {
   my ( $self, $config_file, $season, $new_season, $dry_run ) = @_;
   my @lines = slurp $config_file;
-  my $FP;
 
   my ( undef, undef, undef, undef, undef, $year ) = localtime;
   $year += 1900;
   if ( $new_season > $year ) {
     print "The season cannot be incremented beyond this year ($year)\n";
-    return undef;
+    return;
   }
 
   foreach my $l (@lines) {
-    $l =~ s/$season/$new_season/g;
+    $l =~ s/$season/$new_season/xg;
   }
   if ($dry_run) {
     print "New config file will look like this:\n" . join( "", @lines );
   }
   else {
-    move( $config_file, "$config_file." . time() ) || die;
-    open( $FP, '>', $config_file ) || die;
+    move( $config_file, "$config_file." . time() ) || croak;
+    open( my $FP, '>', $config_file ) || croak;
     print $FP @lines;
     close $FP;
   }
+  return 1;
 }
 
 =head3 increment_season
@@ -202,6 +211,7 @@ sub increment_season {
   if ( $opt->{update_config} ) {
     $self->update_config_file( $config_file, $season, $new_season, $opt->{dry_run} );
   }
+  return 1;
 
 }
 

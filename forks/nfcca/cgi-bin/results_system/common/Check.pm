@@ -114,7 +114,7 @@ sub check_match_lines {
   my $err = 0;
 
   # Eliminate the date lines and line separators. Anything left should be a fixture.
-  my @match_lines = grep { $_ !~ m/?:($week_separator_pattern)|($date_pattern)/x } @$lines;
+  my @match_lines = grep { $_ !~ m/(?:$week_separator_pattern)|(?:$date_pattern)/x } @$lines;
 
   my @num_commas = grep { $_ =~ m/\s*,\s*$/x } @match_lines;
 

@@ -1,7 +1,10 @@
+#! /usr/bin/perl
+
 use strict;
 use warnings;
 use Getopt::Long;
 use Data::Dumper;
+use Carp;
 
 =head1 installation
 
@@ -19,8 +22,8 @@ perl installation.pl [OPTION]
 
 =cut
 
-my $opts = {};
-GetOptions( $opts, "mirror", "release", "rollback", "rollforward" ) || die "Invalid options";
+my $options = {};
+GetOptions( $options, "mirror", "release", "rollback", "rollforward" ) || croak "Invalid options";
 
 my $NFCCA   = "newforestcricket.co.uk";
 my $MIRROR  = "/home/duncan/nfcca_mirror";
@@ -109,13 +112,13 @@ Any files on the local machine which do not exist on the remote machine are dele
 
 sub mirror {
 
-  sync_tree( "$CURRENT/*", "$LAST" ) || die "Unable to sync_tree $CURRENT";
+  sync_tree( "$CURRENT/*", "$LAST" ) || croak "Unable to sync_tree $CURRENT";
 
   sync_tree( "$NFCCA:results_system", "$CURRENT" )
-    || die "Unable to sync_tree: $NFCCA:results_system";
-  sync_tree( "$NFCCA:cgi-bin", "$CURRENT" ) || die "Unable to sync_tree: $NFCCA:cgi-bin";
+    || croak "Unable to sync_tree: $NFCCA:results_system";
+  sync_tree( "$NFCCA:cgi-bin", "$CURRENT" ) || croak "Unable to sync_tree: $NFCCA:cgi-bin";
   sync_tree( "$NFCCA:public_html/results_system", "$CURRENT/public_html/results_system" )
-    || die "Unable to sync_tree: $NFCCA:cgi-bin";
+    || croak "Unable to sync_tree: $NFCCA:cgi-bin";
 
   return 1;
 }
@@ -136,15 +139,15 @@ Any files on the remote machine which do not exist locally are deleted.
 sub release {
 
   sync_tree( "$CURRENT/results_system", "$NFCCA:results_system" )
-    || die "Unable to sync_tree: $CURRENT/results_system";
+    || croak "Unable to sync_tree: $CURRENT/results_system";
   sync_tree( "$CURRENT/cgi-bin", "$NFCCA:cgi-bin" )
-    || die "Unable to sync_tree: $CURRENT/cgi-bin";
+    || croak "Unable to sync_tree: $CURRENT/cgi-bin";
 
   # Too dangerous to sync fixtures and definately don't want to sync logs.
   #sync_tree(
   #  "$CURRENT/public_html/results_system/fixtures/*.csv",
   #  "$NFCCA:public_html/results_system/fixtures"
-  #) || die "Unable to sync_tree: $CURRENT/cgi-bin";
+  #) || croak "Unable to sync_tree: $CURRENT/cgi-bin";
 
   return 1;
 }
@@ -161,8 +164,9 @@ Intended to undo a rollforward.
 =cut
 
 sub rollback {
-  sync_tree( $CURRENT, $NEXT )    || die "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $LAST,    $CURRENT ) || die "Unable to sync_tree rollback $LAST";
+  sync_tree( $CURRENT, $NEXT )    || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( $LAST,    $CURRENT ) || croak "Unable to sync_tree rollback $LAST";
+  return 1;
 }
 
 =head3 rollforward
@@ -178,8 +182,9 @@ that it is wise to be a backup in "last"!
 =cut
 
 sub rollforward {
-  sync_tree( $CURRENT, $LAST )    || die "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $NEXT,    $CURRENT ) || die "Unable to sync_tree rollback";
+  sync_tree( $CURRENT, $LAST )    || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( $NEXT,    $CURRENT ) || croak "Unable to sync_tree rollback";
+  return 1;
 }
 
 =head3 main
@@ -195,10 +200,10 @@ Dies if more than one option is present.
 sub main {
   my $opts = shift;
 
-  die "NFCCA_PASSWD is not set." if !$ENV{NFCCA_PASSWD};
+  croak "NFCCA_PASSWD is not set." if !$ENV{NFCCA_PASSWD};
 
   my $num_opts = scalar( keys %$opts );
-  die "Only one option at a time is allowed" if $num_opts > 1;
+  croak "Only one option at a time is allowed" if $num_opts > 1;
 
   mirror()
     if $opts->{mirror};
@@ -210,6 +215,7 @@ sub main {
   rollforward() if $opts->{rollforward};
 
   print "\nDone\n";
+  return 1;
 }
 
-main($opts) if !caller;
+main($options) if !caller;
