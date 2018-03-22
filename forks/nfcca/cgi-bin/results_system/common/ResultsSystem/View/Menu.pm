@@ -57,7 +57,7 @@ sub run {
 
   $html = $self->merge_content( $html, $data );
 
-  $html = $self->merge_content( $self->html_wrapper,
+  $html = $self->merge_content( $self->html5_wrapper,
     { CONTENT => $html, PAGETITLE => 'Results System' } );
 
   $html = $self->merge_default_stylesheet($html);
@@ -72,13 +72,6 @@ sub run {
 
 =head2 get_html
 
-This method returns the html for the menu page. No header or footer.
-
- print $q->header;
- print $q->start_html;
- print $m->output_html;
- print $q->end_html;
-
 =cut
 
 #***************************************
@@ -88,8 +81,8 @@ sub get_html {
   my $self = shift;
 
   my $html = <<'HTML';
-    <script language="JavaScript" type="text/javascript" src="results_system.pl?system=[% SYSTEM %]&page=menu_js"></script>
-    <script language="JavaScript" type="text/javascript" src="[% HTDOCS %]/menu.js"></script>
+    <script src="results_system.pl?system=[% SYSTEM %]&page=menu_js"></script>
+    <script src="[% HTDOCS %]/menu.js"></script>
 
     <h1>Results System</h1>
     <form id="menu_form" name="menu_form" method="post" action="results_system.pl" target = "f_detail">
@@ -97,12 +90,12 @@ sub get_html {
     </select>
     <select id="matchdate" name="matchdate" size="1">
     </select>
-    <input type="submit" value="Display Fixtures"></input>
-    <input type="hidden" id="page" name="page" value="week_fixtures"></input>
-    <input type="hidden" id="system" name="system" value="[% SYSTEM %]"></input>
+    <input type="submit" value="Display Fixtures"/>
+    <input type="hidden" id="page" name="page" value="week_fixtures"/>
+    <input type="hidden" id="system" name="system" value="[% SYSTEM %]"/>
     </form>
 
-    <script language="JavaScript" type="text/javascript">
+    <script>
     gFirstSaturday='30 April 2016'; gLastSaturday='3 Sep 2016';
     </script>
     <a href="javascript: parent.location.href='[% RETURN_TO_LINK %]'">[% RETURN_TO_TITLE %]</a>
