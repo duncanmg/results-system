@@ -279,11 +279,6 @@ sub html_frame_wrapper {
 ****************************************************************-->
 
 <title>[% PAGETITLE %]</title>
-<style type='text/css'>
-<!--
-\@import url(gen_styles.css);
--->
-</style>
 
 <script language="JavaScript" type="text/javascript" src="/results_system/common/common.js"></script>
 
@@ -319,10 +314,6 @@ sub html_wrapper {
 ****************************************************************-->
 
 <title>[% PAGETITLE %]</title>
-<style type='text/css'>
-<!--
-\@import url(gen_styles.css);
--->
 </style>
 [% STYLESHEETS %]
 
@@ -360,11 +351,6 @@ sub html5_wrapper {
 ****************************************************************-->
 
 <title>[% PAGETITLE %]</title>
-<style>
-<!--
-\@import url(gen_styles.css)
--->
-</style>
 [% STYLESHEETS %]
 
 <script src="/results_system/common/common.js"></script>
