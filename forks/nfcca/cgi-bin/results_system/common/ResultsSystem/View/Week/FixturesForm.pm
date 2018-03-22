@@ -93,6 +93,17 @@ sub run {
 
 =head2 merge_if_in_list
   
+Specify a list of possible replacements.
+
+For instance this:
+
+  $self->merge_if_in_list( $html, 'msg_colour', 'stop', [ 'stop', 'wait', 'go' ],
+    [ 'red', 'amber', 'green' ] );
+
+could be used to set the colour of a message based on the value of an input.
+
+No default value.
+
 =cut
 
 sub merge_if_in_list {
@@ -106,6 +117,7 @@ sub merge_if_in_list {
       $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
       last;
     }
+    $i++;
   }
   return $out;
 }
@@ -134,6 +146,30 @@ sub merge_if {
   if ( ( $value || "" ) eq ( $target || "" ) ) {
     $out = $self->merge_content( $html, { $label => $replacement } );
   }
+  return $out;
+}
+
+=head2 merge_if_else
+
+Same functionality as merge_if but accepts a default value which is used if the match fails.
+
+ $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"', "" );
+
+=cut
+
+sub merge_if_else {
+  my ( $self, $html, $label, $value, $target, $replacement, $default ) =
+    validate_pos( @_, 1, 1, 1, 1, { type => SCALAR }, { type => SCALAR }, { type => SCALAR } );
+
+  my $out = $html;
+
+  if ( ( $value || "" ) eq ( $target || "" ) ) {
+    $out = $self->merge_content( $html, { $label => $replacement } );
+  }
+  else {
+    $out = $self->merge_content( $html, { $label => $default } );
+  }
+
   return $out;
 }
 
@@ -187,17 +223,17 @@ sub create_table_rows {
 sub merge_select_boxes {
   my ( $self, $row, $r ) = validate_pos( @_, 1, { type => SCALAR }, { type => HASHREF } );
 
-  $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"' );
+  $row = $self->merge_if_else( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"', '' );
 
-  $row = $self->merge_if( $row, 'played_n', $r->{played}, 'N', 'selected="selected"' );
+  $row = $self->merge_if_else( $row, 'played_n', $r->{played}, 'N', 'selected="selected"', '' );
 
-  $row = $self->merge_if( $row, 'played_a', $r->{played}, 'A', 'selected="selected"' );
+  $row = $self->merge_if_else( $row, 'played_a', $r->{played}, 'A', 'selected="selected"', '' );
 
-  $row = $self->merge_if( $row, 'result_w', $r->{result}, 'W', 'selected="selected"' );
+  $row = $self->merge_if_else( $row, 'result_w', $r->{result}, 'W', 'selected="selected"', '' );
 
-  $row = $self->merge_if( $row, 'result_l', $r->{result}, 'L', 'selected="selected"' );
+  $row = $self->merge_if_else( $row, 'result_l', $r->{result}, 'L', 'selected="selected"', '' );
 
-  $row = $self->merge_if( $row, 'result_t', $r->{result}, 'T', 'selected="selected"' );
+  $row = $self->merge_if_else( $row, 'result_t', $r->{result}, 'T', 'selected="selected"', '' );
 
   return $row;
 }
