@@ -528,7 +528,10 @@ sub get_tables_index_model {
 sub get_frame_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Frame->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Frame' } ) } );
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::View::Frame' } ),
+      -configuration => $self->get_configuration
+    }
+  );
 }
 
 =head3 get_menu_view

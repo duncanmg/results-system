@@ -1,0 +1,65 @@
+/*************************************************************************************
+*
+* Name: frame_styles.css
+*
+* 23 March 2018
+*
+*************************************************************************************/
+
+/************************************************************/
+/* This section contains the defaults for the various tags. */
+/************************************************************/
+
+/*************************************************************************************************/
+
+* {
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:12px;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: 0;
+      margin-right: 0;
+      /* #f5f5f5 is white smoke! */
+      padding: 0;
+      color: #000000;
+}
+
+html, body, iframe {
+  height:100%;
+  width:100%;
+  overflow:hidden;
+}
+
+#iframe_holder {
+	position: absolute;
+        margin:  0;
+        padding: 0;
+        width:100%;
+        height:100%;
+}
+
+#iframe_holder_menu {
+	position: relative;
+        color: red;
+        height: 25%;
+        width: 100%;
+        margin: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 0;
+}
+
+#iframe_holder_detail {
+	position: relative;
+        height: 75%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-right: 0;
+	z-index: 100;
+}

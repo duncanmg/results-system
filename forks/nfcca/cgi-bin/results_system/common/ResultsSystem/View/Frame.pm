@@ -39,7 +39,7 @@ sub new {
   my ( $class, $args ) = @_;
   my $self = {};
   bless $self, $class;
-  $self->{logger} = $args->{-logger} if $args->{-logger};
+  $self->set_arguments( [qw/ logger configuration  /], $args );
   return $self;
 }
 
@@ -55,8 +55,10 @@ sub run {
 
   $html = $self->merge_content( $html, $data );
 
-  $html = $self->merge_content( $self->html_frame_wrapper,
-    { CONTENT => $html, PAGETITLE => 'Results System', STYLESHEETS => "" } );
+  $html = $self->merge_content( $self->html5_wrapper,
+    { CONTENT => $html, PAGETITLE => 'Results System' } );
+
+  $html = $self->merge_stylesheets( $html, ["/results_system/custom/nfcca/frame_styles.css"] );
 
   $self->render( { -data => $html } );
   return 1;
@@ -72,18 +74,31 @@ sub run {
 
 sub get_html {
 
+  #  my $output = <<'HTML';
+  #
+  #  <frameset rows="30%,*">
+  #  <frame noresize="noresize" src="[% MENU_PAGE %]" id = "f_menu"
+  #    name="f_menu" scrolling="auto"></frame>
+  #  <frame scrolling="auto" src="[% BLANK_PAGE %]" id = "f_detail" name="f_detail"></frame>
+  #  <noframes>
+  #  <body>
+  #  You do not appear to have a frames capable browser.
+  #  </body>
+  #  </noframes>
+  #  </frameset>
+  #
+  #HTML
+
   my $output = <<'HTML';
 
-  <frameset rows="30%,*">
-  <frame noresize="noresize" src="[% MENU_PAGE %]" id = "f_menu"
-    name="f_menu" scrolling="auto"></frame>
-  <frame scrolling="auto" src="[% BLANK_PAGE %]" id = "f_detail" name="f_detail"></frame>
-  <noframes>
-  <body>
-  You do not appear to have a frames capable browser.
-  </body>
-  </noframes>
-  </frameset>
+  <div id="iframe_holder">
+    <div id="iframe_holder_menu">
+      <iframe src="[% MENU_PAGE %]" id = "f_menu" name="f_menu" ></iframe>
+    </div>
+    <div id="iframe_holder_detail">
+      <iframe src="[% BLANK_PAGE %]" id = "f_detail" name="f_detail" ></iframe>
+    </div>
+  </div>
 
 HTML
   return $output;
