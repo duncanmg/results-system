@@ -341,6 +341,7 @@ sub html5_wrapper {
 
   my $output = <<'HTML';
 <!DOCTYPE html>
+<html lang='en'>
 <head>
 <meta charset="UTF-8">
 <!--***************************************************************
