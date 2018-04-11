@@ -134,9 +134,11 @@ sub render {
   my ( $self, $args ) = @_;
   my $data = $args->{-data};
 
+  $args->{charset} ||= 'UTF-8';
+
   my $response = HTTP::Response->new( HTTP_OK,
     status_message(HTTP_OK),
-    [ 'Content-Type' => 'text/html; charset=ISO-8859-1',
+    [ 'Content-Type' => "text/html; charset=$args->{charset}",
       'Status'       => HTTP_OK . " " . status_message(HTTP_OK)
     ],
     $data
