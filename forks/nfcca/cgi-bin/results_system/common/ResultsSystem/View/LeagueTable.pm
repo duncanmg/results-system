@@ -111,7 +111,7 @@ accept the standard arguments of a Parent object. The two most important are -qu
     );
 
     $html = $self->merge_content(
-      $self->html_wrapper,
+      $self->html5_wrapper,
       { CONTENT   => $html,
         PAGETITLE => 'Results System',
       }

@@ -85,7 +85,7 @@ sub run {
     }
   );
 
-  $html = $self->merge_content( $self->html_wrapper,
+  $html = $self->merge_content( $self->html5_wrapper,
     { CONTENT => $html, PAGETITLE => 'Results System' } );
 
   $html = $self->merge_default_stylesheet($html);
