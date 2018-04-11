@@ -6,10 +6,16 @@ use LWP;
 use HTTP::Request::Common;
 use WebService::Validator::HTML5::W3C;
 
+my $user='NFCCA';
+my $password=$ENV{'NFCCA_CODE'};
+
 my $lwp       = LWP::UserAgent->new();
 my $validator = WebService::Validator::HTML5::W3C->new();
 
 my $base = 'http://www.results_system_nfcca.com';
+
+my $static_tables_url = $base . '/results_system/custom/nfcca/2017/tables';
+my $static_results_url = $base . '/results_system/custom/nfcca/2017/results';
 
 my $gets = [
   { url     => $base . '/cgi-bin/results_system/common/results_system.pl?system=nfcca&page=frame',
@@ -20,7 +26,13 @@ my $gets = [
   },
   { url     => $base . '/cgi-bin/results_system/common/results_system.pl?system=nfcca&page=menu',
     pattern => 'Results\sSystem.*Display\sFixtures'
-  }
+  },
+  { url     => $static_tables_url.'/U9N.htm',
+    pattern => 'Results\sSystem.*Division.*U9N'
+  },
+  { url     => $static_results_url.'/U9N_1-May.htm',
+    pattern => 'Results\sSystem.*Results\sFor\sDivision'
+  },
 ];
 
 my $posts = [
@@ -32,7 +44,19 @@ my $posts = [
       matchdate => '1-May'
     ],
     pattern => 'Results\sSystem.*<h1>Fixtures\sFor\sDivision\sU9N\sWeek\s1-May<\/h1>'
-  }
+  },
+  { url  => $base . '/cgi-bin/results_system/common/results_system.pl',
+    data => [
+      system     => 'nfcca',
+      page       => 'save_results',
+      'division' => 'U9N.csv',
+      matchdate => '1-May',
+      user=>$user,
+      code=>$password,
+    ],
+    pattern => 'Your\schanges\shave\sbeen\saccepted'
+  },
+
 ];
 
 foreach my $g (@$gets) {
@@ -43,6 +67,9 @@ foreach my $p (@$posts) {
   test_post($p);
 }
 
+done_testing;
+
+# ********************************************************************
 sub test_post {
   my $hr = shift;
 
@@ -58,6 +85,7 @@ sub test_post {
   like( $response->content, qr/$hr->{pattern}/xms, "Content matches pattern $hr->{pattern}" );
 }
 
+# ********************************************************************
 sub test_get {
   my $hr = shift;
   my $response = $lwp->request( GET $hr->{url}, Content_Type => 'text/html' );
@@ -66,6 +94,7 @@ sub test_get {
   like( $response->content, qr/$hr->{pattern}/xms, "Content matches pattern $hr->{pattern}" );
 }
 
+# ********************************************************************
 sub validate {
   my ( $url, $content ) = @_;
   ok( $validator->validate_direct_input($content), "$url returns valid HTML5" )
@@ -76,8 +105,7 @@ sub validate {
   return 1;
 }
 
-done_testing;
-
+# ********************************************************************
 sub print_errors {
   my $errors = shift;
   foreach my $e ( @{$errors} ) {
