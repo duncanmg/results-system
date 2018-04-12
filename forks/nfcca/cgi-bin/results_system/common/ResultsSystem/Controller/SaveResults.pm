@@ -9,6 +9,7 @@ ResultsSystem::Controller::SaveResults
 use strict;
 use warnings;
 use Data::Dumper;
+use HTTP::Status qw(:constants :is status_message);
 
 =head1 SYNOPSIS
 
@@ -60,7 +61,7 @@ sub run {
     $pwd->check_pwd( -user => $query->param('user'), -code => $query->param('code') );
   if ( !$ok ) {
     $self->logger->warn($msg);
-    $self->get_message_view->run( { -data => $msg } );
+    $self->get_message_view->run( { -data => $msg, -status_code => HTTP_UNAUTHORIZED } );
     return 1;
   }
 

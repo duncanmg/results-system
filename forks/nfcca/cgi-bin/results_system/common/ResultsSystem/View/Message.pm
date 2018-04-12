@@ -54,7 +54,7 @@ sub run {
   my $html = $self->merge_content( $self->html5_wrapper,
     { CONTENT => $data, STYLESHEETS => "", PAGETITLE => 'Results System' } );
 
-  $self->render( { -data => $html } );
+  $self->render( { -data => $html, -status_code => $args->{-status_code} } );
 
   return 1;
 }
