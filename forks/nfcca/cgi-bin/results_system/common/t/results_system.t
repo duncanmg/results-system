@@ -63,6 +63,18 @@ my $posts = [
     ],
     pattern => 'Your\schanges\shave\sbeen\saccepted'
   },
+  { url  => $base . '/cgi-bin/results_system/common/results_system.pl',
+    data => [
+      system     => 'nfcca',
+      page       => 'save_results',
+      'division' => 'U9N.csv',
+      matchdate => '1-May',
+      user=>$user,
+      code=>'wrong',
+    ],
+    pattern => 'You\shave\sentered\san\sincorrect\spassword.',
+    status_code => 401
+  },
 
 ];
 
@@ -90,6 +102,7 @@ sub test_post {
 
   validate( $hr->{url}, $content );
   like( $response->content, qr/$hr->{pattern}/xms, "Content matches pattern $hr->{pattern}" );
+  is($response->code,($hr->{status_code}||200), "Status code ok.");
 }
 
 # ********************************************************************
