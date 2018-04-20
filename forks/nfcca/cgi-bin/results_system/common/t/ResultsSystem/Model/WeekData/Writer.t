@@ -55,7 +55,7 @@ ok( $wd->write_file( get_expected() ), "write_file" );
 
 test_validate_strings($wd);
 
-# test_validate_integers($wd);
+test_validate_integers($wd);
 
 done_testing;
 
@@ -377,7 +377,7 @@ sub test_validate_strings {
     pitchmks      => 0,
     played        => '',
     result        => '',
-    resultpts     => '',
+    resultpts     => 0,
     runs          => 0,
     team          => '',
     totalpts      => 0,
@@ -398,6 +398,7 @@ sub test_validate_strings {
         'played'       => 'y',
         'result'       => 'z',
         'performances' => 'abc',
+        'rogue'        => 'xxx',
       },
       'expected' => {
         'team'         => 'x',
@@ -457,7 +458,7 @@ sub test_validate_integers {
     pitchmks      => 0,
     played        => '',
     result        => '',
-    resultpts     => '',
+    resultpts     => 0,
     runs          => 0,
     team          => '',
     totalpts      => 0,
@@ -488,6 +489,23 @@ sub test_validate_integers {
         'runs'       => 212,
         'penaltypts' => -7,
         'wickets'    => 10,
+      },
+    },
+    { 'data' => {
+        'battingpts' => 'x',
+        'bowlingpts' => 'x00',
+        'resultpts'  => 'x',
+        'runs'       => '21x',
+        'penaltypts' => 'x7',
+        'wickets'    => 'x0',
+      },
+      'expected' => {
+        'battingpts' => '0',
+        'bowlingpts' => '00',
+        'resultpts'  => '0',
+        'runs'       => 21,
+        'penaltypts' => 7,
+        'wickets'    => 0,
       },
     },
   ];

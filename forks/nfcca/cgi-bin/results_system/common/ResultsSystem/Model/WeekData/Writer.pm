@@ -88,15 +88,15 @@ Accepts a hashref which represents a line of table and validates the keys.
 Validates against the list of keys returned by get_labels(), so any keys not returned
 by get_labels will be removed and missing keys will be added and given default values.
 
-It treats keys begginning with "team", "played", "result" and "performances" as strings.
-A keys beginning with "result" must not have a "p" in it so "result_points" with not be i
-treated as a string
+It treats the keys "team", "played", "result" and "performances" as strings.
 
 Strings will be filtered to replace all occurrences of ",", "<", ">", "|", and "\n"
 with spaces.
 
 Keys which are not strings will be treated as signed integers and all characters except digits
 and "-" will be removed.
+
+A key which should be an integer, but which contains nothing valid, will be set to 0.
 
 No warnings or errors are logged.
 
@@ -111,13 +111,14 @@ It reurns the modified hash ref.
     my @labels = $self->get_labels;
     foreach my $label (@labels) {
       $out->{$label} = $line->{$label};
-      if ( $label =~ m/^(team)|(played)|(result[^p]*)|(performances)$/x ) {
+      if ( $label =~ m/^((team)|(played)|(result)|(performances))$/x ) {
         $out->{$label} ||= "";
         $out->{$label} =~ s/[,\<\>|\n]/ /xmsg;
       }
       else {
         $out->{$label} ||= 0;
         $out->{$label} =~ s/[^\d-]//xg;
+        $out->{$label} ||= 0;
       }
     }
     return $out;
