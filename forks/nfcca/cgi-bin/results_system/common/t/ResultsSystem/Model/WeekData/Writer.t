@@ -53,6 +53,10 @@ ok( $wd->write_file( get_expected() ), "write_file" );
 
 #  eq_or_diff($wd->get_lines,get_expected(), "get_lines");
 
+test_validate_strings($wd);
+
+# test_validate_integers($wd);
+
 done_testing;
 
 sub get_expected {
@@ -358,5 +362,143 @@ sub get_expected {
       'facilitiesmks' => '0'
     }
   ];
+}
+
+sub test_validate_strings {
+  my $wd = shift;
+
+  my $defaults = {
+    battingpts    => 0,
+    bowlingpts    => 0,
+    facilitiesmks => 0,
+    groundmks     => 0,
+    penaltypts    => 0,
+    performances  => '',
+    pitchmks      => 0,
+    played        => '',
+    result        => '',
+    resultpts     => '',
+    runs          => 0,
+    team          => '',
+    totalpts      => 0,
+    wickets       => 0
+  };
+
+  my $add_defaults = sub {
+    my $ex = shift;
+    foreach my $d ( keys %$defaults ) {
+      $ex->{$d} = $defaults->{$d} if !exists $ex->{$d};
+    }
+    return $ex;
+  };
+
+  my $tests = [
+    { 'data' => {
+        'team'         => 'x',
+        'played'       => 'y',
+        'result'       => 'z',
+        'performances' => 'abc',
+      },
+      'expected' => {
+        'team'         => 'x',
+        'played'       => 'y',
+        'result'       => 'z',
+        'performances' => 'abc',
+      },
+    },
+    { 'data' => {
+        'team'         => 'x,',
+        'played'       => 'y<',
+        'result'       => 'z>',
+        'performances' => "abc|\n",
+      },
+      'expected' => {
+        'team'         => 'x ',
+        'played'       => 'y ',
+        'result'       => 'z ',
+        'performances' => 'abc  ',
+      },
+    },
+    { 'data' => {
+        'team'         => "\n,x,",
+        'played'       => '<x<y<',
+        'result'       => '<z>',
+        'performances' => "|\nabc|\n",
+      },
+      'expected' => {
+        'team'         => '  x ',
+        'played'       => ' x y ',
+        'result'       => ' z ',
+        'performances' => '  abc  ',
+      },
+    },
+  ];
+
+  foreach my $t (@$tests) {
+    eq_or_diff(
+      $wd->validate_line( $t->{data} ),
+      $add_defaults->( $t->{expected} ),
+      "test_validate_strings ok"
+    ) || diag( Dumper $t);
+  }
+
+}
+
+sub test_validate_integers {
+  my $wd = shift;
+
+  my $defaults = {
+    battingpts    => 0,
+    bowlingpts    => 0,
+    facilitiesmks => 0,
+    groundmks     => 0,
+    penaltypts    => 0,
+    performances  => '',
+    pitchmks      => 0,
+    played        => '',
+    result        => '',
+    resultpts     => '',
+    runs          => 0,
+    team          => '',
+    totalpts      => 0,
+    wickets       => 0
+  };
+
+  my $add_defaults = sub {
+    my $ex = shift;
+    foreach my $d ( keys %$defaults ) {
+      $ex->{$d} = $defaults->{$d} if !exists $ex->{$d};
+    }
+    return $ex;
+  };
+
+  my $tests = [
+    { 'data' => {
+        'battingpts' => 7,
+        'bowlingpts' => 100,
+        'resultpts'  => 0,
+        'runs'       => 212,
+        'penaltypts' => -7,
+        'wickets'    => 10,
+      },
+      'expected' => {
+        'battingpts' => 7,
+        'bowlingpts' => 100,
+        'resultpts'  => 0,
+        'runs'       => 212,
+        'penaltypts' => -7,
+        'wickets'    => 10,
+      },
+    },
+  ];
+
+  foreach my $t (@$tests) {
+    eq_or_diff(
+      $wd->validate_line( $t->{data} ),
+      $add_defaults->( $t->{expected} ),
+      "test_validate_strings ok"
+    ) || diag( Dumper $t);
+  }
+
 }
 
