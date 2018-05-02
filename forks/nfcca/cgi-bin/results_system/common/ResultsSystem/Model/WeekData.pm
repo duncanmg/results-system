@@ -125,6 +125,8 @@ Can also accept -division, -week
 
 =head2 get_labels
 
+Returns a list of valid labels/keys for a results structure.
+
 =cut
 
   #***************************************
