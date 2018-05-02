@@ -26,7 +26,7 @@ Parent class for ResultsSystem::Model::WeekData::Reader and ResultsSystem::Model
 
 =head1 INHERITS FROM
 
-ResultsSystem::Model
+L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Model>
 
 =cut
 

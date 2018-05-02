@@ -23,7 +23,7 @@ ResultsSystem::Model::WeekData::Writer
 
 =head1 INHERITS FROM
 
-L<ResultsSystem::Model::WeekData|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekData
+L<ResultsSystem::Model::WeekData|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekData>
 
 =cut
 

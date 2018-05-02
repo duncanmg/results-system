@@ -43,11 +43,16 @@ There is also get_lines().
 
 =head1 DESCRIPTION
 
+This reads the .dat file which contains the results for the given division
+and week.
+
+The file must exist and contain valid data.
+
 =cut
 
 =head1 INHERITS FROM
 
-ResultsSystem::Model::WeekData
+L<ResultsSystem::Model::WeekData|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekData>
 
 =cut
 
@@ -104,8 +109,8 @@ The full filename must have been defined.
  -field: See list of valid names below.
  -team: Home or away. Only needed if -type is match.
 
- Fields are : "team", "played", "result", "runs", "wickets", "performances", "resultspts", "battingpts", 
-"bowlingpts", "totalpts"
+ Fields are : "team", "played", "result", "runs", "wickets", "performances", 
+ "resultspts", "battingpts", "bowlingpts", "totalpts"
 
  Returns null if the field or line does not exist or on error.
 
