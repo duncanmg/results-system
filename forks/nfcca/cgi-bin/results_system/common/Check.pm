@@ -10,10 +10,12 @@ use Params::Validate qw/:all/;
 use Data::Dumper;
 
 use parent qw/Exporter/;
-our @EXPORT_OK = qw/ check_dates_and_separators check_match_lines check /;
+our @EXPORT_OK =
+  qw/ check_dates_and_separators check_match_lines check filter_invalid_match_lines /;
 
 my $week_separator_pattern = "^={10,}[,\\s\\n]*\$";
 my $date_pattern           = "^[0-9]{1,2}-[A-Z][a-z]{2}[,\\n\\s]*\$";
+my $match_pattern          = '^[ \w\'&]+,[ \w\'&]+\s*$';
 
 =head1 checkfixtures.pl
 
@@ -110,11 +112,19 @@ sub check_dates_and_separators {
 sub check_match_lines {
 
   # ********************************************************
-  my ($lines) = validate_pos( @_, { type => ARRAYREF } );
+  my ( $lines, $count_games_played ) =
+    validate_pos( @_, { type => ARRAYREF }, { type => SCALAR | UNDEF, default => 1 } );
   my $err = 0;
 
   # Eliminate the date lines and line separators. Anything left should be a fixture.
   my @match_lines = grep { $_ !~ m/(?:$week_separator_pattern)|(?:$date_pattern)/x } @$lines;
+
+  my @invalid_match_lines = @{ filter_invalid_match_lines( \@match_lines ) };
+  if ( scalar(@invalid_match_lines) > 0 ) {
+    print "The following match lines are invalid.\n";
+    print Dumper @invalid_match_lines;
+    $err = 1;
+  }
 
   my @num_commas = grep { $_ =~ m/\s*,\s*$/x } @match_lines;
 
@@ -130,6 +140,8 @@ sub check_match_lines {
     $team_counts->{ $bits[1] }++;
   }
 
+  return $err if !$count_games_played;
+
   # Now find out how many matches each team plays. They should all play the same number.
   if ( scalar( uniq( sort( map { $team_counts->{$_} } keys %$team_counts ) ) ) > 1 ) {
     print "The teams do not all play the same number of matches.\n";
@@ -140,6 +152,18 @@ sub check_match_lines {
   return $err;
 }
 
+=head3 filter_invalid_match_lines
+
+Accept an array ref and return an array ref of those lines which
+do NOT contain a valid match.
+
+=cut
+
+sub filter_invalid_match_lines {
+  my ($lines) = validate_pos( @_, { type => ARRAYREF } );
+  return [ grep { $_ !~ m/$match_pattern/x } @$lines ];
+}
+
 =head3 check
 
 =cut
@@ -148,14 +172,14 @@ sub check_match_lines {
 sub check {
 
   # ********************************************************
-  my ( $file, $lines ) = @_;
+  my ( $file, $opts ) = validate_pos( @_, { type => SCALAR }, { type => HASHREF } );
   my $err = 0;
 
-  $lines = [ slurp $file ];
+  my $lines = [ slurp $file ];
 
   $err = check_dates_and_separators($lines);
   if ( $err == 0 ) {
-    $err = check_match_lines($lines);
+    $err = check_match_lines( $lines, $opts->{count_games_played} );
   }
   return $err;
 

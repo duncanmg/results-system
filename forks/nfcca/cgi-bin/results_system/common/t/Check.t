@@ -1,8 +1,9 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Differences;
 
-use_ok( 'Check', qw/check_dates_and_separators check_match_lines/ );
+use_ok( 'Check', qw/check_dates_and_separators check_match_lines filter_invalid_match_lines/ );
 
 my $week_separator = "==========";
 
@@ -77,5 +78,25 @@ ok(
   ),
   "check_match_lines ok"
 );
+
+# **************************************************************************
+
+eq_or_diff( filter_invalid_match_lines( ["ABC,DEF"] ),
+  [], "filter_invalid_match_lines with simple test" );
+
+eq_or_diff( filter_invalid_match_lines( [" ABC, DEF   "] ),
+  [], "filter_invalid_match_lines with spaces" );
+
+eq_or_diff( filter_invalid_match_lines( [" ABC,\tDEF   "] ),
+  [" ABC,\tDEF   "], "filter_invalid_match_lines rejects tabs" );
+
+eq_or_diff( filter_invalid_match_lines( [" ABC,\"DEF   "] ),
+  [" ABC,\"DEF   "], "filter_invalid_match_lines rejects double quotes" );
+
+eq_or_diff( filter_invalid_match_lines( [" ABC & D,DEF &  "] ),
+  [], "filter_invalid_match_lines allows ampersands" );
+
+eq_or_diff( filter_invalid_match_lines( [" ABC ' D,DEF   "] ),
+  [], "filter_invalid_match_lines allows single quotes" );
 
 done_testing;

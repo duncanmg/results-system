@@ -17,6 +17,10 @@
 use strict;
 use warnings;
 use Check qw/ check/;
+use Getopt::Long;
+
+my $opts = { count_games_played => 1 };
+GetOptions( $opts, 'count_games_played!' );
 
 # print $ARGV[0] . "\n";
 
@@ -28,6 +32,12 @@ found are sent to the standard output.
 Details of the checks are in Check.pm.
 
 perl checkfixtures.pl [ filename | dirname ]
+
+Can accept an option which stops it checking whether all the teams in a division play the same number of
+games.
+
+ perl checkfixtures.pl --nocount_games_played 
+     /home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2018/U9N.csv
 
 =cut
 
@@ -43,7 +53,7 @@ if not then only the one file is checked.
 sub main {
 
   # ********************************************************
-  my $file = shift;
+  my ( $file, $opts ) = @_;
   my $FP;
   my @file_list;
   my $err = 0;
@@ -73,7 +83,7 @@ sub main {
   }
 
   foreach my $f (@file_list) {
-    if ( check($f) ) {
+    if ( check( $f, $opts ) ) {
       print "not ok: $f\n";
       $err = 1;
     }
@@ -85,5 +95,5 @@ sub main {
   return $err;
 }
 
-main( $ARGV[0] );
+main( $ARGV[0], $opts );
 
