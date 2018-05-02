@@ -13,13 +13,14 @@ Usage:
   my $wf = ResultsSystem::Model::WeekFixtures->new( 
     { -logger => $logger, -configuration => -configuration });
 
-  $wf->run({-full_filename => $ff, -division => $d, -week => $matchdate });
+  $wf->run({ -division => $d, -week => $matchdate,
+             -week_data => $wd, -fixtures => $f });
 
-  This module returns the results for a given division and date.
+This module returns the results for a given division and date.
 
-  If there aren't any results then it uses the fixtures to create
-  and return a structure containing the team names and with the keys
-  set to defaults.
+If there aren't any results then it uses the fixtures to create
+and return a structure containing the team names and with the keys
+set to defaults.
 
 =cut
 
@@ -29,7 +30,7 @@ Usage:
 
 =head1 INHERITS FROM
 
-ResultsSystem::Model
+L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Model>
 
 =cut
 
@@ -51,6 +52,16 @@ use parent qw/ ResultsSystem::Model /;
 
 =head2 new
 
+Constructor.
+
+-logger: Logger object
+
+-configuration: Configuration object
+
+-week_data: WeekData object
+
+-fixtures: Fixtures object
+
 =cut
 
 #***************************************
@@ -69,6 +80,8 @@ sub new {
 }
 
 =head2 run
+
+  my $data = $wf->run({ -division => $d, -week => $matchdate });
 
 =cut
 
