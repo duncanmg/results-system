@@ -53,7 +53,7 @@ Whitespace between the commas is allowed, so is a trailing comma. The dash in th
 
 =head1 INHERITS FROM
 
-ResultsSystem::Model
+L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Model>
 
 =cut
 
@@ -83,10 +83,10 @@ use parent qw/ResultsSystem::Model/;
 Constructor for the module. Accepts one parameter which
 is the filename of the csv file to be read.
 
-$f = Fixtures->new( -full_filename => "/xyz/fixtures/2008/division1.csv" );
+$f = Fixtures->new( -logger => $logger, -configuration => $configuration, -division => "division1.csv" );
 
-The fixtures file is processed as part of the object creation process. There is no specific
-error returned if the processing fails. This must be inferred from the messages in the Error object.
+The fixtures file is processed as part of the object creation process if a division has been provided.
+Otherwise it is not processed until the division is set and read_file is called.
 
 =cut
 
@@ -99,19 +99,20 @@ sub new {
   bless $self, $class;
   my $err = 0;
 
-  if ( $args->{-division} ) {
-    $self->set_division( $args->{-division} );
-    $err = $self->read_file();
-  }
+  $self->set_arguments( [qw/division logger configuration/], $args );
 
-  $self->{logger} = $args->{-logger} if $args->{-logger};
-  $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
+  $err = $self->read_file() if $self->get_division;
 
   return $self if $err == 0;
   return;
 }
 
 =head2 get_full_filename
+
+Returns the full filename based on the division and the configuration data.
+Gets the csv path and the season from the configuration.
+
+Throws an exception if the file does not exist.
 
 =cut
 
@@ -604,15 +605,24 @@ sub _trim {
 
 =head2 set_division
 
+Sets the division, which is in fact the name of the csv file.
+
+$f->set_division('U9N.csv');
+
 =cut
 
 sub set_division {
   my ( $self, $v ) = @_;
+  croak( ResultsSystem::Exception->new( 'BAD_EXTENSION_FOR_CSV', $v ) )
+    if ( $v !~ m/\.csv$/x );
+
   $self->{division} = $v;
   return $self;
 }
 
 =head2 get_division
+
+Return the division, which is the csv name eg 'U9N.csv'.
 
 =cut
 
