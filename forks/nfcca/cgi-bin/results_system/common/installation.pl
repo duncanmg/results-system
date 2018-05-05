@@ -164,8 +164,8 @@ Intended to undo a rollforward.
 =cut
 
 sub rollback {
-  sync_tree( $CURRENT, $NEXT )    || croak "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $LAST,    $CURRENT ) || croak "Unable to sync_tree rollback $LAST";
+  sync_tree( $CURRENT . '/*', $NEXT )    || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( $LAST . '/*',    $CURRENT ) || croak "Unable to sync_tree rollback $LAST";
   return 1;
 }
 
@@ -182,8 +182,8 @@ that it is wise to be a backup in "last"!
 =cut
 
 sub rollforward {
-  sync_tree( $CURRENT, $LAST )    || croak "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $NEXT,    $CURRENT ) || croak "Unable to sync_tree rollback";
+  sync_tree( $CURRENT . '/*', $LAST )    || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( $NEXT . '/*',    $CURRENT ) || croak "Unable to sync_tree rollback";
   return 1;
 }
 
