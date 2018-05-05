@@ -19,8 +19,8 @@ use warnings;
 use Check qw/ check/;
 use Getopt::Long;
 
-my $opts = { count_games_played => 1 };
-GetOptions( $opts, 'count_games_played!' );
+my $options = { count_games_played => 1 };
+GetOptions( $options, 'count_games_played!' );
 
 # print $ARGV[0] . "\n";
 
@@ -95,5 +95,5 @@ sub main {
   return $err;
 }
 
-main( $ARGV[0], $opts );
+main( $ARGV[0], $options );
 
