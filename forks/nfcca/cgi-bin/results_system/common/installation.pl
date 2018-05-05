@@ -138,10 +138,19 @@ Any files on the remote machine which do not exist locally are deleted.
 
 sub release {
 
-  sync_tree( "$CURRENT/results_system", "$NFCCA:results_system" )
-    || croak "Unable to sync_tree: $CURRENT/results_system";
-  sync_tree( "$CURRENT/cgi-bin", "$NFCCA:cgi-bin" )
+  #sync_tree( "$CURRENT/results_system", "$NFCCA:results_system" )
+  #|| croak "Unable to sync_tree: $CURRENT/results_system";
+  sync_tree( "$CURRENT/cgi-bin/", "$NFCCA:cgi-bin" )
     || croak "Unable to sync_tree: $CURRENT/cgi-bin";
+
+  sync_tree( "$CURRENT/public_html/results_system/common", "$NFCCA:public_html/results_system" )
+    || croak "Unable to sync_tree: $CURRENT/public_html/results_system/common";
+
+  sync_tree( "$CURRENT/public_html/results_system/custom/nfcca/*.css", "$NFCCA:public_html/results_system/custom/nfcca" )
+    || croak "Unable to sync_tree: $CURRENT/public_html/results_system/custom/nfcca css";
+
+  sync_tree( "$CURRENT/public_html/results_system/custom/nfcca/*.htm", "$NFCCA:public_html/results_system/custom/nfcca" )
+    || croak "Unable to sync_tree: $CURRENT/public_html/results_system/custom/nfcca htm";
 
   # Too dangerous to sync fixtures and definately don't want to sync logs.
   #sync_tree(
