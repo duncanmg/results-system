@@ -23,18 +23,39 @@ perl installation.pl [OPTION]
 =cut
 
 my $options = {};
-GetOptions( $options, "mirror", "release", "rollback", "rollforward" ) || croak "Invalid options";
+GetOptions( $options, "mirror", "release", "rollback", "rollforward", "remote_domain:s",
+  "mirror_base:s", "passwd:s" )
+  || croak "Invalid options";
 
-my $NFCCA   = "newforestcricket.co.uk";
-my $MIRROR  = "/home/duncan/nfcca_mirror";
-my $LAST    = "$MIRROR/last";
-my $CURRENT = "$MIRROR/current";
-my $NEXT    = "$MIRROR/next";
+my $NFCCA;
+my $MIRROR;
+my $LAST;
+my $CURRENT;
+my $NEXT;
+my $NFCCA_PASSWD;
+my $RSYNC;
+my $RSYNC_TREE;
 
-my $RSYNC =
-  "rsync --rsh \"/usr/bin/sshpass -p $ENV{NFCCA_PASSWD} ssh -l newforestcricket.co.uk\"";
+=head2 setup_globals
 
-my $RSYNC_TREE = "$RSYNC -rt --delete";
+=cut
+
+sub setup_globals {
+  my $options = shift;
+  $NFCCA        = $options->{remote_domain} || "newforestcricket.co.uk";
+  $MIRROR       = $options->{mirror_base}   || "/home/duncan/nfcca_mirror";
+  $NFCCA_PASSWD = $options->{passwd}        || $ENV{NFCCA_PASSWD};
+
+  $LAST    = "$MIRROR/last";
+  $CURRENT = "$MIRROR/current";
+  $NEXT    = "$MIRROR/next";
+
+  croak "NFCCA_PASSWD is not set." if !$NFCCA_PASSWD;
+
+  $RSYNC      = "rsync --rsh \"/usr/bin/sshpass -p $NFCCA_PASSWD ssh -l newforestcricket.co.uk\"";
+  $RSYNC_TREE = "$RSYNC -rt --delete";
+  1;
+}
 
 =head2 Local directory structure
 
@@ -146,11 +167,15 @@ sub release {
   sync_tree( "$CURRENT/public_html/results_system/common", "$NFCCA:public_html/results_system" )
     || croak "Unable to sync_tree: $CURRENT/public_html/results_system/common";
 
-  sync_tree( "$CURRENT/public_html/results_system/custom/nfcca/*.css", "$NFCCA:public_html/results_system/custom/nfcca" )
-    || croak "Unable to sync_tree: $CURRENT/public_html/results_system/custom/nfcca css";
+  sync_tree(
+    "$CURRENT/public_html/results_system/custom/nfcca/*.css",
+    "$NFCCA:public_html/results_system/custom/nfcca"
+  ) || croak "Unable to sync_tree: $CURRENT/public_html/results_system/custom/nfcca css";
 
-  sync_tree( "$CURRENT/public_html/results_system/custom/nfcca/*.htm", "$NFCCA:public_html/results_system/custom/nfcca" )
-    || croak "Unable to sync_tree: $CURRENT/public_html/results_system/custom/nfcca htm";
+  sync_tree(
+    "$CURRENT/public_html/results_system/custom/nfcca/*.htm",
+    "$NFCCA:public_html/results_system/custom/nfcca"
+  ) || croak "Unable to sync_tree: $CURRENT/public_html/results_system/custom/nfcca htm";
 
   # Too dangerous to sync fixtures and definately don't want to sync logs.
   #sync_tree(
@@ -173,8 +198,8 @@ Intended to undo a rollforward.
 =cut
 
 sub rollback {
-  sync_tree( $CURRENT . '/*', $NEXT )    || croak "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $LAST . '/*',    $CURRENT ) || croak "Unable to sync_tree rollback $LAST";
+  sync_tree( $CURRENT . '/', $NEXT )    || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( $LAST . '/',    $CURRENT ) || croak "Unable to sync_tree rollback $LAST";
   return 1;
 }
 
@@ -191,8 +216,8 @@ that it is wise to be a backup in "last"!
 =cut
 
 sub rollforward {
-  sync_tree( $CURRENT . '/*', $LAST )    || croak "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $NEXT . '/*',    $CURRENT ) || croak "Unable to sync_tree rollback";
+  sync_tree( $CURRENT . '/', $LAST )    || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( $NEXT . '/',    $CURRENT ) || croak "Unable to sync_tree rollback";
   return 1;
 }
 
@@ -209,22 +234,26 @@ Dies if more than one option is present.
 sub main {
   my $opts = shift;
 
-  croak "NFCCA_PASSWD is not set." if !$ENV{NFCCA_PASSWD};
+  setup_globals($opts);
 
-  my $num_opts = scalar( keys %$opts );
-  croak "Only one option at a time is allowed" if $num_opts > 1;
+  my $actions = {
+    mirror      => \&mirror,
+    release     => \&release,
+    rollback    => \&rollback,
+    rollforward => \&rollforward
+  };
 
-  mirror()
-    if $opts->{mirror};
-
-  release() if $opts->{release};
-
-  rollback() if $opts->{rollback};
-
-  rollforward() if $opts->{rollforward};
+  for my $o (qw/ mirror release rollback rollforward/) {
+    if ( $opts->{$o} ) {
+      $actions->{$o}->();
+      last;
+    }
+  }
 
   print "\nDone\n";
   return 1;
 }
 
 main($options) if !caller;
+
+1;
