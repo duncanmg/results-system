@@ -35,7 +35,7 @@ use HTTP::Status qw/:constants status_message/;
 use Params::Validate qw/:all/;
 
 use JSON::Tiny qw(decode_json encode_json);
-use HTML::Entities qw();
+use HTML::HTML5::Entities qw();
 
 =head2 new
 
@@ -112,7 +112,7 @@ sub set_arguments {
 
 sub encode_entities {
   my ( $self, $unencoded ) = validate_pos( @_, 1, 1 );
-  return HTML::Entities::encode_entities($unencoded);
+  return HTML::HTML5::Entities::encode_entities($unencoded);
 }
 
 =head1 TEMPLATING METHODS (PUBLIC)
