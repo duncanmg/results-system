@@ -81,7 +81,7 @@ Return the code eg 'NO_SYSTEM'.
 
 =cut
 
-sub get_code { my $self = shift; return $self->{code}; }
+sub get_code { my $self = shift; return $self->{code} || ""; }
 
 =head2 get_message
 
@@ -89,7 +89,7 @@ Return the message 'System is not set.'.
 
 =cut
 
-sub get_message { my $self = shift; return $self->{message}; }
+sub get_message { my $self = shift; return $self->{message} || ""; }
 
 =head2 get_previous
 
