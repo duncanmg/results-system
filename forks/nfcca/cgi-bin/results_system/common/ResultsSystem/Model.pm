@@ -30,6 +30,17 @@ None
 
 =cut
 
+=head2 new
+
+=cut
+
+sub new {
+  my $class = shift;
+  my $self  = {};
+  bless $self, $class;
+  return $self;
+}
+
 =head2 logger
 
 =cut
