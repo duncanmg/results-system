@@ -2,7 +2,6 @@
 
   use strict;
   use warnings;
-  use Clone qw/clone/;
   use Carp;
 
   use List::MoreUtils qw / first_index any /;
@@ -217,7 +216,7 @@ It returns an error code.
       $wd->set_week($wk);
       $wd->read_file;
 
-      push @{ $self->{WEEKDATA} }, clone $wd;
+      push @{ $self->{WEEKDATA} }, $wd;
 
     }
 
