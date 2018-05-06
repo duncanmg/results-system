@@ -82,7 +82,7 @@ sub set_arguments {
   foreach my $m (@$map) {
     my $method = 'set_' . $m;
     my $key    = '-' . $m;
-    $self->$method( $args->{$key} );
+    $self->$method( $args->{$key} ) if exists $args->{$key};
   }
   return 1;
 }
