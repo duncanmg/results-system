@@ -33,5 +33,8 @@ is(
   'Nested errors stringify correctly'
 );
 
+ok( $e = ResultsSystem::Exception->new(), "Got an empty object" );
+is( $e . "", ",\n", "Stringifies correctly" );
+
 done_testing;
 
