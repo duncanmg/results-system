@@ -8,7 +8,7 @@ use Carp;
 
 =head1 installation
 
-Script to the the automation of realases.
+Script to the the automation of releases.
 
 perl installation.pl [OPTION]
 
@@ -22,10 +22,26 @@ perl installation.pl [OPTION]
 
 =cut
 
+=head2 Minor options
+
+These options have default values and are normally only needed during testing.
+
+--remote_doman The domain to be mirrored. newforestcricket.co.uk
+
+--mirror_base Local directory for mirrored files. /home/duncan/nfcca_mirror
+
+--passwd Password for remote domain. Overrides $ENV{NFCCA_PASSWD}.
+
+--remote_user User for remote domain. newforestcricket.co.uk
+
+=cut
+
 my $options = {};
-GetOptions( $options, "mirror", "release", "rollback", "rollforward", "remote_domain:s",
-  "mirror_base:s", "passwd:s" )
-  || croak "Invalid options";
+GetOptions(
+  $options,      "mirror",          "release",       "rollback",
+  "rollforward", "remote_domain:s", "mirror_base:s", "passwd:s",
+  "remote_user:s"
+) || croak "Invalid options";
 
 my $NFCCA;
 my $MIRROR;
@@ -35,6 +51,7 @@ my $NEXT;
 my $NFCCA_PASSWD;
 my $RSYNC;
 my $RSYNC_TREE;
+my $NFCCA_USER;
 
 =head2 setup_globals
 
@@ -45,6 +62,7 @@ sub setup_globals {
   $NFCCA        = $options->{remote_domain} || "newforestcricket.co.uk";
   $MIRROR       = $options->{mirror_base}   || "/home/duncan/nfcca_mirror";
   $NFCCA_PASSWD = $options->{passwd}        || $ENV{NFCCA_PASSWD};
+  $NFCCA_USER   = $options->{remote_user}   || "newforestcricket.co.uk";
 
   $LAST    = "$MIRROR/last";
   $CURRENT = "$MIRROR/current";
@@ -52,7 +70,7 @@ sub setup_globals {
 
   croak "NFCCA_PASSWD is not set." if !$NFCCA_PASSWD;
 
-  $RSYNC      = "rsync --rsh \"/usr/bin/sshpass -p $NFCCA_PASSWD ssh -l newforestcricket.co.uk\"";
+  $RSYNC      = "rsync --rsh \"/usr/bin/sshpass -p $NFCCA_PASSWD ssh -l $NFCCA_USER\"";
   $RSYNC_TREE = "$RSYNC -rt --delete";
   1;
 }
@@ -135,10 +153,10 @@ sub mirror {
 
   sync_tree( "$CURRENT/*", "$LAST" ) || croak "Unable to sync_tree $CURRENT";
 
-  sync_tree( "$NFCCA:results_system", "$CURRENT" )
+  sync_tree( "$NFCCA:results_system/", "$CURRENT" )
     || croak "Unable to sync_tree: $NFCCA:results_system";
-  sync_tree( "$NFCCA:cgi-bin", "$CURRENT" ) || croak "Unable to sync_tree: $NFCCA:cgi-bin";
-  sync_tree( "$NFCCA:public_html/results_system", "$CURRENT/public_html/results_system" )
+  sync_tree( "$NFCCA:cgi-bin/", "$CURRENT" ) || croak "Unable to sync_tree: $NFCCA:cgi-bin";
+  sync_tree( "$NFCCA:public_html/results_system/", "$CURRENT/public_html/results_system" )
     || croak "Unable to sync_tree: $NFCCA:cgi-bin";
 
   return 1;
@@ -164,7 +182,7 @@ sub release {
   sync_tree( "$CURRENT/cgi-bin/", "$NFCCA:cgi-bin" )
     || croak "Unable to sync_tree: $CURRENT/cgi-bin";
 
-  sync_tree( "$CURRENT/public_html/results_system/common", "$NFCCA:public_html/results_system" )
+  sync_tree( "$CURRENT/public_html/results_system/common/", "$NFCCA:public_html/results_system" )
     || croak "Unable to sync_tree: $CURRENT/public_html/results_system/common";
 
   sync_tree(
