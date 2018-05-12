@@ -58,11 +58,11 @@ my $NFCCA_USER;
 =cut
 
 sub setup_globals {
-  my $options = shift;
-  $NFCCA        = $options->{remote_domain} || "newforestcricket.co.uk";
-  $MIRROR       = $options->{mirror_base}   || "/home/duncan/nfcca_mirror";
-  $NFCCA_PASSWD = $options->{passwd}        || $ENV{NFCCA_PASSWD};
-  $NFCCA_USER   = $options->{remote_user}   || "newforestcricket.co.uk";
+  my $opts = shift;
+  $NFCCA        = $opts->{remote_domain} || "newforestcricket.co.uk";
+  $MIRROR       = $opts->{mirror_base}   || "/home/duncan/nfcca_mirror";
+  $NFCCA_PASSWD = $opts->{passwd}        || $ENV{NFCCA_PASSWD};
+  $NFCCA_USER   = $opts->{remote_user}   || "newforestcricket.co.uk";
 
   $LAST    = "$MIRROR/last";
   $CURRENT = "$MIRROR/current";
@@ -72,7 +72,7 @@ sub setup_globals {
 
   $RSYNC      = "rsync --rsh \"/usr/bin/sshpass -p $NFCCA_PASSWD ssh -l $NFCCA_USER\"";
   $RSYNC_TREE = "$RSYNC -rt --delete";
-  1;
+  return 1;
 }
 
 =head2 Local directory structure
@@ -131,7 +131,7 @@ sub sync_tree {
   for ( my $x = 0; $x < 10; $x++ ) {
     my $res = system("$RSYNC_TREE $from $to");
     $ok = !$res;
-    print $ok ? "\n$from complete\n" : "\n$from failed " . ( $x + 1 ) . " times\n";
+    print $ok ? "\n$from --> $to complete\n" : "\n$from failed " . ( $x + 1 ) . " times\n";
     last if $ok;
     sleep 5;
   }
@@ -151,11 +151,12 @@ Any files on the local machine which do not exist on the remote machine are dele
 
 sub mirror {
 
-  sync_tree( "$CURRENT/*", "$LAST" ) || croak "Unable to sync_tree $CURRENT";
+  sync_tree( "$CURRENT/", "$LAST" ) || croak "Unable to sync_tree $CURRENT";
 
-  sync_tree( "$NFCCA:results_system/", "$CURRENT" )
+  sync_tree( "$NFCCA:results_system/", "$CURRENT/results_system" )
     || croak "Unable to sync_tree: $NFCCA:results_system";
-  sync_tree( "$NFCCA:cgi-bin/", "$CURRENT" ) || croak "Unable to sync_tree: $NFCCA:cgi-bin";
+  sync_tree( "$NFCCA:cgi-bin/", "$CURRENT/cgi-bin" )
+    || croak "Unable to sync_tree: $NFCCA:cgi-bin";
   sync_tree( "$NFCCA:public_html/results_system/", "$CURRENT/public_html/results_system" )
     || croak "Unable to sync_tree: $NFCCA:cgi-bin";
 
@@ -180,9 +181,10 @@ sub release {
   #sync_tree( "$CURRENT/results_system", "$NFCCA:results_system" )
   #|| croak "Unable to sync_tree: $CURRENT/results_system";
   sync_tree( "$CURRENT/cgi-bin/", "$NFCCA:cgi-bin" )
-    || croak "Unable to sync_tree: $CURRENT/cgi-bin";
+    || croak "Unable to sync_tree: $CURRENT";
 
-  sync_tree( "$CURRENT/public_html/results_system/common/", "$NFCCA:public_html/results_system" )
+  sync_tree( "$CURRENT/public_html/results_system/common/",
+    "$NFCCA:public_html/results_system/common" )
     || croak "Unable to sync_tree: $CURRENT/public_html/results_system/common";
 
   sync_tree(
@@ -231,11 +233,14 @@ and from the next directory tree to the current tree.
 Assumes that the "next" directory contains code which is about to be released. Assumes
 that it is wise to be a backup in "last"!
 
+Note that .ini files are not transferred fron next to current.
+
 =cut
 
 sub rollforward {
-  sync_tree( $CURRENT . '/', $LAST )    || croak "Unable to sync_tree rollback $CURRENT";
-  sync_tree( $NEXT . '/',    $CURRENT ) || croak "Unable to sync_tree rollback";
+  sync_tree( $CURRENT . '/', $LAST ) || croak "Unable to sync_tree rollback $CURRENT";
+  sync_tree( "--exclude \"*.ini\" $NEXT" . '/', $CURRENT )
+    || croak "Unable to sync_tree rollback";
   return 1;
 }
 
