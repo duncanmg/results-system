@@ -139,6 +139,7 @@ sub get_html {
       <table class='week_fixtures'>
       <tr>
       <th class="teamcol">Team</th>
+      <th>Played</th>
       <th>Result</th>
       <th>Runs</th>
       <th>Wickets</th>
