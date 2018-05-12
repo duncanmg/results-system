@@ -44,6 +44,7 @@ use ResultsSystem::Controller::MenuJs;
 use ResultsSystem::Controller::WeekFixtures;
 use ResultsSystem::Controller::SaveResults;
 use ResultsSystem::Controller::TablesIndex;
+use ResultsSystem::Controller::ResultsIndex;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
