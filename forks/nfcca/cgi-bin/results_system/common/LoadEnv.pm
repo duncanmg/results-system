@@ -2,8 +2,6 @@ package LoadEnv;
 
 use strict;
 use warnings;
-use Carp;
-use Slurp;
 
 =head2 run
 
@@ -43,6 +41,21 @@ sub prepend_to_inc {
     }
   }
   return 1;
+}
+
+=head2 slurp
+
+=cut
+
+sub slurp {
+  my $file  = shift;
+  my @lines = ();
+  open( my $FP, '<', $file ) || die "Unable to open $file. $!";
+  while (<$FP>) {
+    push @lines, $_;
+  }
+  close $FP;
+  return @lines;
 }
 
 1;
