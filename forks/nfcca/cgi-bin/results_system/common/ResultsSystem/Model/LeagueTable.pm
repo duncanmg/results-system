@@ -211,7 +211,7 @@ It returns an error code.
       $wk =~ s/^.*_(.*)\..*$/$1/x;
       $self->logger->debug( "Create WeekData object " . $self->get_division . " $wk" );
 
-      my $wd = $self->get_week_data_reader_model;
+      my $wd = $self->get_week_data_reader_model->();
       $wd->set_division( $self->get_division );
       $wd->set_week($wk);
       $wd->read_file;
@@ -261,7 +261,7 @@ the league table. The structure consists of an array of hash references.
     # Loop through all the week data objects.
     foreach my $wd (@all_wd) {
 
-      # $self->logger->debug( "Loop wd " . Dumper($wd) );
+      $self->logger->debug( "Loop wd " . Dumper($wd) );
 
       my $lineno = 0;
       my $more   = 1;
@@ -275,6 +275,7 @@ the league table. The structure consists of an array of hash references.
         my $fields_hash_ref = $wd->get_line($lineno);
         last if !$fields_hash_ref;
         last if !$fields_hash_ref->{team};
+        $self->logger->debug("Process line $lineno. $fields_hash_ref->{team}");
 
         $counter++;
         $lineno++;
@@ -292,7 +293,7 @@ the league table. The structure consists of an array of hash references.
 
         # Skip if the match hasn't been played.
         next if $fields_hash_ref->{played} !~ m/Y/i;
-
+        $self->logger->debug( Dumper "Match has been played.", $fields_hash_ref );
         $table[$i]->{played} += 1;
 
         $table[$i]->{won} += 1 if ( $fields_hash_ref->{result} =~ m/w/ix );
@@ -496,6 +497,12 @@ This method returns a reference to the table of sorted data.
   }
 
 =head2 get_week_data_reader_model
+
+NB This hold the subroutine returned by get_week_data_reader_model_factory
+in Factory.pm.
+
+$self->get_week_data_reader_model->() will return a new WeekData::Reader object
+each time.
 
 =cut
 

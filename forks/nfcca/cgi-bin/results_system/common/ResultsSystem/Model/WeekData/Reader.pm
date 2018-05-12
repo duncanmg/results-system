@@ -5,6 +5,7 @@
 
   use Slurp;
   use List::MoreUtils qw / any /;
+  use Data::Dumper;
 
   use parent qw/ ResultsSystem::Model::WeekData /;
 
@@ -293,6 +294,7 @@ Fields are : "team", "played", "result", "runs", "wickets",
       }
       push @{ $self->{LINES} }, \%team;
     }
+    $self->logger->debug( Dumper $self->{LINES} );
     return 1;
   }
 

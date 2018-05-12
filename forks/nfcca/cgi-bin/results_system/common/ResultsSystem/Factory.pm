@@ -420,6 +420,22 @@ sub get_week_data_reader_model {
   );
 }
 
+=head3 get_week_data_reader_model_factory
+
+=cut
+
+sub get_week_data_reader_model_factory {
+  my ( $self, $args ) = @_;
+  return sub {
+    return ResultsSystem::Model::WeekData::Reader->new(
+      { -logger =>
+          $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekData::Reader' } ),
+        -configuration => $self->get_configuration,
+      }
+    );
+  };
+}
+
 =head3 get_week_data_writer_model
 
 =cut
@@ -486,7 +502,7 @@ sub get_league_table_model {
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::LeagueTable' } ),
       -configuration          => $self->get_configuration,
       -fixtures_model         => $self->get_fixtures_model(),
-      -week_data_reader_model => $self->get_week_data_reader_model(),
+      -week_data_reader_model => $self->get_week_data_reader_model_factory(),
     }
   );
 }
