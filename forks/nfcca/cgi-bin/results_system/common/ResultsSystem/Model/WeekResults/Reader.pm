@@ -1,4 +1,4 @@
-  package ResultsSystem::Model::WeekData::Reader;
+  package ResultsSystem::Model::WeekResults::Reader;
 
   use strict;
   use warnings;
@@ -7,11 +7,11 @@
   use List::MoreUtils qw / any /;
   use Data::Dumper;
 
-  use parent qw/ ResultsSystem::Model::WeekData /;
+  use parent qw/ ResultsSystem::Model::WeekResults /;
 
 =head1 NAME
 
-ResultsSystem::Model::WeekData::Reader
+ResultsSystem::Model::WeekResults::Reader
 
 =cut
 
@@ -19,7 +19,7 @@ ResultsSystem::Model::WeekData::Reader
 
 Usage:
 
-  my $wd = ResultsSystem::Model::WeekData->new( 
+  my $wd = ResultsSystem::Model::WeekResults->new( 
              { -logger => $logger, $configuration => $configuration } );
 
   $wd->set_week('1-May');
@@ -53,7 +53,7 @@ The file must exist and contain valid data.
 
 =head1 INHERITS FROM
 
-L<ResultsSystem::Model::WeekData|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekData>
+L<ResultsSystem::Model::WeekResults|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekResults>
 
 =cut
 

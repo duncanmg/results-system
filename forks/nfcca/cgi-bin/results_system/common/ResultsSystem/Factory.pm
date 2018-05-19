@@ -50,8 +50,8 @@ use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
 use ResultsSystem::Model::Fixtures;
 use ResultsSystem::Model::MenuJs;
-use ResultsSystem::Model::WeekData::Reader;
-use ResultsSystem::Model::WeekData::Writer;
+use ResultsSystem::Model::WeekResults::Reader;
+use ResultsSystem::Model::WeekResults::Writer;
 use ResultsSystem::Model::WeekFixtures;
 use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
@@ -412,9 +412,9 @@ sub get_menu_js_model {
 
 sub get_week_data_reader_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::WeekData::Reader->new(
+  return ResultsSystem::Model::WeekResults::Reader->new(
     { -logger =>
-        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekData::Reader' } ),
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekResults::Reader' } ),
       -configuration => $self->get_configuration,
     }
   );
@@ -427,9 +427,9 @@ sub get_week_data_reader_model {
 sub get_week_data_reader_model_factory {
   my ( $self, $args ) = @_;
   return sub {
-    return ResultsSystem::Model::WeekData::Reader->new(
+    return ResultsSystem::Model::WeekResults::Reader->new(
       { -logger =>
-          $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekData::Reader' } ),
+          $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekResults::Reader' } ),
         -configuration => $self->get_configuration,
       }
     );
@@ -442,9 +442,9 @@ sub get_week_data_reader_model_factory {
 
 sub get_week_data_writer_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::WeekData::Writer->new(
+  return ResultsSystem::Model::WeekResults::Writer->new(
     { -logger =>
-        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekData::Writer' } ),
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekResults::Writer' } ),
       -configuration => $self->get_configuration,
     }
   );

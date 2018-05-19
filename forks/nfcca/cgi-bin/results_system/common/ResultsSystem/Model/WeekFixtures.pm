@@ -58,7 +58,7 @@ Constructor.
 
 -configuration: Configuration object
 
--week_data: WeekData object
+-week_data: WeekResults object
 
 -fixtures: Fixtures object
 

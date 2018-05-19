@@ -1,4 +1,4 @@
-  package ResultsSystem::Model::WeekData;
+  package ResultsSystem::Model::WeekResults;
 
   use strict;
   use warnings;
@@ -10,7 +10,7 @@
 
 =head1 NAME
 
-ResultsSystem::Model::WeekData
+ResultsSystem::Model::WeekResults
 
 =cut
 
@@ -20,7 +20,7 @@ ResultsSystem::Model::WeekData
 
 =head1 DESCRIPTION
 
-Parent class for ResultsSystem::Model::WeekData::Reader and ResultsSystem::Model::WeekData::Writer.
+Parent class for ResultsSystem::Model::WeekResults::Reader and ResultsSystem::Model::WeekResults::Writer.
 
 =cut
 
@@ -36,7 +36,7 @@ L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Mo
 
 =head2 new
 
-ResultsSystem::Model::WeekData->new( { -logger => $logger, $configuration => $configuration } );
+ResultsSystem::Model::WeekResults->new( { -logger => $logger, $configuration => $configuration } );
 
 Can also accept -division, -week
 

@@ -21,10 +21,10 @@ sub test_module_availability {
     ResultsSystem::Starter ResultsSystem::View ResultsSystem::View::Menu ResultsSystem::View::MenuJs ResultsSystem::View::SaveResults
     ResultsSystem::View::Frame ResultsSystem::View::Week ResultsSystem::View::TablesIndex ResultsSystem::View::Blank ResultsSystem::View::LeagueTable
     ResultsSystem::View::Pwd ResultsSystem::View::Week::Results ResultsSystem::View::Week::FixturesForm ResultsSystem::View::ResultsIndex
-    ResultsSystem::View::Message ResultsSystem::Model::Menu ResultsSystem::Model::Fixtures ResultsSystem::Model::MenuJs ResultsSystem::Model::WeekData::Writer
-    ResultsSystem::Model::WeekData::Reader ResultsSystem::Model::SaveResults ResultsSystem::Model::Frame ResultsSystem::Model::WeekData
+    ResultsSystem::View::Message ResultsSystem::Model::Menu ResultsSystem::Model::Fixtures ResultsSystem::Model::MenuJs ResultsSystem::Model::WeekResults::Writer
+    ResultsSystem::Model::WeekResults::Reader ResultsSystem::Model::SaveResults ResultsSystem::Model::Frame ResultsSystem::Model::WeekResults
     ResultsSystem::Model::TablesIndex ResultsSystem::Model::LeagueTable ResultsSystem::Model::Pwd ResultsSystem::Model::ResultsIndex
-    ResultsSystem::Model::SaveWeekData ResultsSystem::Model::WeekFixtures ResultsSystem::AutoCleaner ResultsSystem::Configuration
+    ResultsSystem::Model::SaveWeekResults ResultsSystem::Model::WeekFixtures ResultsSystem::AutoCleaner ResultsSystem::Configuration
     ResultsSystem::Controller::Menu ResultsSystem::Controller::MenuJs ResultsSystem::Controller::SaveResults ResultsSystem::Controller::Frame
     ResultsSystem::Controller::TablesIndex ResultsSystem::Controller::Blank ResultsSystem::Controller::ResultsIndex ResultsSystem::Controller::WeekFixtures
     !;

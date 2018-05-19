@@ -187,7 +187,7 @@ The method returns an error code and a reference to the list of week files.
 =head2 _extract_data
 
 This method accepts a reference to a list of week files. It then loops
-through the files and creates a list of WeekData objects. Each WeekData
+through the files and creates a list of WeekResults objects. Each WeekResults
 object contains the data for one week.
 
 It returns an error code.
@@ -209,7 +209,7 @@ It returns an error code.
 
       my $wk = $f;
       $wk =~ s/^.*_(.*)\..*$/$1/x;
-      $self->logger->debug( "Create WeekData object " . $self->get_division . " $wk" );
+      $self->logger->debug( "Create WeekResults object " . $self->get_division . " $wk" );
 
       my $wd = $self->get_week_data_reader_model->();
       $wd->set_division( $self->get_division );
@@ -225,7 +225,7 @@ It returns an error code.
 
 =head2 _get_all_week_data
 
-Method which returns the list of WeekData objects.
+Method which returns the list of WeekResults objects.
 
  @all_wd = $self->_get_all_week_data;
 
@@ -243,7 +243,7 @@ Method which returns the list of WeekData objects.
 
 =head2 _process_data
 
-This loops through the WeekData objects and creates a data structure for
+This loops through the WeekResults objects and creates a data structure for
 the league table. The structure consists of an array of hash references.
 
  $err = $lt->_process_data;
@@ -501,7 +501,7 @@ This method returns a reference to the table of sorted data.
 NB This hold the subroutine returned by get_week_data_reader_model_factory
 in Factory.pm.
 
-$self->get_week_data_reader_model->() will return a new WeekData::Reader object
+$self->get_week_data_reader_model->() will return a new WeekResults::Reader object
 each time.
 
 =cut

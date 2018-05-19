@@ -1,15 +1,15 @@
-  package ResultsSystem::Model::WeekData::Writer;
+  package ResultsSystem::Model::WeekResults::Writer;
 
   use strict;
   use warnings;
   use Data::Dumper;
   use Params::Validate qw/:all/;
 
-  use parent qw/ ResultsSystem::Model::WeekData /;
+  use parent qw/ ResultsSystem::Model::WeekResults /;
 
 =head1 NAME
 
-ResultsSystem::Model::WeekData::Writer
+ResultsSystem::Model::WeekResults::Writer
 
 =cut
 
@@ -23,7 +23,7 @@ ResultsSystem::Model::WeekData::Writer
 
 =head1 INHERITS FROM
 
-L<ResultsSystem::Model::WeekData|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekData>
+L<ResultsSystem::Model::WeekResults|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekResults>
 
 =cut
 
@@ -71,7 +71,7 @@ Returns true on success.
     }
 
     open( my $FP, ">", $ff ) || do {
-      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
+      $self->logger->error("WeekResults(): Unable to open file for writing. $ff.");
       return;
     };
 

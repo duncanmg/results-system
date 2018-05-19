@@ -38,8 +38,8 @@ use_ok('ResultsSystem::Model::Pwd');
 use_ok('ResultsSystem::Model::ResultsIndex');
 use_ok('ResultsSystem::Model::SaveResults');
 use_ok('ResultsSystem::Model::TablesIndex');
-use_ok('ResultsSystem::Model::WeekData::Reader');
-use_ok('ResultsSystem::Model::WeekData::Writer');
+use_ok('ResultsSystem::Model::WeekResults::Reader');
+use_ok('ResultsSystem::Model::WeekResults::Writer');
 use_ok('ResultsSystem::Model::WeekFixtures');
 
 use_ok('ResultsSystem::View::Blank');

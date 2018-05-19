@@ -243,7 +243,7 @@ sub conf_with_logfile {
     "log4perl.category.ResultsConfiguration" => "INFO , LOGFILE",
     "log4perl.category.Fixtures"             => "INFO , LOGFILE",
     "log4perl.category.WeekFixtures"         => "INFO , LOGFILE",
-    "log4perl.category.WeekData"             => "INFO , LOGFILE",
+    "log4perl.category.WeekResults"          => "INFO , LOGFILE",
     "log4perl.appender.LOGFILE"              => "Log::Log4perl::Appender::File",
     "log4perl.appender.LOGFILE.filename"     => $file,
     "log4perl.appender.LOGFILE.mode"         => "append",

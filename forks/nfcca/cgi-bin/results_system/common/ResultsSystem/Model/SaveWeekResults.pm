@@ -1,4 +1,4 @@
-  package ResultsSystem::Model::SaveWeekData;
+  package ResultsSystem::Model::SaveWeekResults;
 
   use strict;
   use warnings;
@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-ResultsSystem::ResultsSystem::Model::SaveWeekData
+ResultsSystem::ResultsSystem::Model::SaveWeekResults
 
 =cut
 
@@ -33,7 +33,7 @@ ResultsSystem::Model
 
 =head2 new
 
-Constructor for the WeekData object. Inherits arguments from Parent
+Constructor for the WeekResults object. Inherits arguments from Parent
 plus -division and -week.
 
 =cut
@@ -106,7 +106,7 @@ This writes the current contents of the data structure to the results file for t
     }
 
     open( my $FP, ">", $ff ) || do {
-      $self->logger->error("WeekData(): Unable to open file for writing. $ff.");
+      $self->logger->error("WeekResults(): Unable to open file for writing. $ff.");
       return;
     };
 
