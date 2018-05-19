@@ -50,7 +50,8 @@ sub prepend_to_inc {
 sub slurp {
   my $file  = shift;
   my @lines = ();
-  open( my $FP, '<', $file ) || die "Unable to open $file. $!";
+  open( my $FP, '<', $file )
+    || die "Unable to open $file. $!";    ## no critic (ErrorHandling::RequireCarping)
   while (<$FP>) {
     push @lines, $_;
   }
