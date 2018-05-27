@@ -1,18 +1,30 @@
 
 =head1 NAME
 
-ResultsSystem::Model::Fixtures
+ResultsSystem::Model::FixtureList
 
 =cut
 
 =head1 SYNOPSIS
 
+  $f = FixtureList->new( -logger => $logger, -configuration => $configuration, -division => "division1.csv" );
+  $f->read_file;
+
+or
+
+  $f = FixtureList->new( -logger => $logger, -configuration => $configuration );
+  $f->set_division( "division1.csv" );
+  $f->read_file;
+
 =cut
 
 =head1 DESCRIPTION
 
-This module reads and validates a fixtures csv file and loads it into an internal data structure. A Fixtures object
-will inherit from Parent.pm.
+This module reads a fixtures csv file and loads it into an internal data structure.
+
+=cut
+
+=head2 FILE FORMAT
 
 The file should contain date lines and fixtures lines. Each date line should be followed by the fixture lines
 for that date.
@@ -61,7 +73,7 @@ L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Mo
 
 =cut
 
-package ResultsSystem::Model::Fixtures;
+package ResultsSystem::Model::FixtureList;
 
 use strict;
 use warnings;
@@ -83,7 +95,8 @@ use parent qw/ResultsSystem::Model/;
 Constructor for the module. Accepts one parameter which
 is the filename of the csv file to be read.
 
-$f = Fixtures->new( -logger => $logger, -configuration => $configuration, -division => "division1.csv" );
+$f = FixtureList->new( -logger => $logger, -configuration => $configuration, 
+  -division => "division1.csv" );
 
 The fixtures file is processed as part of the object creation process if a division has been provided.
 Otherwise it is not processed until the division is set and read_file is called.
@@ -149,6 +162,9 @@ sub set_full_filename {
 
 =head2 get_date_list
 
+Returns an array ref of all the dates on which at
+least one team in the division has a match.
+
 Returns a reference to the array of dates.
 
 $dates_ref = $f->get_date_list;
@@ -167,6 +183,8 @@ sub get_date_list {
 }
 
 =head2 get_week_fixtures
+
+Returns the fixtures for a given week.
 
 Returns an array reference. Each element of the array is a
 hash element.
@@ -566,18 +584,14 @@ sub _get_fixture_hash {
     $h{home} = $self->_trim( $bits[0] );
     $h{away} = $self->_trim( $bits[1] );
 
-    # print "line=$l. " . Dumper( @bits ) . "\n" . Dumper( %h ) . "\n";
-    # print '$h{home}=' . $h{home} . "\n";
     if ( !defined( $h{home} ) || !defined( $h{away} ) ) {
       $self->logger->warn("_get_fixture_hash() Invalid line: $l");
     }
 
-    # print "return hash.\n";
     return %h;
 
   }
 
-  # print "return empty hash\n";
   return %h;
 }
 

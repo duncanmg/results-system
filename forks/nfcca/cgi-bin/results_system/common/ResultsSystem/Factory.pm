@@ -48,7 +48,7 @@ use ResultsSystem::Controller::ResultsIndex;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
-use ResultsSystem::Model::Fixtures;
+use ResultsSystem::Model::FixtureList;
 use ResultsSystem::Model::MenuJs;
 use ResultsSystem::Model::WeekResults::Reader;
 use ResultsSystem::Model::WeekResults::Writer;
@@ -379,14 +379,14 @@ sub get_menu_model {
   );
 }
 
-=head3 get_fixtures_model
+=head3 get_fixture_list_model
 
 =cut
 
-sub get_fixtures_model {
+sub get_fixture_list_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::Fixtures->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::Fixtures' } ),
+  return ResultsSystem::Model::FixtureList->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::FixtureList' } ),
       -configuration => $self->get_configuration
     }
   );
@@ -401,7 +401,7 @@ sub get_menu_js_model {
   return ResultsSystem::Model::MenuJs->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::MenuJs' } ),
       -configuration => $self->get_configuration,
-      -fixtures      => $self->get_fixtures_model,
+      -fixtures      => $self->get_fixture_list_model,
     }
   );
 }
@@ -460,7 +460,7 @@ sub get_week_fixtures_model {
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekFixtures' } ),
       -configuration => $self->get_configuration,
       -week_data     => $self->get_week_data_reader_model,
-      -fixtures      => $self->get_fixtures_model,
+      -fixtures      => $self->get_fixture_list_model,
     }
   );
 }
@@ -501,7 +501,7 @@ sub get_league_table_model {
   return ResultsSystem::Model::LeagueTable->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::LeagueTable' } ),
       -configuration          => $self->get_configuration,
-      -fixtures_model         => $self->get_fixtures_model(),
+      -fixture_list_model     => $self->get_fixture_list_model(),
       -week_data_reader_model => $self->get_week_data_reader_model_factory(),
     }
   );
@@ -515,8 +515,8 @@ sub get_results_index_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::ResultsIndex->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::ResultsIndex' } ),
-      -configuration  => $self->get_configuration,
-      -fixtures_model => $self->get_fixtures_model(),
+      -configuration      => $self->get_configuration,
+      -fixture_list_model => $self->get_fixture_list_model(),
     }
   );
 }

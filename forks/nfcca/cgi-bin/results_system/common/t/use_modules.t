@@ -29,7 +29,7 @@ use_ok('ResultsSystem::Controller::SaveResults');
 use_ok('ResultsSystem::Controller::TablesIndex');
 use_ok('ResultsSystem::Controller::WeekFixtures');
 
-use_ok('ResultsSystem::Model::Fixtures');
+use_ok('ResultsSystem::Model::FixtureList');
 use_ok('ResultsSystem::Model::Frame');
 use_ok('ResultsSystem::Model::LeagueTable');
 use_ok('ResultsSystem::Model::Menu');
