@@ -298,55 +298,6 @@ Fields are : "team", "played", "result", "runs", "wickets",
     return 1;
   }
 
-=head2 get_labels
-
-=cut
-
-  #***************************************
-  sub get_labels {
-
-    #***************************************
-    my $self = shift;
-
-    my @list = (
-      "team",       "played",       "result",    "runs",
-      "wickets",    "performances", "resultpts", "battingpts",
-      "bowlingpts", "penaltypts",   "totalpts",  "pitchmks",
-      "groundmks",  "facilitiesmks"
-    );
-
-    return @list;
-  }
-
-=head2 file_not_found
-
-This method is used to indicate whether any results were found by the read_file method. Returns 1
-if the file wasn't found.
-
-
-These two calls set the value and return the new value.
-
- $i = $wd->file_not_found( 1 );
- $i = $wd->file_not_found( 0 );
-
-This call returns the current value without changing it. 
-
- $i = $wd->file_not_found();
-
-=cut
-
-  #***************************************
-  sub file_not_found {
-
-    #***************************************
-    my $self = shift;
-    my $s    = shift;
-    if ( $s =~ m/[01]/x ) {
-      $self->{NO_FILE} = $s;
-    }
-    return $self->{NO_FILE};
-  }
-
 =head2 get_dat_filename
 
 Returns the .dat filename for the week.
