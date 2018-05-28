@@ -119,28 +119,42 @@ Can also accept -division, -week
     return $self->{week};
   }
 
-=head1 INTERNAL (PRIVATE) METHODS
+=head2 get_default_result
 
-=cut
+Returns the default structure for a result.
 
-=head2 get_labels
+Returns an array ref of hash refs. Each hash ref contains the
+name of the element and its default value.
 
-Returns a list of valid labels/keys for a results structure.
+eg
+
+    { name => "team",          value => "" },
+    { name => "played",        value => 'N' },
 
 =cut
 
   #***************************************
-  sub get_labels {
+  sub get_default_result {
 
     #***************************************
     my $self = shift;
 
-    my @list = (
-      "team",       "played",       "result",    "runs",
-      "wickets",    "performances", "resultpts", "battingpts",
-      "bowlingpts", "penaltypts",   "totalpts",  "pitchmks",
-      "groundmks",  "facilitiesmks"
-    );
+    my @list = [
+      { name => "team",          value => "" },
+      { name => "played",        value => 'N' },
+      { name => "result",        value => 'W' },
+      { name => "runs",          value => 0 },
+      { name => "wickets",       value => 0 },
+      { name => "performances",  value => "" },
+      { name => "resultpts",     value => 0 },
+      { name => "battingpts",    value => 0 },
+      { name => "bowlingpts",    value => 0 },
+      { name => "penaltypts",    value => 0 },
+      { name => "totalpts",      value => 0 },
+      { name => "pitchmks",      value => 0 },
+      { name => "groundmks",     value => 0 },
+      { name => "facilitiesmks", value => 0 },
+    ];
 
     return @list;
   }
@@ -172,6 +186,25 @@ This call returns the current value without changing it.
       $self->{NO_FILE} = $s;
     }
     return $self->{NO_FILE};
+  }
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 get_labels
+
+Returns a list of valid labels/keys for a results structure.
+
+=cut
+
+  #***************************************
+  sub get_labels {
+
+    #***************************************
+    my $self = shift;
+
+    return map { $_->{name} } @{ $self->get_default_result };
   }
 
 =head2 get_dat_filename
