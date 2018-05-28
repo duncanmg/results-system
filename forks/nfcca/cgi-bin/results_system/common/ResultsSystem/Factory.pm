@@ -53,6 +53,7 @@ use ResultsSystem::Model::MenuJs;
 use ResultsSystem::Model::WeekResults::Reader;
 use ResultsSystem::Model::WeekResults::Writer;
 use ResultsSystem::Model::WeekFixtures;
+use ResultsSystem::Model::WeekFixtures::Adapter;
 use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
 use ResultsSystem::Model::LeagueTable;
@@ -117,6 +118,7 @@ sub get_file_logger {
     $args->{-log_dir} = $c->get_path( -log_dir => 1 );
     $args->{-logfile_stem} = $c->get_log_stem;
   }
+  $args->{-category} ||= 'Default';
   return $self->get_logger($args)->logger( $args->{-category} );
 }
 
@@ -461,6 +463,20 @@ sub get_week_fixtures_model {
       -configuration => $self->get_configuration,
       -week_data     => $self->get_week_data_reader_model,
       -fixtures      => $self->get_fixture_list_model,
+    }
+  );
+}
+
+=head3 get_week_fixtures_adapter_model
+
+=cut
+
+sub get_week_fixtures_adapter_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::WeekFixtures::Adapter->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekFixtures' } ),
+      -configuration => $self->get_configuration,
+      -week_results  => $self->get_week_data_reader_model,
     }
   );
 }
