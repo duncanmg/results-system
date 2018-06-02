@@ -54,6 +54,7 @@ use ResultsSystem::Model::WeekResults::Reader;
 use ResultsSystem::Model::WeekResults::Writer;
 use ResultsSystem::Model::WeekFixtures;
 use ResultsSystem::Model::WeekFixtures::Adapter;
+use ResultsSystem::Model::WeekFixtures::Selector;
 use ResultsSystem::Model::SaveResults;
 use ResultsSystem::Model::Pwd;
 use ResultsSystem::Model::LeagueTable;
@@ -474,9 +475,27 @@ sub get_week_fixtures_model {
 sub get_week_fixtures_adapter_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::WeekFixtures::Adapter->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekFixtures' } ),
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekFixtures::Adapter' } ),
       -configuration => $self->get_configuration,
       -week_results  => $self->get_week_data_reader_model,
+    }
+  );
+}
+
+=head3 get_week_fixtures_selector_model
+
+=cut
+
+sub get_week_fixtures_selector_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::WeekFixtures::Selector->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekFixtures::Selector' } ),
+      -configuration    => $self->get_configuration,
+      -week_results     => $self->get_week_data_reader_model,
+      -fixtures_adapter => $self->get_week_fixtures_adapter_model,
+      -fixtures         => $self->get_fixture_list_model,
     }
   );
 }
