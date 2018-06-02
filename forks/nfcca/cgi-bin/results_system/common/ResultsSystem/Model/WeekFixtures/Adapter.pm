@@ -83,9 +83,10 @@ sub new {
 =cut
 
 sub adapt {
-  my ( $self, $args ) = @_;
+  my $self = shift;
+  my (%args) = validate( @_, { -fixtures => { type => ARRAYREF } } );
 
-  my $fixtures = $args->{-fixtures};
+  my $fixtures = $args{-fixtures};
 
   my $team_names = $self->_get_team_names($fixtures);
 
@@ -97,7 +98,7 @@ sub adapt {
     foreach my $r (@$result) {
       $e->{ $r->{name} } = $r->{value};
     }
-    $e->{team} = $t;
+    $e->{team} = $t->{team};
     push @$wd, $e;
   }
 
