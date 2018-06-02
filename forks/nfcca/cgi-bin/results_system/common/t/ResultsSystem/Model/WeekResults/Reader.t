@@ -53,6 +53,8 @@ ok( $wd->read_file(), "read_file" );
 
 eq_or_diff( $wd->get_lines, get_expected(), "get_lines" );
 
+eq_or_diff( $wd->get_line(2), get_expected()->[2], "get_line" );
+
 done_testing;
 
 sub get_expected {
