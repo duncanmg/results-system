@@ -139,7 +139,7 @@ eg
     #***************************************
     my $self = shift;
 
-    my @list = [
+    my $list = [
       { name => "team",          value => "" },
       { name => "played",        value => 'N' },
       { name => "result",        value => 'W' },
@@ -156,7 +156,7 @@ eg
       { name => "facilitiesmks", value => 0 },
     ];
 
-    return @list;
+    return $list;
   }
 
 =head2 file_not_found
