@@ -180,14 +180,13 @@ $wd->get_line($line_no);
   sub get_line {
 
     #***************************************
-    my $self   = shift;
-    my $lineno = shift;
-    return $self->{LINES}[$lineno];
+    my ( $self, $lineno ) = @_;
+    return $self->{LINES}->[$lineno];
   }
 
 =head3 get_lines
 
-Return all the lines as an array.
+Return all the lines as an array ref of hash refs.
 
 =cut
 
