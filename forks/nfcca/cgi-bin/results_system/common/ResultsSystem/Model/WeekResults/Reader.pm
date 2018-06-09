@@ -192,7 +192,7 @@ Return all the lines as an array ref of hash refs.
 
   sub get_lines {
     my $self = shift;
-    return $self->{LINES};
+    return $self->{LINES} || [];
   }
 
 =head3 set_full_filename
