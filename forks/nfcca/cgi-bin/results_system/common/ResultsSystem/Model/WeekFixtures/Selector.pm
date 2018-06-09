@@ -11,9 +11,11 @@ ResultsSystem::Model::WeekFixtures::Selector
 Usage:
 
   my $wf = ResultsSystem::Model::WeekFixtures::Selector->new( 
-    { -logger => $logger, -configuration => -configuration });
+    { -logger => $logger, -configuration => $configuration,  
+      -week_results  => $week_results, -fixtures => $fixtures, 
+      -fixtures_adapter => $fixtures_adapter});
 
-  $wf->run({ -division => $d, -week => $matchdate,
+  $wf->select({ -division => $d, -week => $matchdate,
              -week_results => $wd, -fixtures => $f });
 
 This module returns the results for a given division and date.
@@ -26,14 +28,14 @@ set to defaults.
 
 =head1 DESCRIPTION
 
-This modules selects the results for a week. If there are any results
+This modules selects the results for a week. If there aren't any results
 then it returns the fixtures for the week.
 
 =cut
 
 =head1 INHERITS FROM
 
-L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekFixtures>
+L<ResultsSystem::Model::WeekFixtures|http://www.results_system_nfcca.com:8088/ResultsSystem/Model/WeekFixtures>
 
 =cut
 
@@ -83,34 +85,27 @@ sub new {
   return $self;
 }
 
-=head2 run
+=head2 select
 
-  my $data = $wf->run({ -division => $d, -week => $matchdate });
+  my $rows = $wf->select({ -division => $d, -week => $matchdate });
 
 =cut
 
-sub run {
-  my ( $self, $args ) = @_;
+sub select {
+  my $self = shift;
+  my (%args) = validate( @_, { -division => 1, -week => 1 } );
 
-  $self->set_division( $args->{-division} );
-  $self->set_week( $args->{-week} );
+  $self->set_division( $args{-division} );
+  $self->set_week( $args{-week} );
 
-  my $data = {};
+  my $rows = {};
 
-  $data->{rows} = $self->_get_results_for_week;
+  $rows = $self->_get_results_for_week;
 
-  $data->{SYSTEM} = $self->get_configuration->get_system;
-  $data->{SEASON} = $self->get_configuration->get_season;
-  $data->{MENU_NAME} =
-    $self->get_configuration->get_name( -csv_file => $self->get_division )->{menu_name};
-  $data->{WEEK}     = $self->get_week;
-  $data->{TITLE}    = $self->get_configuration->get_title;
-  $data->{DIVISION} = $self->get_division;
+  $rows = $self->_get_adapted_fixtures if !scalar( @{$rows} );
 
-  $data->{rows} = $self->_get_adapted_fixtures if !scalar( @{ $data->{rows} } );
-
-  $self->logger->debug( Dumper $data);
-  return $data;
+  $self->logger->debug( Dumper $rows);
+  return $rows;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
