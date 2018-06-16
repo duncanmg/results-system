@@ -47,7 +47,6 @@ my @methods = qw /
   get_week_data_writer_model
   get_week_fixtures_adapter_model
   get_week_fixtures_controller
-  get_week_fixtures_model
   get_week_fixtures_selector_model
   get_week_fixtures_view
   get_week_results_view
