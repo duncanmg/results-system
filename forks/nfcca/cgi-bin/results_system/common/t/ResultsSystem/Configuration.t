@@ -38,4 +38,20 @@ ok( $config->get_path( "-cgi_dir_full" => "Y", -allow_not_exists => 1 ),
 throws_ok( sub { $config->get_path( "-bad_path" => "Y", -allow_not_exists => 1 ) },
   qr/PATH_NOT_IN_TAGS/, "-bad_path is an invalid argument" );
 
+lives_ok(
+  sub {
+    $config->get_path( "-csv_files_with_season" => "Y", -allow_not_exists => 1 );
+  },
+  "Path with suffix lives."
+);
+
+my $csv_files_with_season;
+ok(
+  $csv_files_with_season =
+    $config->get_path( "-csv_files_with_season" => "Y", -allow_not_exists => 1 ),
+  "$csv_files_with_season"
+);
+like( $csv_files_with_season, qr:nfcca\/\d{4}$:,
+  "csv_files_with_season end with the system and the year. eg nfcca/2017" );
+
 done_testing;

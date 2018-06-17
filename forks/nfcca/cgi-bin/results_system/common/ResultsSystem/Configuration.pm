@@ -801,7 +801,8 @@ It can be a simple string e.g. /a/b/c
 or it can be a hash reference:
 
 { prefix => ( "path" ),
-  value  => ( "/a/b/c" ) }
+  value  => ( "/a/b/c" ),
+  suffix => ( "path" ) }
   
 The prefix must be the name of a path which can be accessed using get_path.
 This method retrieves the path and prefixes it to the contents of value.
@@ -816,21 +817,29 @@ sub _construct_path {
   #***************************************
   my $self = shift;
   my (%args) = validate( @_, { -path => { type => SCALAR | HASHREF } } );
-  my $tags = $self->_get_tags;
 
   return $args{-path} if !ref( $args{-path} );
   my $p = $args{-path};
 
+  my ( $prefix, $value, $suffix, $path );
+
   croak(
     ResultsSystem::Exception( 'MISSING_KEYS', 'Path must contsin the keys prefix and value' ) )
     if !( $p->{prefix} && $p->{value} );
-  my $prefix = $p->{prefix}[0];
 
-  my $path;
+  $prefix = $p->{prefix}[0] if $p->{prefix}[0];
+  $value  = $p->{value}[0]  if $p->{value}[0];
+  $suffix = $p->{suffix}[0] if $p->{suffix}[0];
+
   $self->logger->debug( "Compound path. About to call get_path for prefix " . $prefix );
-  $prefix = $self->get_path( '-' . $prefix => 'Y' );
-  my $value = $p->{value}[0];
-  $path = "$prefix/$value";
+
+  my @bits = ();
+
+  push( @bits, $self->get_path( '-' . $prefix => 'Y' ) ) if $prefix;
+  push( @bits, $value ) if $value;
+  push( @bits, $self->get_path( '-' . $suffix => 'Y' ) ) if $suffix;
+
+  $path = join( '/', @bits );
   $path =~ s://:/:xg;    # Change // to /.
 
   return $path;
