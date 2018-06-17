@@ -203,62 +203,6 @@ sub get_division_table_row_html {
 HTML
 }
 
-#=head2 output_html
-#
-#This method returns HTML for all the divisions. The HTML starts with a single level one
-#heading. This is followed by the HTML for each division. This consists of a level two
-#heading and a table. This list of divisions is read from the configuration file.
-#
-#( $err, $line ) = output_html;
-#
-#=cut
-#
-#  # *********************************************************
-#  sub output_html {
-#
-#    # *********************************************************
-#    my $self = shift;
-#    my $err  = 0;
-#
-#    my $q     = $self->get_query;
-#    my $c     = $self->get_configuration;
-#    my @names = $c->get_menu_names;
-#    my ( $line, $l );
-#    $self->logger->debug( scalar(@names) . " divisions to be listed." );
-#
-#    $line =
-#        $line . "<h1>"
-#      . $c->get_descriptors( -title => "Y" )
-#      . " - Results "
-#      . $c->get_descriptors( -season => "Y" )
-#      . "</h1>\n";
-#
-#    $line = $line . $self->return_to_link("-results_index") . "\n";
-#
-#    my $d = $c->get_path( -csv_files => "Y" );
-#    my $season = $c->get_season;
-#    $d = "$d/$season";
-#
-#    foreach my $division (@names) {
-#
-#      eval {
-#        ( $err, $l ) = $self->print_table( $d, $division->{csv_file}, $division->{menu_name} );
-#        $line = $line . $l;
-#      };
-#      if ($@) {
-#        $self->logger->error( "Problem processing " . $division->{menu_name} );
-#        $self->logger->error( $@, 5 );
-#        $err = 1;
-#      }
-#      if ( $err != 0 ) {
-#        last;
-#      }
-#    }
-#
-#    return ( $err, $line );
-#
-#  }
-
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
