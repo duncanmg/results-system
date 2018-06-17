@@ -38,7 +38,20 @@ use Params::Validate qw/:all/;
 
 use ResultsSystem::Exception;
 
-=head2 new
+## For testing purposes only.
+#sub _set_stylesheet {
+#  my $self  = shift;
+#  my $h_ref = shift;
+#  $self->{TAGS}->{stylesheets}[0]{sheet}[0] = $h_ref->{name};
+#  $self->{TAGS}->{stylesheets}[0]{copy}[0]  = $h_ref->{copy};
+#  return 0;
+#}
+
+=head2 Configuration Setup
+
+=cut
+
+=head3 new
 
 Constructor for the ResultsSystem::Configuration object. Optionally accepts the full filename
 of the configuration file as an argument. Does not read the file at this point.
@@ -82,7 +95,7 @@ sub new {
   }
 }
 
-=head2 set_full_filename
+=head3 set_full_filename
 
 Sets the full filename of the configuration file. Filters out
 characters other than alphanumeric characters, "_", ".", or "/".
@@ -104,7 +117,7 @@ sub set_full_filename {
   return $err;
 }
 
-=head2 get_full_filename
+=head3 get_full_filename
 
 Returns the full filename of the configuration file.
 
@@ -123,26 +136,7 @@ sub get_full_filename {
   return $self->{FULL_FILENAME};
 }
 
-=head2 set_system
-
-=cut
-
-sub set_system {
-  my ( $self, $system ) = @_;
-  $self->{system} = $system;
-  return $self;
-}
-
-=head2 get_system
-
-=cut
-
-sub get_system {
-  my $self = shift;
-  return $self->{system};
-}
-
-=head2 read_file
+=head3 read_file
 
 Read the configuration file. Returns an error if the file doesn't exist or the read fails.
 
@@ -216,85 +210,72 @@ sub read_file {
   return $err;
 }
 
-=head2 get_menu_names
+=head3 set_logger
 
-Returns a list of hash references sorted by menu_position. Each hash reference has 3 elements: menu_position, menu_name and csv_file.
+=cut
 
- @x = $c->get_menu_names();
- print $x[2]->{menu_position} . "\n";
+sub set_logger {
+  my ( $self, $logger ) = @_;
+  $self->{LOGGER} = $logger;
+  return $self;
+}
+
+=head3 set_system
+
+Sets the stem of the .ini file which must be the same as the subdirectory it is in.
+
+eg nfcca is the stem of nfcca.ini and will be located in custom/nfcca.
+
+=cut
+
+sub set_system {
+  my ( $self, $system ) = @_;
+  $self->{system} = $system;
+  return $self;
+}
+
+=head3 get_system
+
+Returns the stem of the .ini file which must be the same as the subdirectory it is in.
+
+eg nfcca is the stem of nfcca.ini and will be located in custom/nfcca.
+
+=cut
+
+sub get_system {
+  my $self = shift;
+  return $self->{system};
+}
+
+=head3 get_log_stem
+
+Appends the current season to the string passed as an argument.
 
 =cut
 
 #***************************************
-sub get_menu_names {
+sub get_log_stem {
 
   #***************************************
-  my $self = shift;
-  my $tags = $self->_get_tags();
-  my @sorted_list;
-  my $div_array_ref = $tags->{divisions}[0]{division};
-  if ( !$div_array_ref ) {
-    return;
+  my $self   = shift;
+  my $system = shift;
+  my $stem   = "results_system";
+  if ($system) {
+    $stem = $system;
   }
-  my @div_array = @$div_array_ref;
-
-  # print $div_array[1]{menu_position}[0] . "\n";
-
-  foreach my $d (@div_array) {
-    my %h = (
-      menu_position => $d->{menu_position}[0],
-      menu_name     => $d->{menu_name}[0],
-      csv_file      => $d->{csv_file}[0]
-    );
-    $h{menu_position} = $self->_trim( $h{menu_position} );
-    $h{menu_name}     = $self->_trim( $h{menu_name} );
-    $h{csv_file}      = $self->_trim( $h{csv_file} );
-    push @sorted_list, \%h;
+  my $s = $self->get_season;
+  if ($s) {
+    $stem = $stem . $s;
   }
 
-  my $sorter = make_sorter(
-    qw( ST ),
-    number => {
-      code       => '$_->{menu_position}',
-      descending => 0
-    }
-  );
-  @sorted_list = $sorter->(@sorted_list);
-  return @sorted_list;
-
+  return $stem;
 }
 
-=head2 get_name
-
-This method returns the hash reference for the csv_file or menu_name passed as an argument.
-
- $h_ref = $c->get_name( -menu_name => "County 1" );
- print $h_ref->{csv_file} . "\n";
- 
- $h_ref = $c->get_name( -cev_file => "CD1.csv" );
- print $h_ref->{menu_name} . "\n";
+=head2 Path Handling
 
 =cut
 
-#***************************************
-sub get_name {
-
-  #***************************************
-  my $self = shift;
-  my %args = (@_);
-  my $t;
-
-  my @list = $self->get_menu_names;
-  if ( $args{-menu_name} ) {
-    $t = first_value { $_->{menu_name} eq $args{-menu_name} } @list;
-  }
-  else {
-    $t = first_value { $_->{csv_file} eq $args{-csv_file} } @list;
-  }
-  return $t;    # Hash ref
-}
-
-=head2 get_path
+=head3 get_path
 
 This method accepts one mandatory named parameter and one optional named
 parameter. Returns the appropriate path from the configuration file.
@@ -362,7 +343,93 @@ sub get_path {
 
 }
 
-=head2 get_code
+=head2 Menu Handling
+
+=cut
+
+=head3 get_menu_names
+
+Returns a list of hash references sorted by menu_position. Each hash reference has 3 elements: menu_position, menu_name and csv_file.
+
+ @x = $c->get_menu_names();
+ print $x[2]->{menu_position} . "\n";
+
+=cut
+
+#***************************************
+sub get_menu_names {
+
+  #***************************************
+  my $self = shift;
+  my $tags = $self->_get_tags();
+  my @sorted_list;
+  my $div_array_ref = $tags->{divisions}[0]{division};
+  if ( !$div_array_ref ) {
+    return;
+  }
+  my @div_array = @$div_array_ref;
+
+  # print $div_array[1]{menu_position}[0] . "\n";
+
+  foreach my $d (@div_array) {
+    my %h = (
+      menu_position => $d->{menu_position}[0],
+      menu_name     => $d->{menu_name}[0],
+      csv_file      => $d->{csv_file}[0]
+    );
+    $h{menu_position} = $self->_trim( $h{menu_position} );
+    $h{menu_name}     = $self->_trim( $h{menu_name} );
+    $h{csv_file}      = $self->_trim( $h{csv_file} );
+    push @sorted_list, \%h;
+  }
+
+  my $sorter = make_sorter(
+    qw( ST ),
+    number => {
+      code       => '$_->{menu_position}',
+      descending => 0
+    }
+  );
+  @sorted_list = $sorter->(@sorted_list);
+  return @sorted_list;
+
+}
+
+=head3 get_name
+
+This method returns the hash reference for the csv_file or menu_name passed as an argument.
+
+ $h_ref = $c->get_name( -menu_name => "County 1" );
+ print $h_ref->{csv_file} . "\n";
+ 
+ $h_ref = $c->get_name( -cev_file => "CD1.csv" );
+ print $h_ref->{menu_name} . "\n";
+
+=cut
+
+#***************************************
+sub get_name {
+
+  #***************************************
+  my $self = shift;
+  my %args = (@_);
+  my $t;
+
+  my @list = $self->get_menu_names;
+  if ( $args{-menu_name} ) {
+    $t = first_value { $_->{menu_name} eq $args{-menu_name} } @list;
+  }
+  else {
+    $t = first_value { $_->{csv_file} eq $args{-csv_file} } @list;
+  }
+  return $t;    # Hash ref
+}
+
+=head2 Password Handling
+
+=cut
+
+=head3 get_code
 
 This method return the password for the user passed as an argument. Returns
 undefined if the user does not exist.
@@ -396,70 +463,11 @@ sub get_code {
   return $self->_trim($code);
 }
 
-=head2 get_season
-
-Returns the current season.
+=head2 View Handling
 
 =cut
 
-#***************************************
-sub get_season {
-
-  #***************************************
-  my $self = shift;
-  my $s    = $self->_get_tags->{descriptors}[0]{season}[0];
-  return $self->_trim($s);
-}
-
-=head2 get_title
-
-Returns the title.
-
-=cut
-
-#***************************************
-sub get_title {
-
-  #***************************************
-  my $self = shift;
-  my $s    = $self->_get_tags->{descriptors}[0]{title}[0];
-  return $self->_trim($s);
-}
-
-=head2 get_log_stem
-
-Appends the current season to the string passed as an argument.
-
-=cut
-
-#***************************************
-sub get_log_stem {
-
-  #***************************************
-  my $self   = shift;
-  my $system = shift;
-  my $stem   = "results_system";
-  if ($system) {
-    $stem = $system;
-  }
-  my $s = $self->get_season;
-  if ($s) {
-    $stem = $stem . $s;
-  }
-
-  return $stem;
-}
-
-## For testing purposes only.
-#sub _set_stylesheet {
-#  my $self  = shift;
-#  my $h_ref = shift;
-#  $self->{TAGS}->{stylesheets}[0]{sheet}[0] = $h_ref->{name};
-#  $self->{TAGS}->{stylesheets}[0]{copy}[0]  = $h_ref->{copy};
-#  return 0;
-#}
-
-=head2 get_stylesheet
+=head3 get_stylesheet
 
 Returns a hash ref containing the name of the first stylesheet
 and whether it is to be copied.
@@ -489,7 +497,7 @@ sub get_stylesheet {
   return { name => $name, copy => $copy };
 }
 
-=head2 get_stylesheets
+=head3 get_stylesheets
 
 Returns a list of stylesheets
 
@@ -511,7 +519,7 @@ sub get_stylesheets {
   return @s;
 }
 
-=head2 get_return_page
+=head3 get_return_page
 
 The return link on the page will point here. Returns HTML
 within a <p> tag.
@@ -544,7 +552,7 @@ sub get_return_page {
   return ( $self->_trim($l), $self->_trim($t) );
 }
 
-=head2 get_descriptors
+=head3 get_descriptors
 
 Returns a string. $c->get_descriptors( title => "Y" ) or
 $c->get_descriptors( season => "Y" );
@@ -569,9 +577,49 @@ sub get_descriptors {
   return $self->_trim($d);
 }
 
-=head2 get_calculation
+=head3 get_title
+
+Returns the title.
+
+=cut
+
+#***************************************
+sub get_title {
+
+  #***************************************
+  my $self = shift;
+  my $s    = $self->_get_tags->{descriptors}[0]{title}[0];
+  return $self->_trim($s);
+}
+
+=head3 get_season
+
+Returns the current season. eg 2018.
+
+Used in views and in path building. The former is legitimate, but path
+building should be centralised. Putting it under "View Handling".
+
+=cut
+
+#***************************************
+sub get_season {
+
+  #***************************************
+  my $self = shift;
+  my $s    = $self->_get_tags->{descriptors}[0]{season}[0];
+  return $self->_trim($s);
+}
+
+=head2 Behaviour Handling
+
+=cut
+
+=head3 get_calculation
 
 points or average eg $c->get_calculation( -order_by => "Y" );
+
+Controls whether the league tables should be ordered by total points
+or average points.
 
 =cut
 
@@ -586,16 +634,6 @@ sub get_calculation {
     $v = $self->_get_tags->{calculations}[0]{order_by}[0];
   }
   return $self->_trim($v);
-}
-
-=head2 set_logger
-
-=cut
-
-sub set_logger {
-  my ( $self, $logger ) = @_;
-  $self->{LOGGER} = $logger;
-  return $self;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
