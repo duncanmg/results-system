@@ -356,7 +356,7 @@ Name of csv file for current request. eg U9.csv
 =cut
 
 sub set_csv_file {
-  my ( $self, $csv_file ) = validate_pos( @_, 1, { regex => qr/^[0-9a-z]*\.csv/xi } );
+  my ( $self, $csv_file ) = validate_pos( @_, 1, { regex => qr/^[0-9a-z]*\.csv$/xi } );
   $self->{csv_file} = $csv_file;
   return $self;
 }
@@ -376,6 +376,45 @@ sub get_csv_full_filename {
   my $p = $self->get_path( -csv_files_with_season => 1 );
   return if !( $f && $p );
   return $p . '/' . $f;
+}
+
+=head3 set_matchdate
+
+eg 8-May
+
+=cut
+
+sub set_matchdate {
+  my ( $self, $matchdate ) = validate_pos( @_, 1, { regex => qr/^\d{1,2}-[A-Z][a-z]{2}$/xi } );
+  $self->{matchdate} = $matchdate;
+  return $self;
+}
+
+=head3 get_results_full_filename
+
+Return the full path and filename of the results file for the
+current request.
+
+Returns undef if either the csv file or the path or the matchdate
+is not set.
+
+eg /results_system/forks/nfcca/results_system/fixtures/nfcca/2016/U9N_11-May.dat
+
+=cut
+
+sub get_results_full_filename {
+  my ($self) = validate_pos( @_, 1 );
+
+  my $f = $self->_get_csv_file;
+  $f =~ s/\.csv$//x;
+
+  my $m = $self->_get_matchdate;
+
+  my $p = $self->get_path( -csv_files_with_season => 1 );
+
+  return if !( $f && $p && $m );
+
+  return $p . '/' . $f . '_' . $m . '.dat';
 }
 
 =head2 Menu Handling
@@ -887,6 +926,15 @@ sub _construct_path {
 sub _get_csv_file {
   my $self = shift;
   return $self->{csv_file};
+}
+
+=head2 _get_matchdate
+
+=cut
+
+sub _get_matchdate {
+  my ($self) = validate_pos( @_, 1 );
+  return $self->{matchdate};
 }
 
 1;

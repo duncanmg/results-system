@@ -384,15 +384,23 @@ sub get_menu_model {
 
 =head3 get_fixture_list_model
 
+Returns a ResultsSystem::Model::FixtureList object. If the csv file for the request
+has been set in the configuration, then it will load the file before returning.
+
 =cut
 
 sub get_fixture_list_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::FixtureList->new(
+  my $fl = ResultsSystem::Model::FixtureList->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::FixtureList' } ),
       -configuration => $self->get_configuration
     }
   );
+  if ( $self->get_configuration->get_csv_full_filename ) {
+    $fl->set_full_filename( $self->get_configuration->get_csv_full_filename );
+    $fl->read_file;
+  }
+  return $fl;
 }
 
 =head3 get_menu_js_model

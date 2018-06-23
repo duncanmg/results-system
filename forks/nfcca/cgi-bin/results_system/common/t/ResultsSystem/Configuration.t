@@ -64,4 +64,16 @@ dies_ok( sub { $config->set_csv_file('XXX') },   'set_csv_file dies with XXX' );
 dies_ok( sub { $config->set_csv_file() },        'set_csv_file dies with no argument' );
 dies_ok( sub { $config->set_csv_file('-.csv') }, 'set_csv_file dies with bad character' );
 
+ok( $config->set_matchdate('9-May'), "set_matchdate" );
+is( $config->_get_matchdate, '9-May', "_get_matchdate reurns correct value" );
+like(
+  $config->get_results_full_filename,
+  qr/\d{4}\/U9N_\d{1,2}-[A-Z][a-z]{2}\.dat$/x,
+  "get_matchdate_full_filename returns something sensible"
+);
+
+dies_ok( sub { $config->set_matchdate('XXX') },   'set_matchdate dies with XXX' );
+dies_ok( sub { $config->set_matchdate() },        'set_matchdate dies with no argument' );
+dies_ok( sub { $config->set_matchdate('-.dat') }, 'set_matchdate dies with bad character' );
+
 done_testing;
