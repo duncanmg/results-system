@@ -119,9 +119,7 @@ sub get_divisions_list {
   my @names = $c->get_menu_names;
   $self->logger->debug( scalar(@names) . " divisions to be listed." );
 
-  my $d = $c->get_path( -csv_files => "Y" );
-  my $season = $c->get_season;
-  $d = "$d/$season";
+  my $d = $c->get_path( -csv_files_with_season => "Y" );
 
   my $out = [];
   foreach my $division (@names) {

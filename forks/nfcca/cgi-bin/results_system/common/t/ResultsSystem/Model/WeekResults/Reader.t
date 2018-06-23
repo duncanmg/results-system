@@ -15,8 +15,7 @@ use Test::Differences;
     return bless {}, $class;
   }
 
-  sub get_path   { return "../../../results_system/fixtures/nfcca"; }
-  sub get_season { return 2016 }
+  sub get_path   { return "../../../results_system/fixtures/nfcca/2016"; }
   sub get_system { return "nfcca" }
 }
 

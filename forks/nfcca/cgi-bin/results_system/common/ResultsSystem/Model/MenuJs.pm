@@ -82,7 +82,7 @@ sub get_all_dates_by_division {
   my $dates = {};
 
   my @x = $c->get_menu_names;
-  my $path = $c->get_path( -csv_files => 'Y' ) . '/' . $c->get_season;
+  my $path = $c->get_path( -csv_files_with_season => 'Y' );
   $self->logger->debug($path);
 
   my $fixtures = $self->get_fixtures;

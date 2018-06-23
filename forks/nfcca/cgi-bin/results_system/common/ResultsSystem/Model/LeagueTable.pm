@@ -172,9 +172,7 @@ The method returns an error code and a reference to the list of week files.
     my $self = shift;
     my $c    = $self->get_configuration;
 
-    my $dir = $c->get_path( -csv_files => "Y" );
-    my $season = $c->get_season;
-    $dir = "$dir/$season";
+    my $dir = $c->get_path( -csv_files_with_season => "Y" );
 
     croak(
       ResultsSystem::Exception->new(

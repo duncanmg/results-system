@@ -246,10 +246,9 @@ Returns the .dat filename for the week complete with the csv path.
     my $self = shift;
     my $f    = $self->get_dat_filename;
 
-    my $path = $self->get_configuration->get_path( -csv_files => 'Y' );
-    my $season = $self->get_configuration->get_season;
+    my $path = $self->get_configuration->get_path( -csv_files_with_season => 'Y' );
 
-    return $path . "/$season/" . $f;
+    return $path . "/" . $f;
   }
 
   1;

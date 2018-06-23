@@ -175,9 +175,8 @@ sub _get_fixtures_for_division_and_week {
 
 sub _build_fixtures_full_filename {
   my ($self) = @_;
-  my $c      = $self->get_configuration;
-  my $season = $c->get_season;
-  my $ff = $c->get_path( -csv_files => 'Y' ) . "/" . $season . "/" . $self->get_division;
+  my $c = $self->get_configuration;
+  my $ff = $c->get_path( -csv_files_with_season => 'Y' ) . "/" . $self->get_division;
   croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) ) if !-f $ff;
   return $ff;
 }

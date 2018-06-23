@@ -136,9 +136,8 @@ sub get_full_filename {
   my $self = shift;
   if ( !$self->{FULLFILENAME} ) {
     my $c = $self->get_configuration;
-    my $p = $c->get_path( -csv_files => 1 );
-    my $s = $c->get_season;
-    $self->{FULLFILENAME} = join( '/', $p, $s, $self->get_division );
+    my $p = $c->get_path( -csv_files_with_season => 1 );
+    $self->{FULLFILENAME} = join( '/', $p, $self->get_division );
   }
   croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} ) )
     if !( -f $self->{FULLFILENAME} );
