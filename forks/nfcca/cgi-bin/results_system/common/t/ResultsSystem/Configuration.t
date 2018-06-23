@@ -54,4 +54,14 @@ ok(
 like( $csv_files_with_season, qr:nfcca\/\d{4}$:,
   "csv_files_with_season ends with the system and the year. eg nfcca/2017" );
 
+ok( $config->set_csv_file('U9N.csv'), "set_csv_file" );
+is( $config->_get_csv_file, 'U9N.csv', "_get_csv_file returns correct vaule" );
+ok( $config->get_csv_full_filename, "get_csv_full_filename returns a true value." );
+like( $config->get_csv_full_filename,
+  qr/\d{4}\/U9N\.csv/, "get_csv_full_filename returns a sensible value" );
+
+dies_ok( sub { $config->set_csv_file('XXX') },   'set_csv_file dies with XXX' );
+dies_ok( sub { $config->set_csv_file() },        'set_csv_file dies with no argument' );
+dies_ok( sub { $config->set_csv_file('-.csv') }, 'set_csv_file dies with bad character' );
+
 done_testing;

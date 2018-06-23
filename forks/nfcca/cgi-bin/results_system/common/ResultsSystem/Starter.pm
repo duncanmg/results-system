@@ -48,7 +48,7 @@ sub new {
 =cut
 
 sub start {
-  my ( $self, $system ) = validate_pos( @_, 1, 0 );
+  my ( $self, $system, $division ) = validate_pos( @_, 1, 0, 0 );
 
   $self->set_system($system) if $system;
   croak( ResultsSystem::Exception->new( 'NO_SYSYEM', 'System is not set.' ) )
@@ -57,6 +57,7 @@ sub start {
   my $conf = $self->get_configuration;
   $conf->set_system($system);
   $conf->read_file;
+  $conf->set_csv_file($division) if $division;
   return $self;
 }
 

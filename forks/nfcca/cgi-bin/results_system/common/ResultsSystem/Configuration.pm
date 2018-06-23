@@ -349,6 +349,35 @@ sub get_path {
 
 }
 
+=head3 set_csv_file
+
+Name of csv file for current request. eg U9.csv
+
+=cut
+
+sub set_csv_file {
+  my ( $self, $csv_file ) = validate_pos( @_, 1, { regex => qr/^[0-9a-z]*\.csv/xi } );
+  $self->{csv_file} = $csv_file;
+  return $self;
+}
+
+=head3 get_csv_full_filename
+
+Return the full path and filename of the csv file for the
+current request.
+
+Returns undef if either the csv file or the path is not set.
+
+=cut
+
+sub get_csv_full_filename {
+  my ($self) = validate_pos( @_, 1 );
+  my $f = $self->_get_csv_file;
+  my $p = $self->get_path( -csv_files_with_season => 1 );
+  return if !( $f && $p );
+  return $p . '/' . $f;
+}
+
 =head2 Menu Handling
 
 =cut
@@ -849,6 +878,15 @@ sub _construct_path {
   $path =~ s://:/:xg;    # Change // to /.
 
   return $path;
+}
+
+=head2 _get_csv_file
+
+=cut
+
+sub _get_csv_file {
+  my $self = shift;
+  return $self->{csv_file};
 }
 
 1;
