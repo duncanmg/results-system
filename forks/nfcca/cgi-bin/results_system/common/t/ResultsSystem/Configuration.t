@@ -52,6 +52,6 @@ ok(
   "$csv_files_with_season"
 );
 like( $csv_files_with_season, qr:nfcca\/\d{4}$:,
-  "csv_files_with_season end with the system and the year. eg nfcca/2017" );
+  "csv_files_with_season ends with the system and the year. eg nfcca/2017" );
 
 done_testing;

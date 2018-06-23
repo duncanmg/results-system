@@ -280,8 +280,9 @@ sub get_log_stem {
 This method accepts one mandatory named parameter and one optional named
 parameter. Returns the appropriate path from the configuration file.
 
-Valid paths are -csv_files, -log_dir, -pwd_dir, -table_dir, -htdocs,
--cgi_dir, -root. 
+Valid paths are -csv_files, -log_dir, -pwd_dir, -table_dir, -results_dir,
+-htdocs, -cgi_dir, -root, -season, -csv_files_with_season, -htdocs_full,
+-results_dir_full, -table_dir_full, -cgi_dir_full. 
 
 It logs a warning and continues if the key isn't in the list of valid keys.
 
@@ -314,10 +315,15 @@ sub get_path {
   my @keys        = keys %args;
   my $key         = shift @keys;
   my @valid_paths = (
-    "-csv_files",   "-log_dir",          "-pwd_dir", "-table_dir",
-    "-results_dir", "-htdocs",           "-cgi_dir", "-root",
-    '-htdocs_full', '-results_dir_full', '-table_dir_full'
+    "-csv_files",             "-log_dir",
+    "-pwd_dir",               "-table_dir",
+    "-results_dir",           "-htdocs",
+    "-cgi_dir",               "-root",
+    '-htdocs_full',           '-results_dir_full',
+    '-table_dir_full',        "-season",
+    "-csv_files_with_season", "-cgi_dir_full",
   );
+
   if ( !( any { $key eq $_ } @valid_paths ) ) {
     $self->logger->warn("$key is not in the list of valid paths.");
     $self->logger->warn( Dumper caller );
@@ -835,9 +841,9 @@ sub _construct_path {
 
   my @bits = ();
 
-  push( @bits, $self->get_path( '-' . $prefix => 'Y' ) ) if $prefix;
+  push( @bits, $self->get_path( '-' . $prefix => 'Y', -allow_not_exists => 'Y' ) ) if $prefix;
   push( @bits, $value ) if $value;
-  push( @bits, $self->get_path( '-' . $suffix => 'Y' ) ) if $suffix;
+  push( @bits, $self->get_path( '-' . $suffix => 'Y', -allow_not_exists => 'Y' ) ) if $suffix;
 
   $path = join( '/', @bits );
   $path =~ s://:/:xg;    # Change // to /.
