@@ -7,7 +7,7 @@ use ResultsSystem;
 
 use parent qw/Exporter/;
 
-our @EXPORT_OK = qw/get_config get_logger get_factory/;
+our @EXPORT_OK = qw/get_config get_logger get_factory get_example_csv_full_filename /;
 
 =head1 Helper
 
@@ -52,6 +52,12 @@ sub get_system_full_filename {
   }
   my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
   return $file;
+}
+
+sub get_example_csv_full_filename {
+  my $c = get_factory()->get_configuration;
+  $c->set_csv_file('U9N.csv');
+  return $c->get_csv_full_filename;
 }
 
 1;
