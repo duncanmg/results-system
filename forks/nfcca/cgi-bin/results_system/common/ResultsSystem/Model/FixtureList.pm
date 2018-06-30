@@ -7,13 +7,13 @@ ResultsSystem::Model::FixtureList
 
 =head1 SYNOPSIS
 
-  $f = FixtureList->new( -logger => $logger, -configuration => $configuration, -division => "division1.csv" );
+  $f = FixtureList->new( -logger => $logger, -configuration => $configuration, -full_filename => "/a/b/division1.csv" );
   $f->read_file;
 
 or
 
   $f = FixtureList->new( -logger => $logger, -configuration => $configuration );
-  $f->set_division( "division1.csv" );
+  $f->set_full_filename( "/a/b/division1.csv" );
   $f->read_file;
 
 =cut
@@ -96,10 +96,10 @@ Constructor for the module. Accepts one parameter which
 is the filename of the csv file to be read.
 
 $f = FixtureList->new( -logger => $logger, -configuration => $configuration, 
-  -division => "division1.csv" );
+  -full_filename => "/a/b/division1.csv" );
 
-The fixtures file is processed as part of the object creation process if a division has been provided.
-Otherwise it is not processed until the division is set and read_file is called.
+The fixtures file is processed as part of the object creation process if a full filename has been provided.
+Otherwise it is not processed until the full filename is set and read_file is called.
 
 =cut
 
@@ -114,7 +114,7 @@ sub new {
 
   $self->set_arguments( [qw/division logger configuration/], $args );
 
-  $err = $self->read_file() if $self->get_division;
+  $err = $self->read_file() if $self->get_full_filename;
 
   return $self if $err == 0;
   return;
@@ -122,8 +122,7 @@ sub new {
 
 =head2 get_full_filename
 
-Returns the full filename based on the division and the configuration data.
-Gets the csv path and the season from the configuration.
+Returns the full name and path of the csv file for the division.
 
 Throws an exception if the file does not exist.
 
@@ -134,19 +133,14 @@ sub get_full_filename {
 
   #***************************************
   my $self = shift;
-  if ( !$self->{FULLFILENAME} ) {
-    my $c = $self->get_configuration;
-    my $p = $c->get_path( -csv_files_with_season => 1 );
-    $self->{FULLFILENAME} = join( '/', $p, $self->get_division );
-  }
-  croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->{FULLFILENAME} ) )
-    if !( -f $self->{FULLFILENAME} );
-  return $self->{FULLFILENAME};
+  return $self->{FULLFILENAME} || "";
 }
 
 =head2 set_full_filename
 
-Sets the full_filename. No validation or return code.
+Sets the full name and path of the csv file for the division.
+
+No validation or return code.
 
 =cut
 
@@ -204,7 +198,6 @@ sub get_week_fixtures {
 
   my $i    = 0;
   my $more = 1;
-  $self->logger->debug('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
   while ($more) {
     %h = $self->_get_fixture_hash( -date => $args{-date}, -index => $i );
     if ( ( !$h{home} ) || $i > 1000 ) {
@@ -356,15 +349,11 @@ sub read_file {
   my @lines;
   my $err = 0;
 
+  croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->get_full_filename ) )
+    if !( -f $self->get_full_filename );
+
   $self->{DATES} = [];
-  eval {
-    @lines = slurp( $self->get_full_filename );
-    1;
-  } || do {
-    my $err2 = $@;
-    croak $err2 if $err2 . "" !~ m/FILE_DOES_NOT_EXIST/;
-    $self->logger->error($err2);
-  };
+  @lines = slurp( $self->get_full_filename );
 
   my $lines    = scalar(@lines);
   my $fixtures = 0;
@@ -614,34 +603,6 @@ sub _trim {
   #$l =~ s/^\s*([^\s])/$1/;
   #$l =~ s/([^\s])\s*$/$1/;
   return $l;
-}
-
-=head2 set_division
-
-Sets the division, which is in fact the name of the csv file.
-
-$f->set_division('U9N.csv');
-
-=cut
-
-sub set_division {
-  my ( $self, $v ) = @_;
-  croak( ResultsSystem::Exception->new( 'BAD_EXTENSION_FOR_CSV', $v ) )
-    if ( $v !~ m/\.csv$/x );
-
-  $self->{division} = $v;
-  return $self;
-}
-
-=head2 get_division
-
-Return the division, which is the csv name eg 'U9N.csv'.
-
-=cut
-
-sub get_division {
-  my ($self) = @_;
-  return $self->{division};
 }
 
 1;
