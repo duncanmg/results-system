@@ -63,9 +63,9 @@ Constructor.
 
 -configuration: Configuration object
 
--week_results: WeekResults::Reader object
+-week_results: WeekResults::Reader object. Will already have loaded the results for the division and matchdate if the are any.
 
--fixtures: Fixtures object
+-fixtures: Fixtures object. Will aleady have loaded the fixture for the division for the whole season.
 
 -fixtures_adapter : WeekFixtures::Adapter object
 
@@ -87,18 +87,17 @@ sub new {
 
 =head2 select
 
-  my $rows = $wf->select({ -division => $d, -week => $matchdate });
+  my $rows = $wf->select({ -week => $matchdate });
 
 =cut
 
 sub select {
   my $self = shift;
-  my (%args) = validate( @_, { -division => 1, -week => 1 } );
-
-  $self->set_division( $args{-division} );
-  $self->set_week( $args{-week} );
+  my (%args) = validate( @_, { -week => 1 } );
 
   my $rows = {};
+
+  $self->set_week( $args{-week} );
 
   $rows = $self->_get_results_for_week;
 
@@ -121,10 +120,6 @@ sub _get_results_for_week {
 
   my $wd = $self->get_week_results;
 
-  $wd->set_division( $self->get_division );
-  $wd->set_week( $self->get_week );
-
-  $wd->read_file;
   return $wd->get_lines;
 }
 
@@ -156,29 +151,11 @@ sub _get_fixtures_for_division_and_week {
 
   my $fixtures = $self->get_fixtures;
   $self->logger->debug( 'NOW get_fixtures_for_division_and_week ' . ref($fixtures) );
-  $fixtures->set_division( $self->get_division );
-
-  my $ff = $self->_build_fixtures_full_filename();
-  $fixtures->set_full_filename($ff);
-
-  $fixtures->read_file();
 
   my $fixtures_for_week = $fixtures->get_week_fixtures( -date => $self->get_week );
 
-  $self->logger->debug( 'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW ' . Dumper($fixtures_for_week) );
+  $self->logger->debug( Dumper($fixtures_for_week) );
   return $fixtures_for_week;
-}
-
-=head2 _build_fixtures_full_filename
-
-=cut
-
-sub _build_fixtures_full_filename {
-  my ($self) = @_;
-  my $c = $self->get_configuration;
-  my $ff = $c->get_path( -csv_files_with_season => 'Y' ) . "/" . $self->get_division;
-  croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $ff ) ) if !-f $ff;
-  return $ff;
 }
 
 =head2 set_week_results
@@ -221,44 +198,6 @@ sub get_fixtures {
   return $self->{FIXTURES};
 }
 
-=head2 set_division
-
-=cut
-
-sub set_division {
-  my ( $self, $v ) = @_;
-  $self->{division} = $v;
-  return $self;
-}
-
-=head2 get_division
-
-=cut
-
-sub get_division {
-  my $self = shift;
-  return $self->{division};
-}
-
-=head2 set_week
-
-=cut
-
-sub set_week {
-  my ( $self, $v ) = @_;
-  $self->{week} = $v;
-  return $self;
-}
-
-=head2 get_week
-
-=cut
-
-sub get_week {
-  my $self = shift;
-  return $self->{week};
-}
-
 =head2 set_fixtures_adapter
 
 =cut
@@ -276,6 +215,25 @@ sub set_fixtures_adapter {
 sub get_fixtures_adapter {
   my $self = shift;
   return $self->{fixtures_adapter};
+}
+
+=head2 get_week
+
+=cut
+
+sub get_week {
+  my $self = shift;
+  return $self->{week};
+}
+
+=head2 set_week
+
+=cut
+
+sub set_week {
+  my ( $self, $v ) = validate_pos( @_, 1, 1 );
+  $self->{week} = $v;
+  return $self;
 }
 
 1;

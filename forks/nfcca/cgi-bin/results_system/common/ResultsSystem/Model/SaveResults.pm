@@ -73,8 +73,6 @@ Can also accept -division, -week
     $self->logger->debug( Dumper $reformatted );
 
     my $writer = $self->get_week_data_writer();
-    $writer->set_division( $args->{-params}->{division} );
-    $writer->set_week( $args->{-params}->{matchdate} );
 
     $self->logger->debug('Call write_file');
     $writer->write_file($reformatted);

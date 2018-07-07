@@ -67,8 +67,7 @@ sub run {
 
   my $selector = $self->get_week_fixtures_selector_model;
 
-  my $data->{rows} = $selector->select(
-    { -division => $query->param('division'), -week => $query->param('matchdate') } );
+  my $data->{rows} = $selector->select( { -week => $query->param('matchdate') } );
 
   $data->{SYSTEM} = $self->get_configuration->get_system;
   $data->{SEASON} = $self->get_configuration->get_season;

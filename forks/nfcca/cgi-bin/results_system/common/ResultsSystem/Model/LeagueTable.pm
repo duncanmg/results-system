@@ -160,6 +160,8 @@ The method returns an error code and a reference to the list of week files.
     $self->logger->debug(
       scalar(@files) . " of these files are week files for the division. " . $csv );
 
+    @files = map { join( '/', $dir, $_ ) } @files;
+
     return \@files;
 
   }
@@ -205,13 +207,11 @@ It returns an error code.
 
     foreach my $f (@$files_ref) {
 
-      my $wk = $f;
-      $wk =~ s/^.*_(.*)\..*$/$1/x;
-      $self->logger->debug( "Create WeekResults object " . $self->get_division . " $wk" );
+      $self->logger->debug($f);
+      $self->logger->debug( "Create WeekResults object " . $f );
 
       my $wd = $self->get_week_data_reader_model->();
-      $wd->set_division( $self->get_division );
-      $wd->set_week($wk);
+      $wd->set_full_filename($f);
       $wd->read_file;
 
       push @{ $self->{WEEKDATA} }, $wd;
@@ -259,7 +259,7 @@ the league table. The structure consists of an array of hash references.
     # Loop through all the week data objects.
     foreach my $wd (@all_wd) {
 
-      $self->logger->debug( "Loop wd " . Dumper($wd) );
+      $self->logger->debug( "Loop wd: " . $wd );
 
       my $lineno = 0;
       my $more   = 1;

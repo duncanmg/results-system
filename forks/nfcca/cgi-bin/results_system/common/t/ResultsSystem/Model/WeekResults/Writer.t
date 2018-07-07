@@ -18,6 +18,10 @@ use Test::Differences;
   sub get_path   { return "../../../results_system/fixtures/nfcca"; }
   sub get_season { return 2016 }
   sub get_system { return "nfcca" }
+
+  sub get_results_full_filename {
+    return '../../../results_system/fixtures/nfcca/2016/U9ST_14-May.dat';
+  }
 }
 
 {
@@ -44,10 +48,8 @@ ok(
 );
 
 # /tmp/results-system/forks/nfcca/results_system/fixtures/nfcca/2016/U9S_14-May.dat
-
-ok( $wd->set_week('14-May'), "set_week" );
-
-ok( $wd->set_division('U9ST.csv'), "set_division" );
+ok( $wd->set_full_filename('../../../results_system/fixtures/nfcca/2016/U9ST_14-May.dat'),
+  'set_full_filename' );
 
 ok( $wd->write_file( get_expected() ), "write_file" );
 

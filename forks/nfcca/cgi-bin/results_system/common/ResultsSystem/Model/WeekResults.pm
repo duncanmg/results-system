@@ -38,8 +38,6 @@ L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Mo
 
 ResultsSystem::Model::WeekResults->new( { -logger => $logger, $configuration => $configuration } );
 
-Can also accept -division, -week
-
 =cut
 
   #***************************************
@@ -54,10 +52,6 @@ Can also accept -division, -week
     $self->set_configuration( $args{-configuration} ) if $args{-configuration};
 
     $self->set_logger( $args{-logger} ) if $args{-logger};
-
-    $self->set_division( $args{-division} ) if $args{-division};
-
-    $self->set_week( $args{-week} ) if ( $args{-week} );
 
     return $self;
   }
@@ -79,44 +73,6 @@ Can also accept -division, -week
   sub get_full_filename {
     my $self = shift;
     return $self->{full_filename};
-  }
-
-=head2 set_division
-
-=cut
-
-  sub set_division {
-    my ( $self, $v ) = @_;
-    $self->{division} = $v;
-    return $self;
-  }
-
-=head2 get_division
-
-=cut
-
-  sub get_division {
-    my $self = shift;
-    return $self->{division};
-  }
-
-=head2 set_week
-
-=cut
-
-  sub set_week {
-    my ( $self, $v ) = @_;
-    $self->{week} = $v;
-    return $self;
-  }
-
-=head2 get_week
-
-=cut
-
-  sub get_week {
-    my ( $self, $v ) = @_;
-    return $self->{week};
   }
 
 =head2 get_default_result
@@ -205,50 +161,6 @@ Returns a list of valid labels/keys for a results structure.
     my $self = shift;
 
     return map { $_->{name} } @{ $self->get_default_result };
-  }
-
-=head2 get_dat_filename
-
-Returns the .dat filename for the week.
-
-=cut
-
-  #***************************************
-  sub get_dat_filename {
-
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    my $f;
-    my $w = $self->get_week;
-    my $d = $self->get_division;
-
-    croak( ResultsSystem::Exception->new( 'NO_DAT_WEEK',     'Week is not set.' ) )     if !$w;
-    croak( ResultsSystem::Exception->new( 'NO_DAT_DIVISION', 'Division is not set.' ) ) if !$d;
-
-    $d =~ s/\..*$//xg;    # Remove extension
-    $f = $d . "_" . $w . ".dat";
-    $f =~ s/\s//xg;
-
-    return $f;
-  }
-
-=head2 get_full_dat_filename
-
-Returns the .dat filename for the week complete with the csv path.
-
-=cut
-
-  #***************************************
-  sub get_full_dat_filename {
-
-    #***************************************
-    my $self = shift;
-    my $f    = $self->get_dat_filename;
-
-    my $path = $self->get_configuration->get_path( -csv_files_with_season => 'Y' );
-
-    return $path . "/" . $f;
   }
 
   1;

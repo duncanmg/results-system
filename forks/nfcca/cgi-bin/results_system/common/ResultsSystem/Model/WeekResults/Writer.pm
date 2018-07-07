@@ -35,7 +35,7 @@ L<ResultsSystem::Model::WeekResults|http://www.results_system_nfcca.com:8088/Res
 
 This writes the current contents of the data structure to the results file for the division and week.
 
-Gets the filename using get_full_dat_filename().
+Gets the filename using get_full_filename().
 
 Logs an error and returns undef if the file cannot be opened.
 
@@ -53,10 +53,9 @@ Returns true on success.
 
     my @labels = $self->get_labels;
 
-    my $ff = $self->get_full_dat_filename;
+    my $ff = $self->get_full_filename;
 
-    $self->logger->debug( 'division ' . $self->get_division );
-    $self->logger->debug( 'full_dat_filename ' . $ff );
+    $self->logger->debug( 'full_filename ' . $ff );
 
     # my $lines = $self->get_lines;
     return if !scalar @$lines;

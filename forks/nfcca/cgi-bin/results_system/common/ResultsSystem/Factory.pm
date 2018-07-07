@@ -169,6 +169,9 @@ sub get_auto_cleaner {
 
 =head3 get_configuration
 
+Returns a ResultsSystem::Configuration object. The same object is returned
+each time for the duration of the request. (Not strictly a singleton.)
+
 =cut
 
 sub get_configuration {
@@ -180,19 +183,7 @@ sub get_configuration {
       -full_filename => $args->{-full_filename}
     );
   };
-  return $self->lazy( 'configuration', $s );
-}
-
-=head3 lazy
-
-=cut
-
-sub lazy {
-  my ( $self, $key, $sub ) = validate_pos( @_, 1, 1, 1 );
-  if ( !$self->{$key} ) {
-    $self->{$key} = $sub->();
-  }
-  return $self->{$key};
+  return $self->_create_once( 'configuration', $s );
 }
 
 =head3 set_system
@@ -384,8 +375,10 @@ sub get_menu_model {
 
 =head3 get_fixture_list_model
 
-Returns a ResultsSystem::Model::FixtureList object. If the csv file for the request
-has been set in the configuration, then it will load the file before returning.
+Returns a ResultsSystem::Model::FixtureList object. 
+
+If the csv file for the request has been set in the configuration, 
+then it will load the file before returning.
 
 =cut
 
@@ -419,16 +412,26 @@ sub get_menu_js_model {
 
 =head3 get_week_data_reader_model
 
+Return a ResultsSystem::Model::WeekResults::Reader object.
+
+If the full filename has been set then it will call read_file before returning the object.
+
 =cut
 
 sub get_week_data_reader_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::WeekResults::Reader->new(
+  my $r = ResultsSystem::Model::WeekResults::Reader->new(
     { -logger =>
         $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekResults::Reader' } ),
       -configuration => $self->get_configuration,
     }
   );
+  if ( $self->get_configuration->get_results_full_filename ) {
+    $r->set_full_filename( $self->get_configuration->get_results_full_filename );
+    $r->read_file;
+  }
+
+  return $r;
 }
 
 =head3 get_week_data_reader_model_factory
@@ -713,5 +716,25 @@ sub get_tables_index_view {
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
+
+=head2 _create_once
+
+Accepts a key and a function which returns and object. 
+
+It executes the function and stores the object in the cache before returning it.
+
+On subsequent calls it returns the cached object instead of creating a new one.
+
+my $obj = $self->_create_once( 'configuration', $s );
+
+=cut
+
+sub _create_once {
+  my ( $self, $key, $sub ) = validate_pos( @_, 1, 1, 1 );
+  if ( !$self->{$key} ) {
+    $self->{$key} = $sub->();
+  }
+  return $self->{$key};
+}
 
 1;

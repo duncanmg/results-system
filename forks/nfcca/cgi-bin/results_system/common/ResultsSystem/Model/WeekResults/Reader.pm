@@ -9,6 +9,8 @@
 
   use parent qw/ ResultsSystem::Model::WeekResults /;
 
+  use overload '""' => 'stringify';
+
 =head1 NAME
 
 ResultsSystem::Model::WeekResults::Reader
@@ -22,8 +24,7 @@ Usage:
   my $wd = ResultsSystem::Model::WeekResults->new( 
              { -logger => $logger, $configuration => $configuration } );
 
-  $wd->set_week('1-May');
-  $wd->set_division('U9S.csv');
+  $wd->set_full_filename('/a/b/U9S_1-May.dat');
 
   $wd->read_file();
 
@@ -77,7 +78,7 @@ The full filename must have been defined.
     my $self = shift;
     my @lines;
 
-    my $ff = $self->get_full_dat_filename;
+    my $ff = $self->get_full_filename;
     if ( !$ff ) {
       $self->logger->error("Full filename is not defined");
       return;
@@ -214,44 +215,6 @@ Return all the lines as an array ref of hash refs.
     return $self->{full_filename};
   }
 
-=head3 set_division
-
-=cut
-
-  sub set_division {
-    my ( $self, $v ) = @_;
-    $self->{division} = $v;
-    return $self;
-  }
-
-=head3 get_division
-
-=cut
-
-  sub get_division {
-    my $self = shift;
-    return $self->{division};
-  }
-
-=head3 set_week
-
-=cut
-
-  sub set_week {
-    my ( $self, $v ) = @_;
-    $self->{week} = $v;
-    return $self;
-  }
-
-=head3 get_week
-
-=cut
-
-  sub get_week {
-    my ( $self, $v ) = @_;
-    return $self->{week};
-  }
-
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
@@ -297,43 +260,20 @@ Fields are : "team", "played", "result", "runs", "wickets",
     return 1;
   }
 
-=head2 get_dat_filename
+=head2 stringify
 
-Returns the .dat filename for the week.
-
-=cut
-
-  #***************************************
-  sub get_dat_filename {
-
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    my $f;
-    my $w = $self->get_week     || "";
-    my $d = $self->get_division || "";
-
-    $d =~ s/\..*$//xg;    # Remove extension
-    $f = $d . "_" . $w . ".dat";
-    $f =~ s/\s//xg;
-
-    return $f;
-  }
-
-=head2 get_full_dat_filename
-
-Returns the .dat filename for the week complete with the csv path.
+Stringify the object to text containing the object type, the full filename and the results.
 
 =cut
 
-  #***************************************
-  sub get_full_dat_filename {
-
-    #***************************************
+  sub stringify {
     my $self = shift;
-
-    return $self->get_configuration->get_path( -csv_files_with_season => 'Y' ) . '/'
-      . $self->get_dat_filename;
+    return
+        ref($self)
+      . ' Full filename: '
+      . ( $self->get_full_filename || '' )
+      . " Results:\n"
+      . Dumper( $self->get_lines );
   }
 
   1;
