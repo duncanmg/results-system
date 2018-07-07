@@ -405,7 +405,7 @@ eg /results_system/forks/nfcca/results_system/fixtures/nfcca/2016/U9N_11-May.dat
 sub get_results_full_filename {
   my ($self) = validate_pos( @_, 1 );
 
-  my $f = $self->_get_csv_file;
+  my $f = $self->_get_csv_file || '';
   $f =~ s/\.csv$//x;
 
   my $m = $self->_get_matchdate;
