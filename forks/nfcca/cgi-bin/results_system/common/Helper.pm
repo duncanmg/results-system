@@ -7,7 +7,8 @@ use ResultsSystem;
 
 use parent qw/Exporter/;
 
-our @EXPORT_OK = qw/get_config get_logger get_factory get_example_csv_full_filename /;
+our @EXPORT_OK =
+  qw/get_config get_logger get_factory get_example_csv_full_filename get_example_results_full_filename/;
 
 =head1 Helper
 
@@ -58,6 +59,13 @@ sub get_example_csv_full_filename {
   my $c = get_factory()->get_configuration;
   $c->set_csv_file('U9N.csv');
   return $c->get_csv_full_filename;
+}
+
+sub get_example_results_full_filename {
+  my $c = get_factory()->get_configuration;
+  $c->set_csv_file('U9N.csv');
+  $c->set_matchdate('8-May');
+  return $c->get_results_full_filename;
 }
 
 1;
