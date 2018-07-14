@@ -36,7 +36,8 @@ L<ResultsSystem::Model|http://www.results_system_nfcca.com:8088/ResultsSystem/Mo
 
 =head2 new
 
-ResultsSystem::Model::WeekResults->new( { -logger => $logger, $configuration => $configuration } );
+ResultsSystem::Model::WeekResults->new( { -logger => $logger, -configuration => $configuration, 
+-full_filename => $full_filename } );
 
 =cut
 
@@ -50,6 +51,8 @@ ResultsSystem::Model::WeekResults->new( { -logger => $logger, $configuration => 
     my %args = %$args;
 
     $self->set_configuration( $args{-configuration} ) if $args{-configuration};
+
+    $self->set_full_filename( $args{-full_filename} ) if $args{-full_filename};
 
     $self->set_logger( $args{-logger} ) if $args{-logger};
 

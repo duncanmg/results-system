@@ -4,6 +4,7 @@
   use warnings;
   use Data::Dumper;
   use Params::Validate qw/:all/;
+  use ResultsSystem::Exception;
 
   use parent qw/ ResultsSystem::Model::WeekResults /;
 
@@ -55,9 +56,11 @@ Returns true on success.
 
     my $ff = $self->get_full_filename;
 
-    $self->logger->debug( 'full_filename ' . $ff );
+    if ( !$ff ) {
+      $self->logger->error('full_filename is not set');
+      croak ResultsSystem::Exception->new( 'FILENAME_NOT_SET', 'full_filename is not set' );
+    }
 
-    # my $lines = $self->get_lines;
     return if !scalar @$lines;
 
     my $out = [];
@@ -70,8 +73,9 @@ Returns true on success.
     }
 
     open( my $FP, ">", $ff ) || do {
-      $self->logger->error("WeekResults(): Unable to open file for writing. $ff.");
-      return;
+      $self->logger->error("WeekResults::Writer(): Unable to open file for writing. $ff.");
+      croak ResultsSystem::Exception->new( 'FILENAME_NOT_WRITEABLE',
+        "Unable to open file for writing. $ff" );
     };
 
     print $FP join( "\n", @$out );

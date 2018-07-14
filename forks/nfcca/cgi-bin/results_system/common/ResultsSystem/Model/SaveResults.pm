@@ -218,47 +218,6 @@ This call returns the current value without changing it.
     return $self->{NO_FILE};
   }
 
-=head2 get_dat_filename
-
-Returns the .dat filename for the week.
-
-=cut
-
-  #***************************************
-  sub get_dat_filename {
-
-    #***************************************
-    my $self = shift;
-    my $err  = 0;
-    my $f;
-    my $w = $self->get_week;
-    my $d = $self->get_division;
-
-    $d =~ s/\..*$//xg;    # Remove extension
-    $f = $d . "_" . $w . ".dat";
-    $f =~ s/\s//xg;
-
-    return $f;
-  }
-
-=head2 get_full_dat_filename
-
-Returns the .dat filename for the week complete with the csv path.
-
-=cut
-
-  #***************************************
-  sub get_full_dat_filename {
-
-    #***************************************
-    my $self = shift;
-    my $f    = $self->get_dat_filename;
-
-    my $path = $self->get_configuration->get_path( -csv_files_with_season => 'Y' );
-
-    return $path . "/" . $f;
-  }
-
 =head2 get_week_data_writer
 
 =cut
