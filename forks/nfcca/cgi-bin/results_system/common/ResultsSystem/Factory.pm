@@ -45,6 +45,9 @@ use ResultsSystem::Controller::WeekFixtures;
 use ResultsSystem::Controller::SaveResults;
 use ResultsSystem::Controller::TablesIndex;
 use ResultsSystem::Controller::ResultsIndex;
+use ResultsSystem::Controller::LeagueTable;
+use ResultsSystem::Controller::Pwd;
+use ResultsSystem::Controller::WeekResults;
 
 use ResultsSystem::Model::Frame;
 use ResultsSystem::Model::Menu;
@@ -299,13 +302,8 @@ sub get_save_results_controller {
   return ResultsSystem::Controller::SaveResults->new(
     { -logger =>
         $self->get_file_logger( { -category => 'ResultsSystem::Controller::SaveResults' } ),
-      -save_results_view  => $self->get_save_results_view,
       -message_view       => $self->get_message_view,
       -save_results_model => $self->get_save_results_model,
-      -pwd_model          => $self->get_pwd_model,
-      -league_table_model => $self->get_league_table_model,
-      -league_table_view  => $self->get_league_table_view,
-      -week_results_view  => $self->get_week_results_view,
       -locker             => $self->get_locker,
     }
   );
@@ -339,6 +337,59 @@ sub get_tables_index_controller {
       -configuration      => $self->get_configuration,
       -tables_index_model => $self->get_tables_index_model,
       -tables_index_view  => $self->get_tables_index_view,
+    }
+  );
+}
+
+=head3 get_league_table_controller
+
+Writes the league table for the given division. Not called directly.
+Requires authentication.
+
+=cut
+
+sub get_league_table_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::LeagueTable->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Controller::LeagueTable' } ),
+      -configuration      => $self->get_configuration,
+      -league_table_model => $self->get_league_table_model,
+      -league_table_view  => $self->get_league_table_view,
+    }
+  );
+}
+
+=head3 get_pwd_controller
+
+Returns a ResultsSystem::Controller::Pwd object.
+
+=cut
+
+sub get_pwd_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::Pwd->new(
+    { -logger    => $self->get_file_logger( { -category => 'ResultsSystem::Controller::Pwd' } ),
+      -pwd_model => $self->get_pwd_model,
+      -message_view => $self->get_message_view,
+    }
+  );
+}
+
+=head3 get_week_results_controller
+
+Returns a ResultsSystem::Controller::WeekResults object.
+
+=cut
+
+sub get_week_results_controller {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Controller::WeekResults->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Controller::WeekResults' } ),
+      -week_results_reader_model => $self->get_week_data_reader_model,
+      -week_results_view         => $self->get_week_results_view,
+      -configuration             => $self->get_configuration,
     }
   );
 }
@@ -452,16 +503,26 @@ sub get_week_data_reader_model_factory {
 
 =head3 get_week_data_writer_model
 
+Returns a ResultsSystem::Model::WeekResults::Writer object.
+
+If $self->get_configuration->get_results_full_filename is set then this value is
+passed to set_full_filename.
+
 =cut
 
 sub get_week_data_writer_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::WeekResults::Writer->new(
+  my $w = ResultsSystem::Model::WeekResults::Writer->new(
     { -logger =>
         $self->get_file_logger( { -category => 'ResultsSystem::Model::WeekResults::Writer' } ),
       -configuration => $self->get_configuration,
     }
   );
+  if ( $self->get_configuration->get_results_full_filename ) {
+    $w->set_full_filename( $self->get_configuration->get_results_full_filename );
+  }
+
+  return $w;
 }
 
 =head3 get_week_fixtures_adapter_model

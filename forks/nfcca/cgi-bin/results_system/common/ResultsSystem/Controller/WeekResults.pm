@@ -1,8 +1,8 @@
-package ResultsSystem::Controller::SaveResults;
+package ResultsSystem::Controller::WeekResults;
 
 =head1 NAME
 
-ResultsSystem::Controller::SaveResults
+ResultsSystem::Controller::WeekResults
 
 =cut
 
@@ -37,13 +37,13 @@ sub new {
   bless $self, $class;
 
   $self->{logger} = $args->{-logger} if $args->{-logger};
-  $self->{locker} = $args->{-locker} if $args->{-locker};
 
-  $self->{save_results_model} = $args->{-save_results_model} if $args->{-save_results_model};
-  $self->{save_results_view}  = $args->{-save_results_view}  if $args->{-save_results_view};
+  $self->{week_results_reader_model} = $args->{-week_results_reader_model}
+    if $args->{-week_results_reader_model};
 
-  $self->{message_view} = $args->{-message_view} if $args->{-message_view};
+  $self->{week_results_view} = $args->{-week_results_view} if $args->{-week_results_view};
 
+  $self->logger->warn('Created');
   return $self;
 }
 
@@ -54,38 +54,26 @@ sub new {
 sub run {
   my ( $self, $query ) = @_;
 
-  my $locker = $self->get_locker;
+  $self->logger->warn('1');
+  my $data = $self->get_week_results_reader_model()->get_lines();
 
-  eval {
-    $locker->open_lock_file;
-    my $data = $self->get_save_results_model()->run( { -params => { $query->Vars } } );
+  $self->logger->warn('2');
+  $self->get_week_results_view->run(
+    { -data => {
+        rows     => $data,
+        division => $query->param('division'),
+        week     => $query->param('matchdate')
+      }
+    }
+  );
 
-    $self->get_message_view->run( { -data => "Your changes have been accepted." } );
-    $locker->close_lock_file;
-    1;
-  } || do {
-    my $err = $@;
-    $self->logger->error($err);
-    $self->get_message_view->run( { -data => "Your changes have been rejected." } );
-    $locker->close_lock_file;
-    return;
-  };
-
+  $self->logger->warn('3');
   return 1;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
-
-=head2 get_save_results_view
-
-=cut
-
-sub get_save_results_view {
-  my $self = shift;
-  return $self->{save_results_view};
-}
 
 =head2 get_save_results_model
 
@@ -96,13 +84,13 @@ sub get_save_results_model {
   return $self->{save_results_model};
 }
 
-=head2 get_message_view
+=head2 get_week_results_reader_model
 
 =cut
 
-sub get_message_view {
+sub get_week_results_reader_model {
   my $self = shift;
-  return $self->{message_view};
+  return $self->{week_results_reader_model};
 }
 
 =head2 get_week_results_view

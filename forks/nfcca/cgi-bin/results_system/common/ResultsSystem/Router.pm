@@ -73,7 +73,12 @@ sub route {
       'blank'         => sub { $self->get_factory->get_blank_controller->run($query) },
       'menu_js'       => sub { $self->get_factory->get_menu_js_controller->run($query) },
       'week_fixtures' => sub { $self->get_factory->get_week_fixtures_controller->run($query) },
-      'save_results'  => sub { $self->get_factory->get_save_results_controller->run($query) },
+      'save_results'  => sub {
+        $self->get_factory->get_pwd_controller->run($query)
+          && $self->get_factory->get_save_results_controller->run($query)
+          && $self->get_factory->get_league_table_controller->run($query)
+          && $self->get_factory->get_week_results_controller->run($query);
+      },
       'results_index' => sub { $self->get_factory->get_results_index_controller->run($query) },
       'tables_index'  => sub { $self->get_factory->get_tables_index_controller->run($query) }
     };
