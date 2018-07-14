@@ -12,6 +12,8 @@ my $lock_dir = $config->get_path( '-log_dir' => 'Y' );
 my $locker = ResultsSystem::Locker->new( { -configuration => $config, -logger => get_logger() } );
 isa_ok( $locker, 'ResultsSystem::Locker' );
 
+$locker->logger->less_logging(4);    # Disable logging
+
 is( $locker->get_lock_dir, $lock_dir, "Lock dir set. " . $lock_dir );
 
 ok( $locker->open_lock_file('test'), "Lock file created" );

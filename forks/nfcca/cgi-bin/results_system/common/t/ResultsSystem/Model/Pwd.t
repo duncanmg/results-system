@@ -19,6 +19,8 @@ my $pwd =
   ResultsSystem::Model::Pwd->new( { -configuration => $config, -logger => get_logger() } );
 isa_ok( $pwd, 'ResultsSystem::Model::Pwd' );
 
+$pwd->logger->less_logging(4);    # Disable logging.
+
 my ( $ok, $msg ) = $pwd->check_code( 'banana', 'banana', $user );
 ok( $ok, "Code accepted" ) || diag( Dumper( $ok, $msg ) );
 

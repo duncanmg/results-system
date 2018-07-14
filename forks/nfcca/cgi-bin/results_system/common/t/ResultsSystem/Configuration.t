@@ -9,6 +9,8 @@ use_ok('ResultsSystem::Configuration');
 
 my $config = get_config;
 
+$config->logger->less_logging(4);    # Disable logging
+
 # These paths must return a directory which exists.
 foreach my $p (
   qw/ -csv_files -log_dir -pwd_dir
