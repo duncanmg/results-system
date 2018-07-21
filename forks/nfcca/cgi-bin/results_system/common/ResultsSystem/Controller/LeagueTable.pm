@@ -40,7 +40,6 @@ sub new {
   bless $self, $class;
 
   $self->{logger}             = $args->{-logger}             if $args->{-logger};
-  $self->{message_view}       = $args->{-message_view}       if $args->{-message_view};
   $self->{league_table_model} = $args->{-league_table_model} if $args->{-league_table_model};
   $self->{league_table_view}  = $args->{-league_table_view}  if $args->{-league_table_view};
 
@@ -87,15 +86,6 @@ sub get_league_table_view {
   return $self->{league_table_view};
 }
 
-=head2 get_message_view
-
-=cut
-
-sub get_message_view {
-  my $self = shift;
-  return $self->{message_view};
-}
-
 =head3 logger
 
 =cut
@@ -111,7 +101,7 @@ sub logger {
 
 =begin HTML
 
-<p><img src="http://www.results_system_nfcca_uml.com/class_diagram_controller_save_results.jpeg"
+<p><img src="http://www.results_system_nfcca_uml.com/class_diagram_controller_league_table.jpeg"
 width="1000" height="500" alt="Line Chart" /></p>
 
 =end HTML
@@ -120,7 +110,7 @@ width="1000" height="500" alt="Line Chart" /></p>
 
 =begin HTML
 
-<p><img src="http://www.results_system_nfcca_uml.com/activity_diagram_controller_save_results.jpeg"
+<p><img src="http://www.results_system_nfcca_uml.com/activity_diagram_controller_league_table.jpeg"
 width="1000" height="500" alt="Line Chart" /></p>
 
 =end HTML

@@ -11,6 +11,8 @@ ResultsSystem::View::Week::Results
 
 =head1 DESCRIPTION
 
+Writes the HTML file for the division. Get the full HTML filename from the configuration.
+
 =cut
 
 =head1 INHERITS FROM
@@ -56,6 +58,14 @@ sub new {
 
 =head2 run
 
+$self->run( { -date => $data } );
+
+Accepts the data for the week results and writes the HTML file.
+
+$data is an array ref of hash refs.
+
+The filename is read from the configuration.
+
 =cut
 
 sub run {
@@ -69,12 +79,12 @@ sub run {
     $r->{performanes} = $self->encode_entities( $r->{performances} );
   }
 
-  my $table_rows = $self->create_table_rows( $d->{rows} );
+  my $table_rows = $self->_create_table_rows( $d->{rows} );
 
   my $c = $self->get_configuration;
 
   my $html = $self->merge_content(
-    $self->get_html,
+    $self->_get_html,
     { ROWS      => $table_rows,
       SYSTEM    => $d->{SYSTEM},
       SEASON    => $c->get_descriptors( -season => "Y" ),
@@ -94,95 +104,6 @@ sub run {
   $self->write_file($html);
 
   return 1;
-}
-
-=head2 create_table_rows
-
-=cut
-
-sub create_table_rows {
-  my ( $self, $rows ) = @_;
-
-  my $table = "";
-  my $i     = 0;
-  for ( my $r = 0; $r < 10; $r++ ) {
-
-    last if !$rows->[$i];
-
-    $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
-    $i++;
-    $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
-    $i++;
-    $table .= $self->_blank_line;
-
-  }
-
-  return $table;
-}
-
-=head2 get_html
-
-=cut
-
-#***************************************
-sub get_html {
-
-  #***************************************
-  my $self = shift;
-
-  my $html = <<'HTML';
-      <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
-      <h1>[% TITLE %] [% SEASON %]</h1>
-      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]</h1>
-      <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
-
-      <table class='week_fixtures'>
-      <tr>
-      <th class="teamcol">Team</th>
-      <th>Played</th>
-      <th>Result</th>
-      <th>Runs</th>
-      <th>Wickets</th>
-      <th class="performances">Performances</th>
-      <th>Result Pts</th>
-      <th>Batting Pts</th>
-      <th>Bowling Pts</th>
-      <th>Penalty Pts</th>
-      <th>Total Pts</th>
-      </tr>
-
-      [% ROWS %]
-
-      </table>
-
-      <p class="timestamp">[% TIMESTAMP %]</p>
-HTML
-
-  return $html;
-
-}
-
-=head2 get_row_html
-
-=cut
-
-sub get_row_html {
-
-  return <<'HTML';
-<tr>
-<td class="teamcol">[% team %]</td>
-<td>[% played %]</td>
-<td>[% result %]</td>
-<td>[% runs %]</td>
-<td>[% wickets %]</td>
-<td>[% performances %]</td>
-<td>[% resultpts %]</td>
-<td>[% battingpts %]</td>
-<td>[% bowlingpts %]</td>
-<td>[% penaltypts %]</td>
-<td>[% totalpts %]</td>
-</tr>
-HTML
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -297,6 +218,95 @@ sub set_week {
   my ( $self, $v ) = @_;
   $self->{week} = $v;
   return $self;
+}
+
+=head2 _create_table_rows
+
+=cut
+
+sub _create_table_rows {
+  my ( $self, $rows ) = @_;
+
+  my $table = "";
+  my $i     = 0;
+  for ( my $r = 0; $r < 10; $r++ ) {
+
+    last if !$rows->[$i];
+
+    $table .= $self->merge_content( $self->_get_row_html, $rows->[$i] );
+    $i++;
+    $table .= $self->merge_content( $self->_get_row_html, $rows->[$i] );
+    $i++;
+    $table .= $self->_blank_line;
+
+  }
+
+  return $table;
+}
+
+=head2 _get_html
+
+=cut
+
+#***************************************
+sub _get_html {
+
+  #***************************************
+  my $self = shift;
+
+  my $html = <<'HTML';
+      <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
+      <h1>[% TITLE %] [% SEASON %]</h1>
+      <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]</h1>
+      <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
+
+      <table class='week_fixtures'>
+      <tr>
+      <th class="teamcol">Team</th>
+      <th>Played</th>
+      <th>Result</th>
+      <th>Runs</th>
+      <th>Wickets</th>
+      <th class="performances">Performances</th>
+      <th>Result Pts</th>
+      <th>Batting Pts</th>
+      <th>Bowling Pts</th>
+      <th>Penalty Pts</th>
+      <th>Total Pts</th>
+      </tr>
+
+      [% ROWS %]
+
+      </table>
+
+      <p class="timestamp">[% TIMESTAMP %]</p>
+HTML
+
+  return $html;
+
+}
+
+=head2 _get_row_html
+
+=cut
+
+sub _get_row_html {
+
+  return <<'HTML';
+<tr>
+<td class="teamcol">[% team %]</td>
+<td>[% played %]</td>
+<td>[% result %]</td>
+<td>[% runs %]</td>
+<td>[% wickets %]</td>
+<td>[% performances %]</td>
+<td>[% resultpts %]</td>
+<td>[% battingpts %]</td>
+<td>[% bowlingpts %]</td>
+<td>[% penaltypts %]</td>
+<td>[% totalpts %]</td>
+</tr>
+HTML
 }
 
 1;
