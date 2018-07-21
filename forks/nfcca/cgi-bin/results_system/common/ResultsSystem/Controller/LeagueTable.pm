@@ -111,7 +111,7 @@ sub logger {
 
 =begin HTML
 
-<p><img src="http://www.results_system_nfcca.com/results_system/custom/nfcca/class_diagram_controller_save_results.jpeg"
+<p><img src="http://www.results_system_nfcca_uml.com/class_diagram_controller_save_results.jpeg"
 width="1000" height="500" alt="Line Chart" /></p>
 
 =end HTML
@@ -120,7 +120,7 @@ width="1000" height="500" alt="Line Chart" /></p>
 
 =begin HTML
 
-<p><img src="http://www.results_system_nfcca.com/results_system/custom/nfcca/activity_diagram_controller_save_results.jpeg"
+<p><img src="http://www.results_system_nfcca_uml.com/activity_diagram_controller_save_results.jpeg"
 width="1000" height="500" alt="Line Chart" /></p>
 
 =end HTML
