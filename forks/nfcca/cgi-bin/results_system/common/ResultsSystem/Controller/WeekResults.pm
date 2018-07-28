@@ -127,7 +127,7 @@ sub logger {
 =begin HTML
 
 <p><img src="http://www.results_system_nfcca_uml.com/class_diagram_controller_week_results.jpeg"
-width="1000" height="500" alt="Line Chart" /></p>
+width="1000" height="500" alt="UML" /></p>
 
 =end HTML
 
@@ -136,7 +136,7 @@ width="1000" height="500" alt="Line Chart" /></p>
 =begin HTML
 
 <p><img src="http://www.results_system_nfcca_uml.com/activity_diagram_controller_week_results.jpeg"
-width="1000" height="500" alt="Line Chart" /></p>
+width="1000" height="500" alt="UML" /></p>
 
 =end HTML
 
