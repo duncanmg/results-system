@@ -33,6 +33,8 @@ use ResultsSystem::Factory;
 
 =head2 new
 
+The constructor takes no arguments.
+
 =cut
 
 sub new {
@@ -44,6 +46,8 @@ sub new {
 
 =head2 get_factory
 
+Return a ResultsSystem::Factory object.
+
 =cut
 
 sub get_factory {
@@ -52,6 +56,8 @@ sub get_factory {
 }
 
 =head2 get_starter
+
+Uses the factory to return a ResultsSystem::Starter object.
 
 =cut
 
@@ -62,6 +68,8 @@ sub get_starter {
 }
 
 =head2 get_router
+
+Uses the factory to return a Results::System::Router objects.
 
 =cut
 
