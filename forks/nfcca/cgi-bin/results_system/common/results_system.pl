@@ -36,6 +36,20 @@ use ResultsSystem;
 
 =head2 main
 
+=over
+
+=item Creates a CGI object to handle the request.
+
+=item Creates a ResulysSystem object.
+
+=item Uses the factory to create an SutoCleaner object and does an autoclean.
+
+=item Pases the CGI object to the router.
+
+=item If any of the above fail then it reurns a page with the message "Unknown Error" and code HTTP_INTERNAL_SERVER_ERROR.
+
+=back
+
 =cut
 
 # ******************************************************
@@ -59,8 +73,8 @@ sub main {
     my $err = $@;
     print STDERR $err;
 
-    my $response = HTTP::Response->new( HTTP_OK,
-      status_message(HTTP_OK),
+    my $response = HTTP::Response->new( HTTP_INTERNAL_SERVER_ERROR,
+      status_message(HTTP_INTERNAL_SERVER_ERROR),
       [ 'Content-Type' => 'text/html; charset=ISO-8859-1',
         'Status' => HTTP_INTERNAL_SERVER_ERROR . " " . status_message(HTTP_INTERNAL_SERVER_ERROR)
       ],
@@ -74,6 +88,20 @@ sub main {
 }
 
 main if !caller;
+
+=head1 UML
+
+=head2 Activity Diagram
+
+=begin HTML
+
+<p><img src="http://www.results_system_nfcca_uml.com/activity_diagram_results_system_pl.jpeg"
+width="1000" height="500" alt="UML" /></p>
+
+=end HTML
+
+=cut
+
 
 1;
 
