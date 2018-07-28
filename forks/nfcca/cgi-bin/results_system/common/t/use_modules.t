@@ -50,7 +50,6 @@ use_ok('ResultsSystem::View::MenuJs');
 use_ok('ResultsSystem::View::Message');
 use_ok('ResultsSystem::View::Pwd');
 use_ok('ResultsSystem::View::ResultsIndex');
-use_ok('ResultsSystem::View::SaveResults');
 use_ok('ResultsSystem::View::TablesIndex');
 use_ok('ResultsSystem::View::Week::FixturesForm');
 use_ok('ResultsSystem::View::Week::Results');

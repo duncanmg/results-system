@@ -35,7 +35,6 @@ my @methods = qw /
   get_router
   get_save_results_controller
   get_save_results_model
-  get_save_results_view
   get_screen_logger
   get_starter
   get_system

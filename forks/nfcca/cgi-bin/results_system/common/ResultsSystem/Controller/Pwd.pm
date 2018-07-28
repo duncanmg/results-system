@@ -36,10 +36,8 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $DB::single = 1;
-
-  $self->{logger}    = $args->{-logger}    if $args->{-logger};
-  $self->{pwd_model} = $args->{-pwd_model} if $args->{-pwd_model};
+  $self->{logger}       = $args->{-logger}       if $args->{-logger};
+  $self->{pwd_model}    = $args->{-pwd_model}    if $args->{-pwd_model};
   $self->{message_view} = $args->{-message_view} if $args->{-message_view};
 
   return $self;
