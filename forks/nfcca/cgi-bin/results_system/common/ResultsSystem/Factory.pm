@@ -69,7 +69,6 @@ use ResultsSystem::View::Blank;
 use ResultsSystem::View::MenuJs;
 use ResultsSystem::View::Week::FixturesForm;
 use ResultsSystem::View::Week::Results;
-use ResultsSystem::View::SaveResults;
 use ResultsSystem::View::Pwd;
 use ResultsSystem::View::Message;
 use ResultsSystem::View::LeagueTable;
@@ -688,17 +687,6 @@ sub get_week_fixtures_view {
       -pwd_view      => $self->get_pwd_view,
       -configuration => $self->get_configuration,
     }
-  );
-}
-
-=head3 get_save_results_view
-
-=cut
-
-sub get_save_results_view {
-  my ( $self, $args ) = @_;
-  return ResultsSystem::View::SaveResults->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::SaveResults' } ), }
   );
 }
 
