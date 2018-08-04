@@ -41,6 +41,7 @@ use_ok('ResultsSystem::Model::TablesIndex');
 use_ok('ResultsSystem::Model::WeekResults::Reader');
 use_ok('ResultsSystem::Model::WeekResults::Writer');
 use_ok('ResultsSystem::Model::WeekFixtures');
+use_ok('ResultsSystem::Model::Store::Divisions');
 
 use_ok('ResultsSystem::View::Blank');
 use_ok('ResultsSystem::View::Frame');

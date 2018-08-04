@@ -62,6 +62,7 @@ use ResultsSystem::Model::Pwd;
 use ResultsSystem::Model::LeagueTable;
 use ResultsSystem::Model::ResultsIndex;
 use ResultsSystem::Model::TablesIndex;
+use ResultsSystem::Model::Store::Divisions;
 
 use ResultsSystem::View::Frame;
 use ResultsSystem::View::Menu;
@@ -621,6 +622,20 @@ sub get_tables_index_model {
   return ResultsSystem::Model::TablesIndex->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::TablesIndex' } ),
       -configuration => $self->get_configuration,
+    }
+  );
+}
+
+=head3 get_store_divisions_model
+
+=cut
+
+sub get_store_divisions_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::Store::Divisions->new(
+    { -logger =>
+        $self->get_file_logger( { -category => 'ResultsSystem::Model::Store::Divisions' } ),
+      -full_filename => $self->get_configuration->get_divisions_full_filename,
     }
   );
 }

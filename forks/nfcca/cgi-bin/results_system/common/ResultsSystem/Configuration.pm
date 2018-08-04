@@ -282,7 +282,7 @@ parameter. Returns the appropriate path from the configuration file.
 
 Valid paths are -csv_files, -log_dir, -pwd_dir, -table_dir, -results_dir,
 -htdocs, -cgi_dir, -root, -season, -csv_files_with_season, -htdocs_full,
--results_dir_full, -table_dir_full, -cgi_dir_full. 
+-results_dir_full, -table_dir_full, -cgi_dir_full, -divisions_file. 
 
 It logs a warning and continues if the key isn't in the list of valid keys.
 
@@ -322,6 +322,7 @@ sub get_path {
     '-htdocs_full',           '-results_dir_full',
     '-table_dir_full',        "-season",
     "-csv_files_with_season", "-cgi_dir_full",
+    "-divisions_file",
   );
 
   if ( !( any { $key eq $_ } @valid_paths ) ) {
@@ -376,6 +377,20 @@ sub get_csv_full_filename {
   my $p = $self->get_path( -csv_files_with_season => 1 );
   return if !( $f && $p );
   return $p . '/' . $f;
+}
+
+=head3 get_divisions_full_filename
+
+Return the full path and filename of the divisions file.
+
+Returns undef if either the full filename is not set.
+
+=cut
+
+sub get_divisions_full_filename {
+  my ($self) = validate_pos( @_, 1 );
+  my $p = $self->get_path( -divisions_file => 1 );
+  return $p;
 }
 
 =head3 set_matchdate
