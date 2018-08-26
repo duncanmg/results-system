@@ -282,7 +282,7 @@ parameter. Returns the appropriate path from the configuration file.
 
 Valid paths are -csv_files, -log_dir, -pwd_dir, -table_dir, -results_dir,
 -htdocs, -cgi_dir, -root, -season, -csv_files_with_season, -htdocs_full,
--results_dir_full, -table_dir_full, -cgi_dir_full, -divisions_file. 
+-results_dir_full, -table_dir_full, -cgi_dir_full, -divisions_file_dir. 
 
 It logs a warning and continues if the key isn't in the list of valid keys.
 
@@ -322,7 +322,7 @@ sub get_path {
     '-htdocs_full',           '-results_dir_full',
     '-table_dir_full',        "-season",
     "-csv_files_with_season", "-cgi_dir_full",
-    "-divisions_file",
+    "-divisions_file_dir",
   );
 
   if ( !( any { $key eq $_ } @valid_paths ) ) {
@@ -389,7 +389,7 @@ Returns undef if either the full filename is not set.
 
 sub get_divisions_full_filename {
   my ($self) = validate_pos( @_, 1 );
-  my $p = $self->get_path( -divisions_file => 1 );
+  my $p = join( '/', $self->get_path( -divisions_file_dir => 1 ), 'divisions.xml' );
   return $p;
 }
 
@@ -430,88 +430,6 @@ sub get_results_full_filename {
   return if !( $f && $p && $m );
 
   return $p . '/' . $f . '_' . $m . '.dat';
-}
-
-=head2 Menu Handling
-
-=cut
-
-=head3 get_menu_names
-
-Returns a list of hash references sorted by menu_position. Each hash reference has 3 elements: menu_position, menu_name and csv_file.
-
- @x = $c->get_menu_names();
- print $x[2]->{menu_position} . "\n";
-
-=cut
-
-#***************************************
-sub get_menu_names {
-
-  #***************************************
-  my $self = shift;
-  my $tags = $self->_get_tags();
-  my @sorted_list;
-  my $div_array_ref = $tags->{divisions}[0]{division};
-  if ( !$div_array_ref ) {
-    return;
-  }
-  my @div_array = @$div_array_ref;
-
-  # print $div_array[1]{menu_position}[0] . "\n";
-
-  foreach my $d (@div_array) {
-    my %h = (
-      menu_position => $d->{menu_position}[0],
-      menu_name     => $d->{menu_name}[0],
-      csv_file      => $d->{csv_file}[0]
-    );
-    $h{menu_position} = $self->_trim( $h{menu_position} );
-    $h{menu_name}     = $self->_trim( $h{menu_name} );
-    $h{csv_file}      = $self->_trim( $h{csv_file} );
-    push @sorted_list, \%h;
-  }
-
-  my $sorter = make_sorter(
-    qw( ST ),
-    number => {
-      code       => '$_->{menu_position}',
-      descending => 0
-    }
-  );
-  @sorted_list = $sorter->(@sorted_list);
-  return @sorted_list;
-
-}
-
-=head3 get_name
-
-This method returns the hash reference for the csv_file or menu_name passed as an argument.
-
- $h_ref = $c->get_name( -menu_name => "County 1" );
- print $h_ref->{csv_file} . "\n";
- 
- $h_ref = $c->get_name( -cev_file => "CD1.csv" );
- print $h_ref->{menu_name} . "\n";
-
-=cut
-
-#***************************************
-sub get_name {
-
-  #***************************************
-  my $self = shift;
-  my %args = (@_);
-  my $t;
-
-  my @list = $self->get_menu_names;
-  if ( $args{-menu_name} ) {
-    $t = first_value { $_->{menu_name} eq $args{-menu_name} } @list;
-  }
-  else {
-    $t = first_value { $_->{csv_file} eq $args{-csv_file} } @list;
-  }
-  return $t;    # Hash ref
 }
 
 =head2 Password Handling

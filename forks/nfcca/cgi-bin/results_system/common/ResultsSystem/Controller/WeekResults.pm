@@ -11,6 +11,8 @@ use warnings;
 use Data::Dumper;
 use HTTP::Status qw(:constants :is status_message);
 
+use parent 'ResultsSystem::Controller';
+
 =head1 SYNOPSIS
 
 =cut
@@ -36,12 +38,10 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->{logger} = $args->{-logger} if $args->{-logger};
-
-  $self->{week_results_reader_model} = $args->{-week_results_reader_model}
-    if $args->{-week_results_reader_model};
-
-  $self->{week_results_view} = $args->{-week_results_view} if $args->{-week_results_view};
+  $self->set_arguments(
+    [qw/ logger configuration week_results_reader_model week_results_view store_divisions_model/],
+    $args
+  );
 
   $self->logger->warn('Created');
   return $self;
@@ -54,15 +54,17 @@ sub new {
 sub run {
   my ( $self, $query ) = @_;
 
-  $self->logger->warn('1');
   my $data = $self->get_week_results_reader_model()->get_lines();
 
-  $self->logger->warn('2');
   $self->get_week_results_view->run(
     { -data => {
         rows     => $data,
         division => $query->param('division'),
-        week     => $query->param('matchdate')
+        week     => $query->param('matchdate'),
+        MENU_NAME =>
+          $self->get_store_divisions_model->get_name( -csv_file => $query->param('division') )
+          ->{menu_name},
+        SYSTEM => $self->get_configuration->get_system,
       }
     }
   );
@@ -75,13 +77,23 @@ sub run {
 
 =cut
 
-=head2 get_save_results_model
+=head2 get_store_divisions_model
 
 =cut
 
-sub get_save_results_model {
+sub get_store_divisions_model {
   my $self = shift;
-  return $self->{save_results_model};
+  return $self->{store_divisions_model};
+}
+
+=head2 set_store_divisions_model
+
+=cut
+
+sub set_store_divisions_model {
+  my ( $self, $v ) = @_;
+  $self->{store_divisions_model} = $v;
+  return $self;
 }
 
 =head2 get_week_results_reader_model
@@ -93,6 +105,16 @@ sub get_week_results_reader_model {
   return $self->{week_results_reader_model};
 }
 
+=head2 set_week_results_reader_model
+
+=cut
+
+sub set_week_results_reader_model {
+  my ( $self, $v ) = @_;
+  $self->{week_results_reader_model} = $v;
+  return $self;
+}
+
 =head2 get_week_results_view
 
 =cut
@@ -102,22 +124,14 @@ sub get_week_results_view {
   return $self->{week_results_view};
 }
 
-=head2 get_locker
+=head2 set_week_results_view
 
 =cut
 
-sub get_locker {
-  my $self = shift;
-  return $self->{locker};
-}
-
-=head2 logger
-
-=cut
-
-sub logger {
-  my $self = shift;
-  return $self->{logger};
+sub set_week_results_view {
+  my ( $self, $v ) = @_;
+  $self->{week_results_view} = $v;
+  return $self;
 }
 
 =head1 UML

@@ -38,11 +38,7 @@ use Params::Validate qw/:all/;
 
 use ResultsSystem::Exception;
 
-=head2 Model::Store::Divisions Setup
-
-=cut
-
-=head3 new
+=head2 new
 
 Constructor for the ResultsSystem::Model::Store::Divisions object. Optionally accepts the full filename
 of the configuration file as an argument. Does not read the file at this point.
@@ -50,8 +46,8 @@ of the configuration file as an argument. Does not read the file at this point.
 If -full_filename is not provided, then it must be set explicitly before the file 
 can be read.
 
-  $c = ResultsSystem::Model::Store::Divisions->new( -full_filename => "/a/b/divisions.xml",
-    -logger => $logger );
+  $c = ResultsSystem::Model::Store::Divisions->new( 
+    -full_filename => "/a/b/divisions.xml", -logger => $logger );
 
 or 
 
@@ -78,7 +74,7 @@ sub new {
   return $self;
 }
 
-=head3 set_full_filename
+=head2 set_full_filename
 
 Sets the full filename of the configuration file. Filters out
 characters other than alphanumeric characters, "_", ".", or "/".
@@ -94,7 +90,7 @@ sub set_full_filename {
   return $self;
 }
 
-=head3 read_file
+=head2 read_file
 
 Read the divisions file. Returns an error if the file doesn't exist or the read fails.
 
@@ -117,7 +113,7 @@ sub read_file {
   return $err;
 }
 
-=head3 set_logger
+=head2 set_logger
 
 =cut
 
@@ -127,11 +123,7 @@ sub set_logger {
   return $self;
 }
 
-=head2 Menu Handling
-
-=cut
-
-=head3 get_menu_names
+=head2 get_menu_names
 
 Returns a list of hash references sorted by menu_position. Each hash reference has 3 elements: menu_position, menu_name and csv_file.
 
@@ -179,7 +171,7 @@ sub get_menu_names {
 
 }
 
-=head3 get_name
+=head2 get_name
 
 This method returns the hash reference for the csv_file or menu_name passed as an argument.
 
@@ -196,7 +188,7 @@ sub get_name {
 
   #***************************************
   my $self = shift;
-  my %args = (@_);
+  my %args = validate( @_, { -menu_name => 0, -csv_file => 0 } );
   my $t;
 
   my @list = $self->get_menu_names;
@@ -256,8 +248,11 @@ sub _get_tags {
 
   #***************************************
   my $self = shift;
-  croak( ResultsSystem::Exception->new( 'NO_TAGS_DEFINED', 'No tags defined' ) )
-    if !$self->{TAGS};
+  croak(
+    ResultsSystem::Exception->new(
+      'NO_TAGS_DEFINED', 'No tags defined. Has read_file been executed?'
+    )
+  ) if !$self->{TAGS};
   return $self->{TAGS};
 }
 

@@ -49,6 +49,7 @@ my @methods = qw /
   get_week_fixtures_selector_model
   get_week_fixtures_view
   get_week_results_view
+  get_store_model
   get_store_divisions_model
   /;
 

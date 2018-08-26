@@ -7,12 +7,15 @@ ResultsSystem::Model::FixtureList
 
 =head1 SYNOPSIS
 
-  $f = FixtureList->new( -logger => $logger, -configuration => $configuration, -full_filename => "/a/b/division1.csv" );
+  $f = FixtureList->new( -logger => $logger, -configuration => $configuration, 
+    -full_filename => "/a/b/division1.csv" );
+  
   $f->read_file;
 
 or
 
   $f = FixtureList->new( -logger => $logger, -configuration => $configuration );
+  
   $f->set_full_filename( "/a/b/division1.csv" );
   $f->read_file;
 
@@ -352,8 +355,9 @@ sub read_file {
   croak( ResultsSystem::Exception->new( 'FILE_DOES_NOT_EXIST', $self->get_full_filename ) )
     if !( -f $self->get_full_filename );
 
-  $self->{DATES} = [];
-  @lines = slurp( $self->get_full_filename );
+  $self->{FIXTURES} = ();
+  $self->{DATES}    = [];
+  @lines            = slurp( $self->get_full_filename );
 
   my $lines    = scalar(@lines);
   my $fixtures = 0;

@@ -14,9 +14,14 @@ ResultsSystem::Model::MenuJs
 
 =head1 SYNOPSIS
 
+  my $menu_js = ResultsSystem::Model::MenuJs->new(-logger => $logger, 
+    -store_model => $store);
+
 =cut
 
 =head1 DESCRIPTION
+
+This manages the dynamic javascript required by the menus.
 
 =cut
 
@@ -32,6 +37,13 @@ ResultsSystem::Model
 
 =head2 new
 
+  my $menu_js = ResultsSystem::Model::MenuJs->new( { -logger => $logger, 
+    -store_divisions_model => $store } );
+
+-logger : ResultsSystem::Logger
+
+-store_model : ResultsSystem::Model::Store
+
 =cut
 
 sub new {
@@ -39,14 +51,16 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->{logger} = $args->{-logger} if $args->{-logger};
-  $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
-  $self->set_fixtures( $args->{-fixtures} )           if $args->{-fixtures};
+  $self->set_arguments( [qw/logger store_model /], $args );
 
   return $self;
 }
 
 =head2 run
+
+my $data = $self->run();
+
+Returns a hash ref with two keys: all_dates and menu_names.
 
 =cut
 
@@ -54,14 +68,27 @@ sub new {
 sub run {
 
   # ******************************************************
-  my ( $self, $args ) = @_;
-  my $c = $self->get_configuration();
+  my ($self) = @_;
 
-  return { all_dates => $self->get_all_dates_by_division(%$args), menu_names => $self->get_menu };
+  return { all_dates => $self->_get_all_dates_by_division(), menu_names => $self->_get_menu };
 
 }
 
-=head2 get_all_dates_by_division
+=head2 set_store_model
+
+=cut
+
+sub set_store_model {
+  my ( $self, $f ) = @_;
+  $self->{store_model} = $f;
+  return $self;
+}
+
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
+=head2 _get_all_dates_by_division
 
 Return a hash ref contatining all the dates for each division keyed by cvs file name.
 
@@ -75,41 +102,24 @@ Return a hash ref contatining all the dates for each division keyed by cvs file 
 
 =cut
 
-sub get_all_dates_by_division {
-  my ( $self, %args ) = @_;
-  my $c = $self->get_configuration;
+sub _get_all_dates_by_division {
+  my ($self) = @_;
+
+  my $store = $self->_get_store_model;
+
+  my $all_fixture_lists = $store->get_all_fixture_lists;
 
   my $dates = {};
-
-  my @x = $c->get_menu_names;
-  my $path = $c->get_path( -csv_files_with_season => 'Y' );
-  $self->logger->debug($path);
-
-  my $fixtures = $self->get_fixtures;
-
-  foreach my $div (@x) {
-    my $ff = $path . '/' . $div->{csv_file};
-    $self->logger->debug($ff);
-    eval {
-      $fixtures->set_full_filename($ff);
-      $fixtures->read_file();
-      my $list = $fixtures->get_date_list;
-      $dates->{ $div->{csv_file} } = $list if $list;
-      $self->logger->error( "No fixtures for " . $path . '/' . $div->{csv_file} ) if !$list;
-      1;
-    } || do {
-      my $err = $@;
-      croak $err if ( $err !~ m/FILE_DOES_NOT_EXIST/ );
-      $self->logger->warn(
-        "$ff does not exist. Dates and fixtures for division will not be available.");
-    };
+  foreach my $k ( keys %$all_fixture_lists ) {
+    my $f = $all_fixture_lists->{$k};
+    my $d = [ map { $_->[0] } @$f ];
+    $dates->{$k} = $d;
   }
-  $self->logger->debug(
-    "Returning dates for these divisions: " . join( ", ", sort ( keys(%$dates) ) ) );
+
   return $dates;
 }
 
-=head2 get_menu
+=head2 _get_menu
 
 Returns a string containing the javascript for two arrays: menu_names and csv_files.
 
@@ -125,14 +135,15 @@ Returns a string containing the javascript for two arrays: menu_names and csv_fi
 =cut
 
 # *********************************************
-sub get_menu {
+sub _get_menu {
 
   # *********************************************
-  my ( $self, %args ) = @_;
-  my $c = $self->get_configuration;
+  my ($self) = @_;
+
+  my $store = $self->_get_store_model;
   my $line;
 
-  my @x = $c->get_menu_names;
+  my @x = $store->get_menu_names;
 
   $line = "if ( typeof( menu_names ) == \"undefined\" ) { menu_names = new Array(); }\n";
 
@@ -149,28 +160,14 @@ sub get_menu {
 
 }
 
-=head2 set_fixtures
+=head2 _get_store_model
 
 =cut
 
-sub set_fixtures {
-  my ( $self, $f ) = @_;
-  $self->{fixtures} = $f;
-  return $self;
-}
-
-=head2 get_fixtures
-
-=cut
-
-sub get_fixtures {
+sub _get_store_model {
   my $self = shift;
-  return $self->{fixtures};
+  return $self->{store_model};
 }
-
-=head1 INTERNAL (PRIVATE) METHODS
-
-=cut
 
 1;
 

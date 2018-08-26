@@ -62,6 +62,7 @@ use ResultsSystem::Model::Pwd;
 use ResultsSystem::Model::LeagueTable;
 use ResultsSystem::Model::ResultsIndex;
 use ResultsSystem::Model::TablesIndex;
+use ResultsSystem::Model::Store;
 use ResultsSystem::Model::Store::Divisions;
 
 use ResultsSystem::View::Frame;
@@ -289,6 +290,7 @@ sub get_week_fixtures_controller {
       -week_fixtures_view           => $self->get_week_fixtures_view,
       -week_fixtures_selector_model => $self->get_week_fixtures_selector_model,
       -configuration                => $self->get_configuration,
+      -store_divisions_model        => $self->get_store_divisions_model,
     }
   );
 }
@@ -390,6 +392,7 @@ sub get_week_results_controller {
       -week_results_reader_model => $self->get_week_data_reader_model,
       -week_results_view         => $self->get_week_results_view,
       -configuration             => $self->get_configuration,
+      -store_divisions_model     => $self->get_store_divisions_model,
     }
   );
 }
@@ -454,9 +457,8 @@ sub get_fixture_list_model {
 sub get_menu_js_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::MenuJs->new(
-    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::MenuJs' } ),
-      -configuration => $self->get_configuration,
-      -fixtures      => $self->get_fixture_list_model,
+    { -logger      => $self->get_file_logger( { -category => 'ResultsSystem::Model::MenuJs' } ),
+      -store_model => $self->get_store_model,
     }
   );
 }
@@ -626,18 +628,44 @@ sub get_tables_index_model {
   );
 }
 
+=head3 get_store_model
+
+Returns a ResultsSystem::Model::Store object.
+
+=cut
+
+sub get_store_model {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::Model::Store->new(
+    { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::Model::Store' } ),
+      -configuration => $self->get_configuration,
+      -fixture_list_model    => $self->get_fixture_list_model,
+      -store_divisions_model => $self->get_store_divisions_model
+    }
+  );
+}
+
 =head3 get_store_divisions_model
+
+Returns a ResultsSystem::Model::Store::Divisions object.
+
+If get_configuration->get_divisions_full_filenam is set then it will return read_file()
+before returning.
 
 =cut
 
 sub get_store_divisions_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::Store::Divisions->new(
+  my $d = ResultsSystem::Model::Store::Divisions->new(
     { -logger =>
         $self->get_file_logger( { -category => 'ResultsSystem::Model::Store::Divisions' } ),
       -full_filename => $self->get_configuration->get_divisions_full_filename,
     }
   );
+  if ( $self->get_configuration->get_divisions_full_filename ) {
+    $d->read_file;
+  }
+  return $d;
 }
 
 =head2 Views

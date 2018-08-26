@@ -1,4 +1,4 @@
-package ResultsSystem::Model;
+package ResultsSystem::Controller;
 
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ use Params::Validate qw/:all/;
 
 =head1 NAME
 
-ResultsSystem::Model
+ResultsSystem::Controller
 
 =cut
 
@@ -16,7 +16,7 @@ ResultsSystem::Model
 
 =head1 DESCRIPTION
 
-Base class the the models.
+Base class the the controllers.
 
 =cut
 
@@ -106,9 +106,5 @@ sub set_arguments {
   }
   return 1;
 }
-
-=head1 INTERNAL (PRIVATE) METHODS
-
-=cut
 
 1;

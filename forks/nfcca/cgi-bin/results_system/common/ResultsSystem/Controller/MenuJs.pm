@@ -38,6 +38,7 @@ sub new {
   $self->{logger}        = $args->{-logger}        if $args->{-logger};
   $self->{menu_js_model} = $args->{-menu_js_model} if $args->{-menu_js_model};
   $self->{menu_js_view}  = $args->{-menu_js_view}  if $args->{-menu_js_view};
+  $self->{logger}->debug('Created object') if $args->{-logger};
   return $self;
 }
 
@@ -48,10 +49,14 @@ sub new {
 sub run {
   my ( $self, $args ) = @_;
 
+  $self->{logger}->debug('In run');
+  $self->{logger}->debug( ref $self->get_menu_js_model );
   my $data = $self->get_menu_js_model()->run($args);
 
+  $self->{logger}->debug('2 In run');
   $self->get_menu_js_view()->run( { -data => $data } );
 
+  $self->{logger}->debug('3 In run');
   return 1;
 }
 

@@ -53,6 +53,9 @@ sub new {
 
   $self->{week_fixtures_view} = $args->{-week_fixtures_view} if $args->{-week_fixtures_view};
 
+  $self->{store_divisions_model} = $args->{-store_divisions_model}
+    if $args->{-store_divisions_model};
+
   return $self;
 }
 
@@ -72,7 +75,8 @@ sub run {
   $data->{SYSTEM} = $self->get_configuration->get_system;
   $data->{SEASON} = $self->get_configuration->get_season;
   $data->{MENU_NAME} =
-    $self->get_configuration->get_name( -csv_file => $query->param('division') )->{menu_name};
+    $self->get_store_divisions_model->get_name( -csv_file => $query->param('division') )
+    ->{menu_name};
   $data->{WEEK}     = $query->param('matchdate');
   $data->{TITLE}    = $self->get_configuration->get_title;
   $data->{DIVISION} = $query->param('division');
@@ -120,6 +124,15 @@ sub get_week_fixtures_selector_model {
 sub get_configuration {
   my $self = shift;
   return $self->{configuration};
+}
+
+=head2 get_store_divisions_model
+
+=cut
+
+sub get_store_divisions_model {
+  my $self = shift;
+  return $self->{store_divisions_model};
 }
 
 1;
