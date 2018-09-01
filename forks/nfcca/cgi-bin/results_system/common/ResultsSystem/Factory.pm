@@ -489,6 +489,11 @@ sub get_week_data_reader_model {
 
 =head3 get_week_data_reader_model_factory
 
+Returns a function which returns a new ResultsSystem::Model::WeekResults::Reader object
+on each call.
+
+Does not set full_filename or read a file.
+
 =cut
 
 sub get_week_data_reader_model_factory {
@@ -594,9 +599,9 @@ sub get_league_table_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::LeagueTable->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::LeagueTable' } ),
-      -configuration          => $self->get_configuration,
-      -fixture_list_model     => $self->get_fixture_list_model(),
-      -week_data_reader_model => $self->get_week_data_reader_model_factory(),
+      -configuration      => $self->get_configuration,
+      -fixture_list_model => $self->get_fixture_list_model(),
+      -store_model        => $self->get_store_model(),
     }
   );
 }
@@ -639,8 +644,9 @@ sub get_store_model {
   return ResultsSystem::Model::Store->new(
     { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::Model::Store' } ),
       -configuration => $self->get_configuration,
-      -fixture_list_model    => $self->get_fixture_list_model,
-      -store_divisions_model => $self->get_store_divisions_model
+      -fixture_list_model             => $self->get_fixture_list_model,
+      -store_divisions_model          => $self->get_store_divisions_model,
+      -week_data_reader_model_factory => $self->get_week_data_reader_model_factory
     }
   );
 }

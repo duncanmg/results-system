@@ -24,7 +24,7 @@ ResultsSystem::Model::LeagueTable
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
                                                  -configuration => $configuration,
 						 -fixtures_model => $f,
-						 -week_data_reader_model => $wdm);
+						 -store_model => $wdm);
   $l->set_division( 'U9N.csv');
   $l->create_league_table;
 
@@ -51,7 +51,7 @@ This is the constructor for a LeagueTable object.
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
                                                  -configuration => $configuration
 						 -fixtures_model => $f,
-						 -week_data_reader_model => $wdm);
+						 -store_model => $wdm);
 =cut
 
   #***************************************
@@ -61,18 +61,20 @@ This is the constructor for a LeagueTable object.
     my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
-    $self->set_arguments( [qw/ configuration logger fixtures_model week_data_reader_model/],
-      $args );
+    $self->set_arguments( [qw/ configuration logger fixtures_model store_model/], $args );
 
-    # $self->logger->debug( Dumper $args);
     return $self;
   }
 
 =head2 create_league_table
 
-  gather_data
-  _process_data
-  _sort_table
+L</gather_data>
+
+L</_process_data>
+
+L</_sort_table>
+
+L</_get_sorted_table>
 
 =cut
 
@@ -82,7 +84,6 @@ This is the constructor for a LeagueTable object.
     #***************************************
     my $self = shift;
 
-    $self->logger('Here');
     $self->gather_data();
 
     $self->_process_data;
@@ -94,6 +95,8 @@ This is the constructor for a LeagueTable object.
 
 =head2 set_division
 
+Sets the .csv file for the division eg County1.csv.
+
 =cut
 
   sub set_division {
@@ -103,6 +106,10 @@ This is the constructor for a LeagueTable object.
   }
 
 =head2 get_division
+
+Returns the .csv file for the division eg County1.csv.
+
+This can be used to identify the week result files for the division.
 
 =cut
 
@@ -116,110 +123,6 @@ This is the constructor for a LeagueTable object.
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
-
-=head2 _get_all_week_files
-
-Reads all the files in the csv directory specified in the configuration. It then loads all those
-that match the specified pattern into a list.
-
-It is assumed that there is a relationship between the name of the csv file of the division and the
-names of the week files for that division. Specifically, the name of a week file will be produced by
-removing the extension from the csv filename, adding an underscore and the date for the week. So
-County1.csv has associated week files called County1_21-Jun.dat, County1_28-Jun.dat, etc.
-
-This method selects the week files by using a pattern which consists of the csv basename plus an underscore.
-Thus the pattern for "County1.csv" is "County1_".
-
-The method returns an error code and a reference to the list of week files.
-
-  $list_ref = $lt->_get_all_week_files();
-
-=cut
-
-  #***************************************
-  sub _get_all_week_files {
-
-    #***************************************
-    my $self = shift;
-    my ( $FP, @files );
-
-    my $dir = $self->build_csv_path;
-
-    my $csv = $self->get_division;
-    $csv =~ s/\..*$//xg;    # Remove extension
-
-    opendir( $FP, $dir )
-      || do { croak( ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', $! ) ); };
-
-    @files = readdir $FP;
-    $self->logger->debug( scalar(@files) . " files retrieved from $dir." );
-    close $FP;
-
-    my $pattern = $csv . "_";
-    @files = grep {/^$pattern/x} @files;
-    $self->logger->debug(
-      scalar(@files) . " of these files are week files for the division. " . $csv );
-
-    @files = map { join( '/', $dir, $_ ) } @files;
-
-    return \@files;
-
-  }
-
-=head2 build_csv_path
-
-=cut
-
-  sub build_csv_path {
-    my $self = shift;
-    my $c    = $self->get_configuration;
-
-    my $dir = $c->get_path( -csv_files_with_season => "Y" );
-
-    croak(
-      ResultsSystem::Exception->new(
-        'DIR_NOT_FOUND', "Directory for csv files not found. " . $dir
-      )
-    ) if !-d $dir;
-    return $dir;
-  }
-
-=head2 _extract_data
-
-This method accepts a reference to a list of week files. It then loops
-through the files and creates a list of WeekResults objects. Each WeekResults
-object contains the data for one week.
-
-It returns an error code.
-
- $err = $lt->_extract_data( \@files );
-
-=cut
-
-  #***************************************
-  sub _extract_data {
-
-    #***************************************
-    my $self      = shift;
-    my $files_ref = shift;
-    my $dir       = $self->get_configuration->get_path( -csv_files => "Y" );
-    $self->{WEEKDATA} = [];
-
-    foreach my $f (@$files_ref) {
-
-      $self->logger->debug($f);
-      $self->logger->debug( "Create WeekResults object " . $f );
-
-      my $wd = $self->get_week_data_reader_model->();
-      $wd->set_full_filename($f);
-      $wd->read_file;
-
-      push @{ $self->{WEEKDATA} }, $wd;
-
-    }
-
-    return 1;
-  }
 
 =head2 _get_all_week_data
 
@@ -448,7 +351,7 @@ This method returns a reference to the table of sorted data.
     my $self = shift;
     my $files;
 
-    $files = $self->_get_all_week_files;
+    $files = $self->get_store_model->get_all_week_results_for_division( $self->get_division );
 
     if ( scalar(@$files) == 0 ) {
       $self->logger->debug(
@@ -460,7 +363,7 @@ This method returns a reference to the table of sorted data.
           ->get_all_teams );
     }
     else {
-      $self->_extract_data($files);
+      $self->{WEEKDATA} = $files;
     }
     return 1;
   }
@@ -484,29 +387,25 @@ This method returns a reference to the table of sorted data.
     return $self->{fixtures};
   }
 
-=head2 set_week_data_reader_model
+=head2 set_store_model
 
 =cut
 
-  sub set_week_data_reader_model {
+  sub set_store_model {
     my ( $self, $v ) = @_;
-    $self->{week_data_reader_model} = $v;
+    $self->{store_model} = $v;
     return $self;
   }
 
-=head2 get_week_data_reader_model
+=head2 get_store_model
 
-NB This hold the subroutine returned by get_week_data_reader_model_factory
-in Factory.pm.
-
-$self->get_week_data_reader_model->() will return a new WeekResults::Reader object
-each time.
+Returns the Model::Store object.
 
 =cut
 
-  sub get_week_data_reader_model {
+  sub get_store_model {
     my $self = shift;
-    return $self->{week_data_reader_model};
+    return $self->{store_model};
   }
 
   1;

@@ -34,10 +34,10 @@ use strict;
 use warnings;
 use Carp;
 
-use Regexp::Common;
+#use Regexp::Common;
 use List::MoreUtils qw/any/;
+use Params::Validate qw/:all/;
 
-use Slurp;
 use Data::Dumper;
 
 use ResultsSystem::Exception;
@@ -66,8 +66,12 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->set_arguments( [qw/store_divisions_model fixture_list_model logger configuration/],
-    $args );
+  $self->set_arguments(
+    [ qw/store_divisions_model fixture_list_model
+        week_data_reader_model_factory logger configuration/
+    ],
+    $args
+  );
 
   return $self;
 }
@@ -133,9 +137,132 @@ sub get_menu_names {
   return $self->get_store_divisions_model->get_menu_names;
 }
 
+=head2 get_all_week_results_for_division
+
+Accepts the name of the csv_file for the division and returns a
+list of the WeekResults::Reader objects for the division.
+
+my $list = $self->get_all_week_results_for_division('U9.csv');
+
+=cut
+
+sub get_all_week_results_for_division {
+  my ( $self, $csv_file ) = validate_pos( @_, 1, 1 );
+
+  my $files = $self->_get_all_week_files($csv_file);
+
+  $self->_extract_data($files);
+  return 1;
+}
+
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
+
+=head2 _get_all_week_files
+
+Reads all the files in the csv directory specified in the configuration. It then loads all those
+that match the specified pattern into a list.
+
+It is assumed that there is a relationship between the name of the csv file of the division and the
+names of the week files for that division. Specifically, the name of a week file will be produced by
+removing the extension from the csv filename, adding an underscore and the date for the week. So
+County1.csv has associated week files called County1_21-Jun.dat, County1_28-Jun.dat, etc.
+
+This method selects the week files by using a pattern which consists of the csv basename plus an underscore.
+Thus the pattern for "County1.csv" is "County1_".
+
+The method returns a reference to the list of week files.
+
+  $list_ref = $lt->_get_all_week_files();
+
+=cut
+
+#***************************************
+sub _get_all_week_files {
+
+  #***************************************
+  my ( $self, $csv ) = validate_pos( @_, 1, 1 );
+  my ( $FP, @files );
+
+  my $dir = $self->build_csv_path;
+
+  $csv =~ s/\..*$//xg;    # Remove extension
+
+  opendir( $FP, $dir )
+    || do { croak( ResultsSystem::Exception->new( 'UNABLE_TO_OPEN_DIR', $! ) ); };
+
+  @files = readdir $FP;
+  $self->logger->debug( scalar(@files) . " files retrieved from $dir." );
+  close $FP;
+
+  my $pattern = $csv . "_";
+  @files = grep {/^$pattern/x} @files;
+  $self->logger->debug(
+    scalar(@files) . " of these files are week files for the division. " . $csv );
+
+  @files = map { join( '/', $dir, $_ ) } @files;
+
+  return \@files;
+
+}
+
+=head2 build_csv_path
+
+Returns the directory where the week result (.dat) files for the current season can be found.
+
+Assumed to be the same as where the csv files can be found.
+
+=cut
+
+sub build_csv_path {
+  my $self = shift;
+  my $c    = $self->get_configuration;
+
+  my $dir = $c->get_path( -csv_files_with_season => "Y" );
+
+  croak(
+    ResultsSystem::Exception->new(
+      'DIR_NOT_FOUND', "Directory for csv files not found. " . $dir
+    )
+  ) if !-d $dir;
+  return $dir;
+}
+
+=head2 _extract_data
+
+This method accepts a reference to a list of week files. It then loops
+through the files and creates a list of WeekResults objects. Each WeekResults
+object contains the data for one week.
+
+It returns an error code.
+
+ $week_data_list = $lt->_extract_data( \@files );
+
+=cut
+
+#***************************************
+sub _extract_data {
+
+  #***************************************
+  my ( $self, $files_ref ) = validate_pos( @_, 1, 1 );
+  my $week_data_list = [];
+
+  foreach my $f (@$files_ref) {
+
+    $self->logger->debug($f);
+    $self->logger->debug( "Create WeekResults object " . $f );
+
+    my $wd = $self->get_week_data_reader_model_factory->();
+    $wd->set_full_filename($f);
+    $wd->read_file;
+
+    push @$week_data_list, $wd;
+
+  }
+
+  return $week_data_list;
+}
 
 =head2 get_store_divisions_model
 
@@ -172,6 +299,25 @@ sub get_fixture_list_model {
 sub set_fixture_list_model {
   my ( $self, $v ) = @_;
   $self->{fixture_list_model} = $v;
+  return $self;
+}
+
+=head2 get_week_data_reader_model_factory
+
+=cut
+
+sub get_week_data_reader_model_factory {
+  my $self = shift;
+  return $self->{week_data_reader_model_factory};
+}
+
+=head2 set_week_data_reader_model_factory
+
+=cut
+
+sub set_week_data_reader_model_factory {
+  my ( $self, $v ) = @_;
+  $self->{week_data_reader_model_factory} = $v;
   return $self;
 }
 
