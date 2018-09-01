@@ -107,4 +107,8 @@ sub set_arguments {
   return 1;
 }
 
+=head1 INTERNAL (PRIVATE) METHODS
+
+=cut
+
 1;
