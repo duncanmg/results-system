@@ -7,6 +7,7 @@
   use List::MoreUtils qw / first_index any /;
   use Sort::Maker;
   use Data::Dumper;
+  use Params::Validate qw/:all/;
 
   use ResultsSystem::Model;
   use ResultsSystem::Exception;
@@ -24,7 +25,7 @@ ResultsSystem::Model::LeagueTable
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
                                                  -configuration => $configuration,
 						 -fixtures_model => $f,
-						 -store_model => $wdm);
+						 -store_model => $store);
   $l->set_division( 'U9N.csv');
   $l->create_league_table;
 
@@ -36,7 +37,7 @@ ResultsSystem::Model::LeagueTable
 
 =head1 INHERITS FROM
 
-ResultsSystem::Model
+L<ResultsSystem::Model>
 
 =cut
 
@@ -68,9 +69,11 @@ This is the constructor for a LeagueTable object.
 
 =head2 create_league_table
 
-L</gather_data>
+L</_retrieve_week_results_for_division>
 
-L</_process_data>
+L<_retrieve_teams_for_division>
+
+L</_process_week_results_list>
 
 L</_sort_table>
 
@@ -84,9 +87,15 @@ L</_get_sorted_table>
     #***************************************
     my $self = shift;
 
-    $self->gather_data();
+    $self->_retrieve_week_results_for_division();
 
-    $self->_process_data;
+    if ( scalar( @{ $self->_set_week_results_list } ) ) {
+      $self->_process_week_results_list;
+
+    }
+    else {
+      $self->_retrieve_teams_for_division;
+    }
 
     $self->_sort_table;
 
@@ -124,52 +133,83 @@ This can be used to identify the week result files for the division.
 
 =cut
 
-=head2 _get_all_week_data
+=head2 _get_week_results_list
 
-Method which returns the list of WeekResults objects.
+Method which returns the list ref of WeekResults objects.
 
- @all_wd = $self->_get_all_week_data;
+ $all_wd = $self->_get_week_results_list;
 
 =cut
 
   #***************************************
-  sub _get_all_week_data {
+  sub _get_week_results_list {
 
     #***************************************
     my $self = shift;
-    if ( $self->{WEEKDATA} ) {
-      return @{ $self->{WEEKDATA} };
-    }
+    return $self->{WEEKDATA} || [];
   }
 
-=head2 _process_data
+=head2 _set_week_results_list
+
+Method which sets the list of WeekResults objects.
+
+ $self->_set_week_results_list($list_ref);
+
+=cut
+
+  #***************************************
+  sub _set_week_results_list {
+
+    #***************************************
+    my ( $self, $v ) = validate_pos( @_, 1, { type => ARRAYREF } );
+    $self->{WEEKDATA} = $v;
+    return $self;
+  }
+
+=head2 _process_week_results_list
 
 This loops through the WeekResults objects and creates a data structure for
 the league table. The structure consists of an array of hash references.
 
- $err = $lt->_process_data;
+ $err = $lt->_process_week_results_list;
 
 =cut
 
   #***************************************
-  sub _process_data {
+  sub _process_week_results_list {
 
     #***************************************
     my $self   = shift;
-    my @all_wd = $self->_get_all_week_data;
+    my @all_wd = @{ $self->_get_week_results_list };
     my @table  = ();
 
-    # Loop through all the week data objects.
-    foreach my $wd (@all_wd) {
+    @table = @{ $self->_build_unsorted_table( \@all_wd ) };
+
+    @table = @{ $self->_calculate_average_points( \@table ) };
+
+    $self->{AGGREGATED_DATA} = \@table;
+
+    return 1;
+  }
+
+=head2 _build_unsorted_table
+
+=cut
+
+  sub _build_unsorted_table {
+    my ( $self, $all_wd ) = validate_pos( @_, 1, { type => ARRAYREF } );
+    my @table = ();
+
+    # Loop through all the week results objects.
+    foreach my $wd (@$all_wd) {
 
       $self->logger->debug( "Loop wd: " . $wd );
 
       my $lineno = 0;
-      my $more   = 1;
 
       my $counter = 0;    # Guard against infinite loops.
 
-      while ( $more == 1 && $counter < 1000 ) {
+      while ( $counter < 1000 ) {
 
         # The processing finishes when there are no more lines
         # or the team name is undefined.
@@ -182,19 +222,14 @@ the league table. The structure consists of an array of hash references.
         $lineno++;
 
         # Find the row in the table for the current team.
-        my $i = first_index { $_->{team} eq $fields_hash_ref->{team} } @table;
-
-        # Create one if necessary
-        if ( $i < 0 ) {
-          my $t = $self->get_new_table_row;
-          $t->{team} = $fields_hash_ref->{team};
-          push @table, $t;
-          $i = scalar(@table) - 1;
-        }
+        my ( $i, $t );
+        ( $t, $i ) = $self->_get_index_of_team_in_table( \@table, $fields_hash_ref );
+        @table = @$t;
 
         # Skip if the match hasn't been played.
         next if $fields_hash_ref->{played} !~ m/Y/i;
         $self->logger->debug( Dumper "Match has been played.", $fields_hash_ref );
+
         $table[$i]->{played} += 1;
 
         $table[$i]->{won} += 1 if ( $fields_hash_ref->{result} =~ m/w/ix );
@@ -211,22 +246,52 @@ the league table. The structure consists of an array of hash references.
 
       }
 
-      foreach my $t (@table) {
+    }
+    return \@table;
+  }
 
-        $t->{average} = 0;
-        if ( ( $t->{played} || 0 ) > 0 ) {
+=head2 _calculate_average_points
 
-          $t->{average} = sprintf( "%.2f", $t->{totalpts} / $t->{played} );
+=cut
 
-        }
+  sub _calculate_average_points {
+    my ( $self, $table ) = validate_pos( @_, 1, { type => ARRAYREF } );
+
+    foreach my $t (@$table) {
+
+      $t->{average} = 0;
+      if ( ( $t->{played} || 0 ) > 0 ) {
+
+        $t->{average} = sprintf( "%.2f", $t->{totalpts} / $t->{played} );
 
       }
 
-      $self->{AGGREGATED_DATA} = \@table;
-
     }
+    return $table;
+  }
 
-    return 1;
+=head2 _get_index_of_team_in_table
+
+Finds the index of the team in the table. Adds the team to the table
+if necessary.
+
+( $table, $i ) = $self->_get_index_of_team_in_table($table, $fields_hash_ref);
+
+=cut
+
+  sub _get_index_of_team_in_table {
+    my ( $self, $table, $fields_hash_ref ) = @_;
+
+    my $i = first_index { $_->{team} eq $fields_hash_ref->{team} } @$table;
+
+    # Create one if necessary
+    if ( $i < 0 ) {
+      my $t = $self->get_new_table_row;
+      $t->{team} = $fields_hash_ref->{team};
+      push @$table, $t;
+      $i = scalar(@$table) - 1;
+    }
+    return ( $table, $i );
   }
 
 =head2 get_new_table_row
@@ -270,7 +335,13 @@ Method which returns a reference to the unsorted list of aggregated data.
 =head2 _sort_table
 
 Method which sorts the aggregated data into descending order
-by the total number of points.
+by the total number of points or the average number of points.
+
+The ordering is set by the value returned by 
+get_configuration->get_calculation( -order_by => "Y" ).
+This can be "totalpts" or "average".
+
+The default is "totalpts".
 
 The sorted data in placed in a new list.
 
@@ -340,31 +411,49 @@ This method returns a reference to the table of sorted data.
     return $self->{SORTED_TABLE};
   }
 
-=head2 gather_data
+=head2 _retrieve_week_results_for_division
+
+This retrieves the list of WekkResults objects for the division and
+calls _set_week_results_list.
 
 =cut
 
   #***************************************
-  sub gather_data {
+  sub _retrieve_week_results_for_division {
 
     #***************************************
     my $self = shift;
-    my $files;
 
-    $files = $self->get_store_model->get_all_week_results_for_division( $self->get_division );
+    $self->_set_week_results_list(
+      $self->get_store_model->get_all_week_results_for_division( $self->get_division ) );
 
-    if ( scalar(@$files) == 0 ) {
-      $self->logger->debug(
-        "No week files found. Cannot produce table. Use teams in fixture list.");
+    return 1;
+  }
 
-      my $csv = $self->get_division;
-      $self->_set_sorted_table(
-        $self->get_fixtures_model->set_full_filename( $self->build_csv_path . "/$csv" )
-          ->get_all_teams );
-    }
-    else {
-      $self->{WEEKDATA} = $files;
-    }
+=head2 _retrieve_teams_for_division
+
+This method retrieves the teams for the division 
+from the fixture list and calls _set_sorted_table.
+
+Assumes the list is pre-sorted by team name.
+
+=cut
+
+  #***************************************
+  sub _retrieve_teams_for_division {
+
+    #***************************************
+    my $self = shift;
+
+    $self->logger->debug("Use teams in fixture list.");
+
+    my $csv = $self->get_division;
+    $self->_set_sorted_table(
+      $self->get_fixtures_model->set_full_filename(
+        $self->get_store_model->build_csv_path . "/$csv"
+      )->get_all_teams
+    );
+
     return 1;
   }
 
@@ -407,6 +496,19 @@ Returns the Model::Store object.
     my $self = shift;
     return $self->{store_model};
   }
+
+=head1 UML
+
+=head2 Activity Diagram
+
+=begin HTML
+
+<p><img src="http://www.results_system_nfcca_uml.com/activity_diagram_model_league_table.jpeg"
+width="1000" height="500" alt="UML" /></p>
+
+=end HTML
+
+=cut
 
   1;
 
