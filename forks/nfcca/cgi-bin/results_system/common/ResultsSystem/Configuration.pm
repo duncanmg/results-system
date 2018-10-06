@@ -362,6 +362,15 @@ sub set_csv_file {
   return $self;
 }
 
+=head2 get_csv_file
+
+=cut
+
+sub get_csv_file {
+  my $self = shift;
+  return $self->{csv_file};
+}
+
 =head3 get_csv_full_filename
 
 Return the full path and filename of the csv file for the
@@ -373,7 +382,7 @@ Returns undef if either the csv file or the path is not set.
 
 sub get_csv_full_filename {
   my ($self) = validate_pos( @_, 1 );
-  my $f = $self->_get_csv_file;
+  my $f = $self->get_csv_file;
   my $p = $self->get_path( -csv_files_with_season => 1 );
   return if !( $f && $p );
   return $p . '/' . $f;
@@ -420,7 +429,7 @@ eg /results_system/forks/nfcca/results_system/fixtures/nfcca/2016/U9N_11-May.dat
 sub get_results_full_filename {
   my ($self) = validate_pos( @_, 1 );
 
-  my $f = $self->_get_csv_file || '';
+  my $f = $self->get_csv_file || '';
   $f =~ s/\.csv$//x;
 
   my $m = $self->_get_matchdate;
@@ -850,15 +859,6 @@ sub _construct_path {
   $path =~ s://:/:xg;    # Change // to /.
 
   return $path;
-}
-
-=head2 _get_csv_file
-
-=cut
-
-sub _get_csv_file {
-  my $self = shift;
-  return $self->{csv_file};
 }
 
 =head2 _get_matchdate
