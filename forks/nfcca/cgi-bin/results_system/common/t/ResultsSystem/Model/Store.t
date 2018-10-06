@@ -22,4 +22,7 @@ is( scalar( grep { ref( $all_fixture_lists->{$_} ) ne 'ARRAY' } keys %$all_fixtu
   0, 'Got a hash ref of list refs' )
   || diag( Dumper $all_fixture_lists);
 
+is( ref( $store->get_all_week_results_for_division('U9.csv') ),
+  'ARRAY', 'get_all_week_results_for_division returns array ref' );
+
 done_testing;

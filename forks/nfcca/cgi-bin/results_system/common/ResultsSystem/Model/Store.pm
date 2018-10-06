@@ -151,8 +151,7 @@ sub get_all_week_results_for_division {
 
   my $files = $self->_get_all_week_files($csv_file);
 
-  $self->_extract_data($files);
-  return 1;
+  return $self->_extract_data($files);
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -234,8 +233,6 @@ sub build_csv_path {
 This method accepts a reference to a list of week files. It then loops
 through the files and creates a list of WeekResults objects. Each WeekResults
 object contains the data for one week.
-
-It returns an error code.
 
  $week_data_list = $lt->_extract_data( \@files );
 
