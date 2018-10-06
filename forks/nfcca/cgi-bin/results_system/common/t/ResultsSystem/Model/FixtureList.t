@@ -3,6 +3,8 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use Test::Differences;
+use List::MoreUtils qw/any/;
+use Data::Dumper;
 
 use Helper qw/ get_factory get_example_csv_full_filename /;
 
@@ -35,6 +37,27 @@ eq_or_diff(
   [ 'away', 'home' ],
   "First fixture has the correct keys"
 );
+
+ok( scalar( @{ $fl->get_all_teams } ) >= 2,
+  "get_all_teams returns array ref with at least 2 rows" );
+ok( !( any { ref($_) ne 'HASH' } @{ $fl->get_all_teams } ), "They are all hash refs" )
+  || diag( Dumper $fl->get_all_teams );
+ok(
+  ( !any { !$_->{team} } @{ $fl->get_all_teams } ),
+  "They all have the key 'team' set to a true value"
+) || diag( Dumper $fl->get_all_teams );
+
+my $is_sorted = sub {
+  my $list = shift;
+  my $p    = "";
+  for my $l (@$list) {
+    return if $l->{team} lt $p;
+    $p = $l->{team};
+  }
+  return 1;
+};
+
+ok( $is_sorted->( $fl->get_all_teams ), "Teams are sorted" ) || diag( Dumper $fl->get_all_teams );
 
 done_testing;
 

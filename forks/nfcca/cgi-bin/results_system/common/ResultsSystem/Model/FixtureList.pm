@@ -308,27 +308,17 @@ sub get_all_teams {
 
   # **************************************
   my ( $self, %args ) = (@_);
-  my ( @teams, @allteams, %h );
+  my ( @teams, @all_teams, %h );
 
-  # Get hash_ref containing all fixtures.
+  # List of lists. Inner list has 2 elements. Second element is hash ref.
   my $all_fixtures = $self->get_all_fixtures;
 
-  # Each key is a week which contains a list of fixtures.
-  foreach my $d ( keys(%$all_fixtures) ) {
+  my @list_of_hash_refs = map { @{ $_->[1] } } @$all_fixtures;
 
-    # Loop through the fixtures and add the teams to the list.
-    my $matches = $all_fixtures->{$d};
-    foreach my $m (@$matches) {
-
-      push @allteams, $m->{home};
-      push @allteams, $m->{away};
-
-    }
-
-  }
+  @all_teams = map { ( $_->{home}, $_->{away} ) } @list_of_hash_refs;
 
   # Sort and eliminate duplicates.
-  @teams = sort ( grep { ( ++$h{$_} == 1 ) || 0 } @allteams );
+  @teams = sort ( grep { ( ++$h{$_} == 1 ) || 0 } @all_teams );
 
   @teams = map( { { team => $_ } } @teams );
 
