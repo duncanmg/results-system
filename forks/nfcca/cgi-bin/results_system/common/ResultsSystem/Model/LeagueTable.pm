@@ -88,7 +88,7 @@ Returns a sorted array ref of hash refs.
 
 L</_retrieve_week_results_for_division>
 
-L</_retrieve_teams_for_division>
+L</_retrieve_teams_for_division_from_fixtures>
 
 L</_process_week_results_list>
 
@@ -113,7 +113,7 @@ L</_get_sorted_table>
 
     }
     else {
-      $self->_retrieve_teams_for_division;
+      $self->_retrieve_teams_for_division_from_fixtures;
     }
 
     return $self->_get_sorted_table;
@@ -488,7 +488,7 @@ calls _set_week_results_list.
     return 1;
   }
 
-=head2 _retrieve_teams_for_division
+=head2 _retrieve_teams_for_division_from_fixtures
 
 This method retrieves the teams for the division 
 from the fixture list and calls _set_sorted_table.
@@ -498,7 +498,7 @@ Assumes the list is pre-sorted by team name.
 =cut
 
   #***************************************
-  sub _retrieve_teams_for_division {
+  sub _retrieve_teams_for_division_from_fixtures {
 
     #***************************************
     my $self = shift;

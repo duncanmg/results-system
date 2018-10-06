@@ -29,7 +29,7 @@ ok( $lt->_retrieve_week_results_for_division, "_retrieve_week_results_for_divisi
 ok( scalar( @{ $lt->_get_week_results_list } ), "week_results_list has been populated" );
 
 ok( !scalar( @{ $lt->_get_sorted_table } ), "_get_sorted_table returns empty list" );
-ok( $lt->_retrieve_teams_for_division,      '_retrieve_teams_for_division' );
+ok( $lt->_retrieve_teams_for_division_from_fixtures,      '_retrieve_teams_for_division_from_fixtures' );
 
 ok( scalar( @{ $lt->_get_sorted_table } ) > 0, "_get_sorted_table returns at least 1 team." );
 
