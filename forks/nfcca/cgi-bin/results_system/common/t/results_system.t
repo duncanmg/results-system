@@ -102,7 +102,7 @@ sub test_post {
 
   validate( $hr->{url}, $content );
   like( $response->content, qr/$hr->{pattern}/xms, "Content matches pattern $hr->{pattern}" );
-  is( $response->code, ( $hr->{status_code} || 200 ), "Status code ok." );
+  is( $response->code, ( $hr->{status_code} || 200 ), "test_post: Status code ok." );
 }
 
 # ********************************************************************
@@ -117,7 +117,7 @@ sub test_get {
 # ********************************************************************
 sub validate {
   my ( $url, $content ) = @_;
-  ok( $validator->validate_direct_input($content), "$url returns valid HTML5" )
+  ok( $validator->validate_direct_input($content), "test_get: $url returns valid HTML5" )
     || do {
     print_errors( $validator->errors );
     print "\n\n" . $content;
