@@ -144,11 +144,17 @@ list of the WeekResults::Reader objects for the division.
 
 my $list = $self->get_all_week_results_for_division('U9.csv');
 
+my $list = $self->get_all_week_results_for_division();
+
+If the csv file is not provided, it will try the one in the configuration
+(get_configuration->get_csv_file).
+
 =cut
 
 sub get_all_week_results_for_division {
-  my ( $self, $csv_file ) = validate_pos( @_, 1, 1 );
+  my ( $self, $csv_file ) = validate_pos( @_, 1, 0 );
 
+  $csv_file ||= $self->get_configuration->get_csv_file;
   my $files = $self->_get_all_week_files($csv_file);
 
   return $self->_extract_data($files);
@@ -181,7 +187,7 @@ The method returns a reference to the list of week files.
 sub _get_all_week_files {
 
   #***************************************
-  my ( $self, $csv ) = validate_pos( @_, 1, 1 );
+  my ( $self, $csv ) = validate_pos( @_, 1, { regex => qr/^\w+\.csv$/x } );
   my ( $FP, @files );
 
   my $dir = $self->build_csv_path;

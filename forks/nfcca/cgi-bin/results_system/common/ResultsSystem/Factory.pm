@@ -593,17 +593,25 @@ sub get_save_results_model {
 
 =head3 get_league_table_model
 
+Returns a ResultsSystem::Model::LeagueTable object.
+
+If get_calculation( -order_by => 1 ) is set in the configuration, then the
+value is passed to the "set_order" method.
+
 =cut
 
 sub get_league_table_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::LeagueTable->new(
+  my $lt = ResultsSystem::Model::LeagueTable->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::LeagueTable' } ),
-      -configuration      => $self->get_configuration,
       -fixture_list_model => $self->get_fixture_list_model(),
       -store_model        => $self->get_store_model(),
     }
   );
+  if ( $self->get_configuration->get_calculation( -order_by => 1 ) ) {
+    $lt->set_order( $self->get_configuration->get_calculation( -order_by => 1 ) );
+  }
+  return $lt;
 }
 
 =head3 get_results_index_model

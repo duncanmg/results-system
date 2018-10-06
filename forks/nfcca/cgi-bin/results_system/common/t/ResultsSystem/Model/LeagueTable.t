@@ -18,18 +18,13 @@ my $lt;
 ok( $lt = $factory->get_league_table_model(), "Got an object" );
 isa_ok( $lt, 'ResultsSystem::Model::LeagueTable' );
 
-throws_ok( sub { $lt->get_division },
-  qr/DIVISION_NOT_SET/, 'Division is not set automatically. (Perhaps it should be!)' );
-
-ok( $lt->set_division($division), 'Set division' );
-is( $lt->get_division, $division, 'Division ok' );
-
 ok( $lt->_retrieve_week_results_for_division, "_retrieve_week_results_for_division" );
 
 ok( scalar( @{ $lt->_get_week_results_list } ), "week_results_list has been populated" );
 
 ok( !scalar( @{ $lt->_get_sorted_table } ), "_get_sorted_table returns empty list" );
-ok( $lt->_retrieve_teams_for_division_from_fixtures,      '_retrieve_teams_for_division_from_fixtures' );
+ok( $lt->_retrieve_teams_for_division_from_fixtures,
+  '_retrieve_teams_for_division_from_fixtures' );
 
 ok( scalar( @{ $lt->_get_sorted_table } ) > 0, "_get_sorted_table returns at least 1 team." );
 
@@ -39,15 +34,15 @@ ok( scalar( @{ $lt->_get_aggregated_data } ),
   "_get_aggregated_data array ref with at least 1 row" );
 
 is( $lt->_get_order, "average", "Order returned by config is 'average'" );
-$lt->_set_order(undef);
+$lt->set_order(undef);
 
 # is( $lt->_get_order, "total_pts", "Order defaults to 'total_pts'" );
-$lt->_set_order("invalid");
+$lt->set_order("invalid");
 is( $lt->_get_order,
   "totalpts", "Order cannot be set to anything other than 'average' or 'totalpts'" );
-$lt->_set_order("average");
+$lt->set_order("average");
 is( $lt->_get_order, "average", "average" );
-$lt->_set_order("totalpts");
+$lt->set_order("totalpts");
 is( $lt->_get_order, "totalpts", "totalpts" );
 
 $lt->_set_aggregated_data(
@@ -64,7 +59,7 @@ cmp_deeply(
   "Table is sorted by descending totalpts"
 );
 
-$lt->_set_order("average");
+$lt->set_order("average");
 
 $lt->_set_aggregated_data(
   [ { team => 'one', average => 2, totalpts => 7 },

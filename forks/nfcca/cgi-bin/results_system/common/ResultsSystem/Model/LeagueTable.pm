@@ -23,7 +23,6 @@ ResultsSystem::Model::LeagueTable
 =head1 SYNOPSIS
 
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
-                                                 -configuration => $configuration,
 						 -fixture_list_model => $f,
 						 -store_model => $store);
   $l->set_division( 'U9N.csv');
@@ -44,7 +43,7 @@ Each hash ref will always contain the key "team". If the structure is based on r
 hash ref will also contain keys such as "played", "won", "lost", "totalpts", "average".
 
 Tables based on results will be sorted by descending average or descending totalpts as determined
-by the configuration.
+by set_order().
 
 Tables based on fixtures will be sorted by descending team name.
 
@@ -65,7 +64,6 @@ L<ResultsSystem::Model>
 This is the constructor for a LeagueTable object.
 
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
-                                                 -configuration => $configuration
 						 -fixture_list_model => $f,
 						 -store_model => $wdm);
 =cut
@@ -77,7 +75,7 @@ This is the constructor for a LeagueTable object.
     my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
-    $self->set_arguments( [qw/ configuration logger fixture_list_model store_model/], $args );
+    $self->set_arguments( [qw/ logger fixture_list_model store_model/], $args );
 
     return $self;
   }
@@ -119,31 +117,16 @@ L</_get_sorted_table>
     return $self->_get_sorted_table;
   }
 
-=head2 set_division
+=head2 set_order
 
-Sets the .csv file for the division eg County1.csv.
+Set the ordering of the table, "average" or "totalpts".
 
 =cut
 
-  sub set_division {
+  sub set_order {
     my ( $self, $v ) = @_;
-    $self->{division} = $v;
+    $self->{order} = $v;
     return $self;
-  }
-
-=head2 get_division
-
-Returns the .csv file for the division eg County1.csv.
-
-This can be used to identify the week result files for the division.
-
-=cut
-
-  sub get_division {
-    my $self = shift;
-    croak( ResultsSystem::Exception->new( 'DIVISION_NOT_SET', 'The division has not been set.' ) )
-      if !$self->{division};
-    return $self->{division};
   }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -369,8 +352,7 @@ Method which returns a reference to the unsorted list of aggregated data.
 Method which sorts the aggregated data into descending order
 by the total number of points or the average number of points.
 
-The ordering is set by the value returned by 
-get_configuration->get_calculation( -order_by => "Y" ).
+The ordering is set by the value returned by get_order.
 This can be "totalpts" or "average".
 
 The default is "totalpts".
@@ -411,22 +393,9 @@ The sorted data is placed in a new list.
 
   }
 
-=head2 _set_order
-
-Just needed for testing.
-
-=cut
-
-  sub _set_order {
-    my ( $self, $v ) = @_;
-    $self->{order} = $v;
-    return $self;
-  }
-
 =head2 _get_order
 
-Returns the sort order, which defaults to the value returned by the configuration
-method get_calculation( -order_by => "Y" ).
+Returns the sort order. Defaults to "totalpts";
 
 Will only ever return "average" or "totalpts".
 
@@ -434,8 +403,7 @@ Will only ever return "average" or "totalpts".
 
   sub _get_order {
     my ( $self, $v ) = @_;
-    $self->{order} ||= $self->get_configuration->get_calculation( -order_by => "Y" );
-    $self->_set_order("totalpts") if ( ( $self->{order} || "" ) ne "average" );
+    $self->set_order("totalpts") if ( ( $self->{order} || "" ) ne "average" );
     return $self->{order};
   }
 
@@ -482,8 +450,7 @@ calls _set_week_results_list.
     #***************************************
     my $self = shift;
 
-    $self->_set_week_results_list(
-      $self->get_store_model->get_all_week_results_for_division( $self->get_division ) );
+    $self->_set_week_results_list( $self->get_store_model->get_all_week_results_for_division );
 
     return 1;
   }
@@ -505,12 +472,7 @@ Assumes the list is pre-sorted by team name.
 
     $self->logger->debug("Use teams in fixture list.");
 
-    my $csv = $self->get_division;
-    $self->_set_sorted_table(
-      $self->get_fixture_list_model->set_full_filename(
-        $self->get_store_model->build_csv_path . "/$csv"
-      )->get_all_teams
-    );
+    $self->_set_sorted_table( $self->get_fixture_list_model->get_all_teams );
 
     return 1;
   }
