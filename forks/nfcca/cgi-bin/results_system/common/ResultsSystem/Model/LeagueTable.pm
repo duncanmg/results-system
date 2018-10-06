@@ -24,7 +24,7 @@ ResultsSystem::Model::LeagueTable
 
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
                                                  -configuration => $configuration,
-						 -fixtures_model => $f,
+						 -fixture_list_model => $f,
 						 -store_model => $store);
   $l->set_division( 'U9N.csv');
   $l->create_league_table;
@@ -32,6 +32,21 @@ ResultsSystem::Model::LeagueTable
 =cut
 
 =head1 DESCRIPTION
+
+Returns an array ref of hash refs. Each hash ref represents the data for a team in the league table.
+
+The table is based on the results for the teams in that division over the whole season.
+
+If there aren't any results yet, the fixture list is interrogated for a list of teams
+and that is returned instead.
+
+Each hash ref will always contain the key "team". If the structure is based on results, each
+hash ref will also contain keys such as "played", "won", "lost", "totalpts", "average".
+
+Tables based on results will be sorted by descending average or descending totalpts as determined
+by the configuration.
+
+Tables based on fixtures will be sorted by descending team name.
 
 =cut
 
@@ -51,7 +66,7 @@ This is the constructor for a LeagueTable object.
 
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
                                                  -configuration => $configuration
-						 -fixtures_model => $f,
+						 -fixture_list_model => $f,
 						 -store_model => $wdm);
 =cut
 
@@ -62,16 +77,18 @@ This is the constructor for a LeagueTable object.
     my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
-    $self->set_arguments( [qw/ configuration logger fixtures_model store_model/], $args );
+    $self->set_arguments( [qw/ configuration logger fixture_list_model store_model/], $args );
 
     return $self;
   }
 
 =head2 create_league_table
 
+Returns a sorted array ref of hash refs.
+
 L</_retrieve_week_results_for_division>
 
-L<_retrieve_teams_for_division>
+L</_retrieve_teams_for_division>
 
 L</_process_week_results_list>
 
@@ -89,15 +106,15 @@ L</_get_sorted_table>
 
     $self->_retrieve_week_results_for_division();
 
-    if ( scalar( @{ $self->_set_week_results_list } ) ) {
+    if ( scalar( @{ $self->_get_week_results_list } ) ) {
       $self->_process_week_results_list;
+
+      $self->_sort_table;
 
     }
     else {
       $self->_retrieve_teams_for_division;
     }
-
-    $self->_sort_table;
 
     return $self->_get_sorted_table;
   }
@@ -171,7 +188,9 @@ Method which sets the list of WeekResults objects.
 This loops through the WeekResults objects and creates a data structure for
 the league table. The structure consists of an array of hash references.
 
- $err = $lt->_process_week_results_list;
+Always returns 1.
+
+  $lt->_process_week_results_list;
 
 =cut
 
@@ -187,7 +206,7 @@ the league table. The structure consists of an array of hash references.
 
     @table = @{ $self->_calculate_average_points( \@table ) };
 
-    $self->{AGGREGATED_DATA} = \@table;
+    $self->_set_aggregated_data( \@table );
 
     return 1;
   }
@@ -329,7 +348,20 @@ Method which returns a reference to the unsorted list of aggregated data.
 
     #***************************************
     my $self = shift;
-    return $self->{AGGREGATED_DATA};
+    return $self->{AGGREGATED_DATA} || [];
+  }
+
+=head2 _set_aggregated_data
+
+=cut
+
+  #***************************************
+  sub _set_aggregated_data {
+
+    #***************************************
+    my ( $self, $v ) = @_;
+    $self->{AGGREGATED_DATA} = $v;
+    return $self;
   }
 
 =head2 _sort_table
@@ -343,7 +375,7 @@ This can be "totalpts" or "average".
 
 The default is "totalpts".
 
-The sorted data in placed in a new list.
+The sorted data is placed in a new list.
 
   $err = $lt->_sort_table;
 
@@ -360,10 +392,7 @@ The sorted data in placed in a new list.
     croak( ResultsSystem::Exception->new( 'NO_AGGREGATED_DATA', 'No aggregated data to sort' ) )
       if !$table;
 
-    my $order = $self->get_configuration->get_calculation( -order_by => "Y" );
-    $order = "totalpts" if ( $order ne "average" );
-
-    my $sorter = make_sorter( 'ST', 'descending', number => '$_->{' . $order . '}' );
+    my $sorter = make_sorter( 'ST', 'descending', number => '$_->{' . $self->_get_order . '}' );
     croak( ResultsSystem::Exception->new( 'NO_SORTER', "Unable to create sorter. " . $@ ) )
       if !$sorter;
 
@@ -376,9 +405,38 @@ The sorted data in placed in a new list.
       ResultsSystem::Exception->new( 'BAD_SORT', "Unable to sort table. $@" . Dumper($table) ) );
     $self->{SORTED_TABLE} = \@sorted;
 
-    $self->logger->debug( "Table sorted by $order " . Dumper( $self->{SORTED_TABLE} ) );
+    $self->logger->debug(
+      "Table sorted by " . $self->_get_order . " " . Dumper( $self->{SORTED_TABLE} ) );
     return 1;
 
+  }
+
+=head2 _set_order
+
+Just needed for testing.
+
+=cut
+
+  sub _set_order {
+    my ( $self, $v ) = @_;
+    $self->{order} = $v;
+    return $self;
+  }
+
+=head2 _get_order
+
+Returns the sort order, which defaults to the value returned by the configuration
+method get_calculation( -order_by => "Y" ).
+
+Will only ever return "average" or "totalpts".
+
+=cut
+
+  sub _get_order {
+    my ( $self, $v ) = @_;
+    $self->{order} ||= $self->get_configuration->get_calculation( -order_by => "Y" );
+    $self->_set_order("totalpts") if ( ( $self->{order} || "" ) ne "average" );
+    return $self->{order};
   }
 
 =head2 _set_sorted_table
@@ -408,7 +466,7 @@ This method returns a reference to the table of sorted data.
 
     #***************************************
     my $self = shift;
-    return $self->{SORTED_TABLE};
+    return $self->{SORTED_TABLE} || [];
   }
 
 =head2 _retrieve_week_results_for_division
@@ -449,7 +507,7 @@ Assumes the list is pre-sorted by team name.
 
     my $csv = $self->get_division;
     $self->_set_sorted_table(
-      $self->get_fixtures_model->set_full_filename(
+      $self->get_fixture_list_model->set_full_filename(
         $self->get_store_model->build_csv_path . "/$csv"
       )->get_all_teams
     );
@@ -457,21 +515,21 @@ Assumes the list is pre-sorted by team name.
     return 1;
   }
 
-=head2 set_fixtures_model
+=head2 set_fixture_list_model
 
 =cut
 
-  sub set_fixtures_model {
+  sub set_fixture_list_model {
     my ( $self, $v ) = @_;
     $self->{fixtures} = $v;
     return $self;
   }
 
-=head2 get_fixtures_model
+=head2 get_fixture_list_model
 
 =cut
 
-  sub get_fixtures_model {
+  sub get_fixture_list_model {
     my $self = shift;
     return $self->{fixtures};
   }
