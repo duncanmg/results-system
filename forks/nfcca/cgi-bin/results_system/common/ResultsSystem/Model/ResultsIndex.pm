@@ -16,6 +16,12 @@ ResultsSystem::Model::ResultsIndex
 
 =head1 DESCRIPTION
 
+This returns an array of hash refs used to build an index of the results for each division
+and week.
+
+It accesses the fixtures, not the results, because it needs to know the planned dates for fixtures
+and well as those which have already been played.
+
 =cut
 
 =head1 INHERITS FROM
@@ -88,6 +94,18 @@ sub get_fixtures_model {
 
 This method returns all the divisions. 
 
+This method returns an array ref of hash refs.
+
+Each hash ref has three elements: division, menu_name and dates.
+
+  [
+      { 
+	division => 'U9N.csv',
+	menu_name => 'U9 North',
+	dates     => [ '1-Jun', '8-Jun' ]
+      }
+  ]
+
 =cut
 
 # *********************************************************
@@ -132,15 +150,6 @@ sub _get_division_date_list {
   my $res_file;
 
   my $fixtures = $self->get_fixtures_model;
-  eval {
-    $fixtures->set_full_filename("$dir/$file");
-    $fixtures->read_file;
-    1;
-  } || do {
-    my $err = $@;
-    $self->logger->warn($err);
-    return [];
-  };
 
   my $dates = $fixtures->get_date_list;
 
