@@ -59,6 +59,10 @@ sub new {
 
 =head2 run
 
+  $list = $ri->run();
+
+Returns the output of _get_divisions_list().
+
 =cut
 
 sub run {
@@ -99,11 +103,22 @@ This method returns an array ref of hash refs.
 Each hash ref has three elements: division, menu_name and dates.
 
   [
-      { 
+    { 
 	division => 'U9N.csv',
 	menu_name => 'U9 North',
-	dates     => [ '1-Jun', '8-Jun' ]
-      }
+	dates     => 
+        [ 
+          { 
+            'matchdate' => '8-Jun', 
+            'url' => '/results_system/custom/nfcca/2017/results/U9N_8-Jun.htm'
+          },
+          {
+            'matchdate' => '15-Jun', 
+            'url' => '/results_system/custom/nfcca/2017/results/U9N_15-Jun.htm'
+          }
+                   
+        ]
+    }
   ]
 
 =cut
@@ -139,6 +154,17 @@ sub _get_divisions_list {
 
 =head2 _get_division_date_list
 
+  [
+    { 
+      'matchdate' => '8-Jun', 
+      'url' => '/results_system/custom/nfcca/2017/results/U9N_8-Jun.htm'
+    },
+    {
+      'matchdate' => '15-Jun', 
+      'url' => '/results_system/custom/nfcca/2017/results/U9N_15-Jun.htm'
+    }
+  ]
+
 =cut
 
 # *********************************************************
@@ -168,6 +194,10 @@ sub _get_division_date_list {
 }
 
 =head2 _build_filename
+
+  $ri->_build_filename('U9N.csv', '8-Jun');
+
+Returns '/results_system/custom/nfcca/2017/results/U9N_8-Jun.htm'
 
 =cut
 

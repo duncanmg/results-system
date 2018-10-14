@@ -62,6 +62,62 @@ my $data = $self->run();
 
 Returns a hash ref with two keys: all_dates and menu_names.
 
+  0  '$VAR1 = {
+            \'all_dates\' => {
+                             \'U11Elevens.csv\' => [
+                                                 \'1-May\',
+                                                 \'8-May\',
+                                                 \'15-May\',
+                                                 \'22-May\',
+                                                 \'5-Jun\',
+                                                 \'12-Jun\',
+                                                 \'19-Jun\',
+                                                 \'26-Jun\',
+                                                 \'3-Jul\',
+                                                 \'10-Jul\'
+                                               ],
+                             \'U13Girls.csv\' => [
+                                               \'1-May\',
+                                               \'8-May\',
+                                               \'15-May\',
+                                               \'22-May\',
+                                               \'5-Jun\',
+                                               \'12-Jun\',
+                                               \'19-Jun\',
+                                               \'26-Jun\',
+                                               \'3-Jul\',
+                                               \'10-Jul\'
+                                             ],
+                             \'U17.csv\' => [
+                                          \'1-May\',
+                                          \'8-May\',
+                                          \'15-May\',
+                                          \'22-May\',
+                                          \'5-Jun\',
+                                          \'12-Jun\',
+                                          \'19-Jun\',
+                                          \'26-Jun\',
+                                          \'3-Jul\',
+                                          \'10-Jul\'
+                                        ],
+                           },
+  
+            \'menu_names\' => \'if ( typeof( menu_names ) == "undefined" ) 
+              { menu_names = new Array(); }
+            if ( typeof( csv_files ) == "undefined" ) { csv_files = new Array(); }
+            
+            menu_names.push( "U11 Elevens" );
+            csv_files.push( "U11Elevens.csv" );
+            
+            menu_names.push( "U17" );
+            csv_files.push( "U17.csv" );
+            
+            menu_names.push( "U13 Girls" );
+            csv_files.push( "U13Girls.csv" );
+            \'
+              };
+      '
+    
 =cut
 
 # ******************************************************
@@ -75,7 +131,7 @@ sub run {
 }
 
 =head2 set_store_model
-
+    
 =cut
 
 sub set_store_model {
@@ -131,6 +187,8 @@ Returns a string containing the javascript for two arrays: menu_names and csv_fi
 
   menu_names.push( "U9S" );
   csv_files.push( "U9S.csv" );
+
+(Some of this should be in the view.)
 
 =cut
 
