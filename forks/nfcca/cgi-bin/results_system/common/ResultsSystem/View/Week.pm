@@ -88,9 +88,7 @@ sub create_table_rows {
 
   my $table = "";
   my $i     = 0;
-  for ( my $r = 0; $r < 10; $r++ ) {
-
-    last if !$rows->[$i];
+  while ( $rows->[$i] ) {
 
     $table .= $self->merge_content( $self->get_row_html, $rows->[$i] );
     $i++;

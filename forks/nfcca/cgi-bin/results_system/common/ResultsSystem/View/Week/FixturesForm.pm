@@ -183,9 +183,8 @@ sub create_table_rows {
   my $table   = "";
   my $i       = 0;
   my $matchno = 0;
-  for ( my $r = 0; $r < 10; $r++ ) {
+  while ( $rows->[$i] ) {
     my $r = $rows->[$i];
-    last if !$r;
 
     $r->{ha}        = 'home';
     $r->{matchno}   = $matchno;
