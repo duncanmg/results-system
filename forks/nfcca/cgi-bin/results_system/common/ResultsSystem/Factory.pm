@@ -622,8 +622,8 @@ sub get_results_index_model {
   my ( $self, $args ) = @_;
   return ResultsSystem::Model::ResultsIndex->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::ResultsIndex' } ),
-      -configuration      => $self->get_configuration,
       -fixture_list_model => $self->get_fixture_list_model(),
+      -store_model        => $self->get_store_model(),
     }
   );
 }

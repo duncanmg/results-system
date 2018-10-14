@@ -160,11 +160,72 @@ sub get_all_week_results_for_division {
   return $self->_extract_data($files);
 }
 
+=head2 get_dates_and_result_filenames_for_division
+
+  $store->get_dates_and_result_filenames_for_division('U9N.csv'),
+
+Should return
+
+  [ { file =>
+        '/home/duncan/git/results_system/forks/nfcca/results_system/' 
+        . 'fixtures/nfcca/2017/U9N_1-May.dat',
+      matchdate => '1-May'
+    },
+    { file =>
+        '/home/duncan/git/results_system/forks/nfcca/results_system/' 
+        . 'fixtures/nfcca/2017/U9N_8-May.dat',
+      matchdate => '8-May'
+    },
+    { file =>
+        '/home/duncan/git/results_system/forks/nfcca/results_system/' 
+        . 'fixtures/nfcca/2017/U9N_15-May.dat',
+      matchdate => '15-May'
+    }
+  ],
+
+=cut
+
+sub get_dates_and_result_filenames_for_division {
+  my ( $self, $csv_file ) = validate_pos( @_, 1, { regex => qr/\.csv$/x } );
+  my $files           = $self->_get_all_week_files($csv_file);
+  my $files_and_dates = [];
+  foreach my $f (@$files) {
+    my $d = $self->_extract_date_from_result_filename($f);
+    push( @$files_and_dates, { 'matchdate' => $d, 'file' => $f } );
+  }
+  return $files_and_dates;
+}
+
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
 
+=head2 _extract_date_from_result_filename
+
+  $self->_extract_date_from_result_filename('County1_28-Jun.dat');
+
+Should return '28-Jun'.
+
+=cut
+
+sub _extract_date_from_result_filename {
+  my ( $self, $result_filename ) = validate_pos( @_, 1, { regex => qr/\.dat$/x } );
+  my ($d) = $result_filename =~ m/_(\d{1,2}\D[A-Z][a-z]{2})\.dat$/x;
+  croak(
+    ResultsSystem::Exception->new(
+      'BAD_RESULTS_FILENAME', "Could not extract date from $result_filename"
+    )
+  ) if !$d;
+  return $d;
+}
+
 =head2 _get_all_week_files
+
+This method returns a list of the result files for a given division. The division is
+specified by passing the csv filename eg 'U9N.csv'.
+
+The files are list in the order returned by the directory list command. On Linux, this will
+normally be alphanumeric.
 
 Reads all the files in the csv directory specified in the configuration. It then loads all those
 that match the specified pattern into a list.
@@ -179,7 +240,7 @@ Thus the pattern for "County1.csv" is "County1_".
 
 The method returns a reference to the list of week files.
 
-  $list_ref = $lt->_get_all_week_files();
+  $list_ref = $lt->_get_all_week_files('U9N.csv');
 
 =cut
 

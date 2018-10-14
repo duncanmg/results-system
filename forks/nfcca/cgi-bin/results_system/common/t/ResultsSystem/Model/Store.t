@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Exception;
+use Test::Differences;
 use Data::Dumper;
 
 use Helper qw/get_factory/;
@@ -24,5 +25,63 @@ is( scalar( grep { ref( $all_fixture_lists->{$_} ) ne 'ARRAY' } keys %$all_fixtu
 
 is( ref( $store->get_all_week_results_for_division('U9.csv') ),
   'ARRAY', 'get_all_week_results_for_division returns array ref' );
+
+eq_or_diff(
+  $store->_get_all_week_files('U9N.csv'),
+  [ '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_1-May.dat',
+    '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_8-May.dat',
+    '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_15-May.dat'
+  ],
+  "_get_all_week_files"
+);
+
+is(
+  '28-Jun',
+  $store->_extract_date_from_result_filename('County1_28-Jun.dat'),
+  '_extract_date_from_result_filename with County1_28-Jun.dat'
+);
+
+is(
+  '28-Jun',
+  $store->_extract_date_from_result_filename('/with/path/County1_28-Jun.dat'),
+  '_extract_date_from_result_filename with County1_28-Jun.dat'
+);
+
+is(
+  '2-Jun',
+  $store->_extract_date_from_result_filename('/with/path/County1_2-Jun.dat'),
+  '_extract_date_from_result_filename with County1_2-Jun.dat'
+);
+
+throws_ok(
+  sub { $store->_extract_date_from_result_filename('/with/path/County1_28-Jun.csv') },
+  qr/did\snot\spass\sregex\scheck/x,
+  "_extract_date_from_result_filename won't accept csv file"
+);
+
+throws_ok( sub { $store->_extract_date_from_result_filename('/with/path/County1_28-June.dat') },
+  qr/BAD_RESULTS_FILENAME/x,
+  "_extract_date_from_result_filename. Month must have three letters." );
+
+throws_ok( sub { $store->_extract_date_from_result_filename('/with/path/County1_X-June.dat') },
+  qr/BAD_RESULTS_FILENAME/x, "_extract_date_from_result_filename. Day of month must be digits." );
+
+eq_or_diff(
+  $store->get_dates_and_result_filenames_for_division('U9N.csv'),
+  [ { file =>
+        '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_1-May.dat',
+      matchdate => '1-May'
+    },
+    { file =>
+        '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_8-May.dat',
+      matchdate => '8-May'
+    },
+    { file =>
+        '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_15-May.dat',
+      matchdate => '15-May'
+    }
+  ],
+  "get_dates_and_result_filenames_for_division"
+);
 
 done_testing;

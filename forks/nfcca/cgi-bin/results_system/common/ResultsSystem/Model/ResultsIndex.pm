@@ -52,7 +52,7 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->set_arguments( [qw/ logger configuration fixtures_model /], $args );
+  $self->set_arguments( [qw/ logger fixtures_model store_model /], $args );
 
   return $self;
 }
@@ -88,6 +88,25 @@ sub set_fixtures_model {
 sub get_fixtures_model {
   my $self = shift;
   return $self->{fixtures_model};
+}
+
+=head2 set_store_model
+
+=cut
+
+sub set_store_model {
+  my ( $self, $v ) = @_;
+  $self->{store_model} = $v;
+  return $self;
+}
+
+=head2 get_store_model
+
+=cut
+
+sub get_store_model {
+  my $self = shift;
+  return $self->{store_model};
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -129,16 +148,13 @@ sub _get_divisions_list {
   # *********************************************************
   my $self = shift;
 
-  my $c     = $self->get_configuration;
-  my @names = $c->get_menu_names;
+  my @names = $self->get_store_model->get_menu_names;
   $self->logger->debug( scalar(@names) . " divisions to be listed." );
-
-  my $d = $c->get_path( -csv_files_with_season => "Y" );
 
   my $out = [];
   foreach my $division (@names) {
 
-    my $dates = $self->_get_division_date_list( $d, $division->{csv_file} );
+    my $dates = $self->_get_division_date_list( $division->{csv_file} );
     push @$out,
       {
       division  => $division->{csv_file},
@@ -171,48 +187,13 @@ sub _get_divisions_list {
 sub _get_division_date_list {
 
   # *********************************************************
-  my ( $self, $dir, $file ) = validate_pos( @_, 1, 1, 1 );
+  my ( $self, $csv_file ) = validate_pos( @_, 1, 1 );
 
-  my $res_file;
+  my $dates_and_files =
+    $self->get_store_model->get_dates_and_result_filenames_for_division($csv_file);
 
-  my $fixtures = $self->get_fixtures_model;
+  return $dates_and_files;
 
-  my $dates = $fixtures->get_date_list;
-
-  my $out = [];
-  foreach my $d (@$dates) {
-
-    $res_file = $self->_build_filename( $file, $d );
-
-    push @$out, { 'matchdate' => $d, 'url' => $res_file };
-  }
-
-  $self->logger->debug( "$dir/$file contains " . scalar(@$out) . " dates." );
-
-  return $out;
-
-}
-
-=head2 _build_filename
-
-  $ri->_build_filename('U9N.csv', '8-Jun');
-
-Returns '/results_system/custom/nfcca/2017/results/U9N_8-Jun.htm'
-
-=cut
-
-sub _build_filename {
-  my ( $self, $division, $week ) = validate_pos( @_, 1, { type => SCALAR }, { type => SCALAR } );
-
-  my $c = $self->get_configuration;
-  my $dir = $c->get_path( -results_dir => "Y", -allow_not_exists => 'Y' );
-
-  my $f = $division;    # The csv file
-  my $w = $week;        # The csv file
-  $f =~ s/\..*$//x;     # Remove extension
-  $f = "$dir/${f}_$w.htm";    # Add the path
-
-  return $f;
 }
 
 1;
