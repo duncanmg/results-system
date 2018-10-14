@@ -44,7 +44,7 @@ ResultsSystem::Model
     my $self = {};
     bless $self, $class;
 
-    $self->set_arguments( [qw/ configuration logger /], $args );
+    $self->set_arguments( [qw/ configuration logger store_model/], $args );
 
     return $self;
   }
@@ -70,7 +70,7 @@ Returns
     my $out = { divisions => [] };
 
     my $c     = $self->get_configuration;
-    my @names = $c->get_menu_names;
+    my @names = $self->_get_store_model->get_menu_names;
     $self->logger->debug( scalar(@names) . " divisions to be listed." );
 
     $out->{title} =
@@ -92,6 +92,16 @@ Returns
 
   }
 
+=head2 set_store_model
+
+=cut
+
+  sub set_store_model {
+    my ( $self, $v ) = @_;
+    $self->{store_model} = $v;
+    return $self;
+  }
+
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
@@ -109,6 +119,15 @@ Returns
     $file =~ s/\.csv$/\.htm/x;
 
     return $file;
+  }
+
+=head2 _get_store_model
+
+=cut
+
+  sub _get_store_model {
+    my ( $self, $v ) = @_;
+    return $self->{store_model};
   }
 
   1;

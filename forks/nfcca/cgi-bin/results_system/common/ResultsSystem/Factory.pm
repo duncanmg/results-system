@@ -637,6 +637,7 @@ sub get_tables_index_model {
   return ResultsSystem::Model::TablesIndex->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::TablesIndex' } ),
       -configuration => $self->get_configuration,
+      -store_model   => $self->get_store_model(),
     }
   );
 }
