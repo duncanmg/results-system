@@ -11,6 +11,23 @@ ResultsSystem::View::ResultsIndex
 
 =head1 DESCRIPTION
 
+This renders the HTML for the results index.
+
+There is a heading for each division and a table which contains links to the
+results pages.
+
+The labels for the links are dates of the form DD-Mon.
+
+The links are only shown if the results page exists.
+
+Thus at the beginning of the season, each table will contain a single
+cell with the label "No results yet".
+
+After one week, each table will contain one cell with a label such as '1-May'.
+
+The table will gradually grow and each row can have up to 6 columns. The number of
+rows is not limited.
+
 =cut
 
 =head1 INHERITS FROM
@@ -29,9 +46,12 @@ use strict;
 use warnings;
 use Params::Validate qw/:all/;
 use Data::Dumper;
+use List::Util qw/min/;
 
 use ResultsSystem::View;
 use parent qw/ResultsSystem::View/;
+
+my $NUM_COLS = 6;
 
 =head2 new
 
@@ -76,7 +96,8 @@ sub run {
       SEASON          => $c->get_descriptors( -season => "Y" ),
       CONTENT         => $all_divisions_html,
       RETURN_TO_LINK  => $l,
-      RETURN_TO_TITLE => $t
+      RETURN_TO_TITLE => $t,
+      NUM_COLS        => $NUM_COLS,
     }
   );
 
@@ -98,9 +119,16 @@ sub run {
 sub process_division {
   my ( $self, $div ) = validate_pos( @_, 1, { type => HASHREF } );
 
-  my $max_width = 6;
-  my $data      = $div->{dates};
-  my $blocks    = $self->blocks( $data, $max_width, { matchdate => '&nbsp;', url => "" } );
+  my $dates = $div->{dates};
+
+  my $max_width = min( scalar(@$dates), $NUM_COLS );
+  $max_width = 1 if !$max_width;
+
+  my $blocks =
+    scalar(@$dates)
+    ? $self->blocks( $dates, $max_width, { matchdate => '&nbsp;', url => "" } )
+    : $self->blocks( [ { matchdate => 'No results yet', url => "" } ],
+    $max_width, { matchdate => '&nbsp;', url => "" } );
 
   my $html = "";
   foreach my $block (@$blocks) {
@@ -153,7 +181,10 @@ sub blocks {
 sub get_heading_html {
   return <<'HTML';
         <h1>[% TITLE %] - [% SEASON %]</h1>
+        <h1>Index of the Results by Match Date and Division</h1>
         <p><a href="[% RETURN_TO_LINK %]"/>[% RETURN_TO_TITLE %]</a></p>
+	<!-- The dates for each division are in a table with a maximum of [% NUM_COLS %] columns -->
+        <!-- Each cell will contain a link with a label of the form DD-Mon. -->
 	[% CONTENT %]
 HTML
 }
