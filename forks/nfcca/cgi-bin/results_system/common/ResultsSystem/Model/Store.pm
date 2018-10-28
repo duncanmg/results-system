@@ -221,7 +221,7 @@ sub _extract_date_from_result_filename {
 
 =head2 _get_all_week_files
 
-This method returns a list of the result files for a given division. The division is
+This method returns a list of the result files and their paths for a given division. The division is
 specified by passing the csv filename eg 'U9N.csv'.
 
 The files are list in the order returned by the directory list command. On Linux, this will
@@ -241,6 +241,12 @@ Thus the pattern for "County1.csv" is "County1_".
 The method returns a reference to the list of week files.
 
   $list_ref = $lt->_get_all_week_files('U9N.csv');
+
+  {
+    "/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_1-May.dat"
+    "/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_8-May.dat"
+    "/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_15-May.dat"
+  }
 
 =cut
 

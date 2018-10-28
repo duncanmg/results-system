@@ -620,12 +620,20 @@ sub get_league_table_model {
 
 sub get_results_index_model {
   my ( $self, $args ) = @_;
-  return ResultsSystem::Model::ResultsIndex->new(
+
+  my $ri = ResultsSystem::Model::ResultsIndex->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Model::ResultsIndex' } ),
-      -fixture_list_model => $self->get_fixture_list_model(),
-      -store_model        => $self->get_store_model(),
+      -store_model => $self->get_store_model(),
     }
   );
+
+  my $conf = $self->get_configuration;
+  $ri->set_results_dir( $conf->get_path( results_dir => 'Y' ) )
+    if $conf->get_path( results_dir => 'Y' );
+  $ri->set_results_dir_full( $conf->get_path( results_dir_full => 'Y' ) )
+    if $conf->get_path( results_dir_full => 'Y' );
+
+  return $ri;
 }
 
 =head3 get_tables_index_model
