@@ -39,7 +39,7 @@ ResultsSystem::View
 This is the constructor for a LeagueTable object. It inherits from ResultsSystem::View.
 
  my $l = LeagueTable->new( { -logger => $l, -configuration => $c } );
- $err = $l->create_league_table_file;
+ $lt->run({-data => $data});
 
 =cut
 
@@ -60,7 +60,7 @@ This is the constructor for a LeagueTable object. It inherits from ResultsSystem
 
 =head2 run
 
-  my $lt->run({-data => $data});
+  $lt->run({-data => $data});
 
 =cut
 
