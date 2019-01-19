@@ -36,11 +36,9 @@ ResultsSystem::View
 
 =head2 new
 
-This is the constructor for a LeagueTable object. It inherits from Parent.pm, so it can
-accept the standard arguments of a Parent object. The two most important are -query and
--config.
+This is the constructor for a LeagueTable object. It inherits from ResultsSystem::View.
 
- my $l = LeagueTable->new( -query => $q, -config => $c );
+ my $l = LeagueTable->new( { -logger => $l, -configuration => $c } );
  $err = $l->create_league_table_file;
 
 =cut
@@ -104,7 +102,7 @@ accept the standard arguments of a Parent object. The two most important are -qu
       { TABLE_ROWS        => $html,
         DESCRIPTOR        => $c->get_descriptors( -title => "Y" ),
         SEASON            => $c->get_descriptors( -season => "Y" ),
-        TIMESTAMP         => localtime() . "",
+        TIMESTAMP         => $args->{-data}->{timestamp} || localtime() . "",
         DIVISION          => $args->{-data}->{division},
         TABLES_INDEX_HREF => $p,
       }

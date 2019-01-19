@@ -3,21 +3,15 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use Test::Deep;
-
+use Test::Differences;
+use DateTime::Tiny;
 use Data::Dumper;
 use Clone qw/clone/;
 
 use_ok('ResultsSystem::View::LeagueTable');
 use_ok('ResultsSystem');
 
-#ok(
-#  $ARGV[0] || $ENV{NFCCA_CONFIG},
-#  "Got a filename in ARGV. <"
-#    . ( $ARGV[0] || "" )
-#    . "> or NFCCA_CONFIG is set. <"
-#    . ( $ENV{NFCCA_CONFIG} || "" ) . ">"
-#) || die "Unable to continue.";
-#my $file = $ARGV[0] || $ENV{NFCCA_CONFIG};
+my $now = DateTime::Tiny->now() . '';
 
 my ( $rs, $f, $lt );
 
@@ -32,77 +26,109 @@ isa_ok( $f, 'ResultsSystem::Factory' );
 ok( $lt = $f->get_league_table_view, "Got LeagueTable" );
 isa_ok( $lt, 'ResultsSystem::View::LeagueTable' );
 
-my $expected = [
-  { team         => 'A',
-    'played'     => 3,
-    'won'        => 2,
-    'tied'       => 1,
-    'lost'       => 0,
-    'battingpts' => 10,
-    'bowlingpts' => 5,
-    'penaltypts' => 1,
-    'totalpts'   => 20
-  },
-  { team         => 'b',
-    'played'     => 4,
-    'won'        => 3,
-    'tied'       => 1,
-    'lost'       => 0,
-    'battingpts' => 11,
-    'bowlingpts' => 6,
-    'penaltypts' => 0,
-    'totalpts'   => 15
-  },
-];
+my $data = {
+  -data => {
+    rows => [
+      { team         => 'A',
+        'played'     => 3,
+        'won'        => 2,
+        'tied'       => 1,
+        'lost'       => 0,
+        'battingpts' => 10,
+        'bowlingpts' => 5,
+        'penaltypts' => 1,
+        'totalpts'   => 20,
+        'average'    => 20 / 3,
+      },
+      { team         => 'b',
+        'played'     => 4,
+        'won'        => 3,
+        'tied'       => 1,
+        'lost'       => 0,
+        'battingpts' => 11,
+        'bowlingpts' => 6,
+        'penaltypts' => 0,
+        'totalpts'   => 15,
+        'average'    => 15 / 4,
+      },
+    ],
+    division  => 'U9N.csv',
+    timestamp => $now,
+  }
+};
 
-$lt->run( { -data => { rows => $expected, division => 'U9N.csv' } } );
+my $expected = <<HTML;
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset="UTF-8">
+<!--***************************************************************
+*
+*       Copyright Duncan Garland Consulting Ltd 2003-2008. All rights reserved.
+*       Copyright Duncan Garland 2008-2018. All rights reserved.
+*
+****************************************************************-->
 
-# ok( $lt->set_division('U9N.csv'), "Set division" );
-# is( $lt->get_division, 'U9N.csv', "Get division" );
-#
-# my $num_files = scalar( @{ $lt->_get_all_week_files } );
-# ok( $num_files, "Got at least one data file " . $num_files );
-#
-# ok( $lt->gather_data, "gather_data" );
-#
-# is( scalar( @{ $lt->{WEEKDATA} } ),
-#   $num_files, "Got a week data object for each week data file." );
-#
-# ok( $lt->_process_data, "_process_data" );
-#
-# my $data = $lt->_get_aggregated_data;
-# is( ref($data), "ARRAY", "_get_aggregated_data returns an array ref" );
-#
-# my $expected_keys = 11;
-# foreach my $d (@$data) {
-#   is( ref($d), "HASH", "It is an array ref of hash refs" );
-#   my $num_keys = keys(%$d);
-#   is( $num_keys, $expected_keys, "It has the correct number of keys" ) || diag( Dumper $d);
-# }
-#
-# ok( $lt->_sort_table, "Sort_table" );
-#
-# my $sorted_table = [];
-# ok( $sorted_table = $lt->_get_sorted_table, "_get_sorted_table" );
-# ok( scalar(@$sorted_table) > 1, "Sorted table has at least 2 rows" )
-#   || diag( Dumper $sorted_table);
-#
-# my $lastpts = 999999;
-# foreach my $l (@$sorted_table) {
-#   ok( $l->{totalpts} <= $lastpts,
-#     "Table is in descending order by total points. " . $l->{totalpts} );
-#   $lastpts = $l->{totalpts};
-# }
-#
-# #++++++++++++++++++++++++++++++++++
-#
-# my $old_table = clone $sorted_table;
-#
-# isa_ok( $lt, 'ResultsSystem::Model::LeagueTable' );
-#
-# ok( $lt->set_division('U9N.csv'), "Set division" );
-# is( $lt->get_division, 'U9N.csv', "Get division" );
-# my $data = $lt->create_league_table;
-# is_deeply($data, $old_table, "Get the same table when I run it all at once");
+<title>Results System</title>
+<link rel="stylesheet" type="text/css" href="/results_system/custom/nfcca/nfcca_styles.css" />
+
+
+<script src="/results_system/common/common.js"></script>
+
+</head>
+  <body>
+  
+<h1>New Forest Colts Cricket Association 2017</h1>
+<h2>Division: U9N</h2>
+<p><a href="/cgi-bin/results_system/common/results_system.pl?page=tables_index&system=nfcca">Return to Tables Index</a></p>
+
+<table class="league_table">
+<tr>
+<th class="teamcol">Team</th>
+<th>Played</th>
+<th>Won</th>
+<th>Tied</th>
+<th>Lost</th>
+<th>Batting Pts</th>
+<th>Bowling Pts</th>
+<th>Penalty Pts</th>
+<th>Total</th>
+<th>Average</th>
+</tr>
+\t<tr>
+\t<td class="teamcol">A</td>
+\t<td>3</td>
+\t<td>2</td>
+\t<td>1</td>
+\t<td>0</td>
+\t<td>10</td>
+\t<td>5</td>
+\t<td>1</td>
+\t<td>20</td>
+\t<td>6.66666666666667</td>
+\t</tr>
+\t<tr>
+\t<td class="teamcol">b</td>
+\t<td>4</td>
+\t<td>3</td>
+\t<td>1</td>
+\t<td>0</td>
+\t<td>11</td>
+\t<td>6</td>
+\t<td>0</td>
+\t<td>15</td>
+\t<td>3.75</td>
+\t</tr>
+
+</table>
+<p class="timestamp">$now</p>
+
+  </body>
+</html>
+HTML
+
+lives_ok( sub { $lt->run($data); }, 'run method lives' );
+
+eq_or_diff( sprintf( "%s", $lt->create_document($data) ), $expected );
 
 done_testing;
