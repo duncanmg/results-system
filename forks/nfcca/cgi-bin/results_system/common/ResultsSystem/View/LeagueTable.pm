@@ -54,6 +54,8 @@ This is the constructor for a LeagueTable object. It inherits from ResultsSystem
 
     $self->set_logger( $args->{-logger} )               if $args->{-logger};
     $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
+    $self->set_table_html_full_filename( $args->{-table_html_full_filename} )
+      if $args->{-table_html_full_filename};
 
     return $self;
   }
@@ -87,8 +89,6 @@ This is the constructor for a LeagueTable object. It inherits from ResultsSystem
     }
 
     my $html = $self->merge_array( $self->get_row_html, $args->{-data}->{rows} );
-
-    $self->set_division( $args->{-data}->{division} );
 
     $args->{-data}->{division} =~ s/\.csv//x;
 
@@ -209,7 +209,7 @@ to the directory given by "table_dir" in the configuration file.
     #***************************************
     my ( $self, $line ) = validate_pos( @_, 1, { type => SCALAR } );
 
-    my $f = $self->build_full_filename;
+    my $f = $self->get_table_html_full_filename;
 
     my $error = sub {
       my $err = shift;
@@ -231,45 +231,25 @@ to the directory given by "table_dir" in the configuration file.
 
 =cut
 
-=head2 build_full_filename
+=head2 set_table_html_full_filename
 
 =cut
 
-  sub build_full_filename {
-    my ( $self, $data ) = @_;
-
-    my $c = $self->get_configuration;
-    my $dir = $c->get_path( -table_dir_full => "Y" );
-    croak(
-      ResultsSystem::Exception->new(
-        'DIR_DOES_NOT_EXIST', "Table directory $dir does not exist."
-      )
-    ) if !-d $dir;
-
-    my $f = $self->get_division;    # The csv file
-    $f =~ s/\..*$/\.htm/x;          # Change the extension to .htm
-    $f = "$dir/$f";                 # Add the path
-
-    return $f;
-  }
-
-=head2 set_division
-
-=cut
-
-  sub set_division {
+  sub set_table_html_full_filename {
     my ( $self, $v ) = @_;
-    $self->{division} = $v;
+    $self->{table_html_full_filename} = $v;
     return $self;
   }
 
-=head2 get_division
+=head2 get_table_html_full_filename
 
 =cut
 
-  sub get_division {
+  sub get_table_html_full_filename {
     my ($self) = @_;
-    return $self->{division};
+    croak( ResultsSystem::Exception->new( "MISSING", "table_html_full_filename not set." ) )
+      if !$self->{table_html_full_filename};
+    return $self->{table_html_full_filename};
   }
 
   1;

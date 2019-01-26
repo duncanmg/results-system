@@ -25,7 +25,6 @@ ResultsSystem::Model::LeagueTable
   my $l = ResultsSystem::Model::LeagueTable->new(-logger => $logger, 
 						 -fixture_list_model => $f,
 						 -store_model => $store);
-  $l->set_division( 'U9N.csv');
   $l->create_league_table;
 
 =cut

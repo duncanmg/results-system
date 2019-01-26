@@ -23,8 +23,15 @@ ok( $rs->get_starter->start('nfcca'), "Started system" );
 ok( $f = $rs->get_factory, "Created factory" );
 isa_ok( $f, 'ResultsSystem::Factory' );
 
+ok( $f->get_configuration->set_csv_file('U9N.csv'), "Set csv file" );
+
 ok( $lt = $f->get_league_table_view, "Got LeagueTable" );
 isa_ok( $lt, 'ResultsSystem::View::LeagueTable' );
+
+ok( $lt->set_table_html_full_filename( $f->get_configuration->get_table_html_full_filename ),
+  "set_table_html_full_filename" );
+
+lives_ok( sub { $lt->get_table_html_full_filename }, "get_table_html_full_filename lives" );
 
 my $data = {
   -data => {
@@ -129,6 +136,9 @@ HTML
 
 lives_ok( sub { $lt->run($data); }, 'run method lives' );
 
-eq_or_diff( sprintf( "%s", $lt->create_document($data) ), $expected );
+ok( -f $lt->get_table_html_full_filename, "get_table_html_full_filename is valid" );
+
+eq_or_diff( sprintf( "%s", $lt->create_document($data) ),
+  $expected, "create_document returns correct data" );
 
 done_testing;

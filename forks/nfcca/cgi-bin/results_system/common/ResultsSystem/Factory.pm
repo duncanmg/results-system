@@ -782,11 +782,15 @@ sub get_message_view {
 
 sub get_league_table_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::LeagueTable->new(
+  my $lt = ResultsSystem::View::LeagueTable->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::LeagueTable' } ),
       -configuration => $self->get_configuration
     }
   );
+  if ( $self->get_configuration->get_csv_file ) {
+    $lt->set_table_html_full_filename( $self->get_configuration->get_table_html_full_filename );
+  }
+  return $lt;
 }
 
 =head3 get_week_results_view

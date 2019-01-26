@@ -54,8 +54,7 @@ sub run {
   my ( $self, $query ) = @_;
 
   $self->logger->debug("About to create league table");
-  my $lt =
-    $self->get_league_table_model->set_division( $query->param('division') )->create_league_table;
+  my $lt = $self->get_league_table_model->create_league_table;
   $self->logger->debug( Dumper $lt);
 
   $self->get_league_table_view->run(
