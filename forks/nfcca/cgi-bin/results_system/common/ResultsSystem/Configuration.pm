@@ -441,7 +441,7 @@ sub get_results_full_filename {
   return $p . '/' . $f . '_' . $m . '.dat';
 }
 
-=head2 get_table_html_full_filename
+=head3 get_table_html_full_filename
 
 Reurn the full path and filename of the HTML file which holds
 the table for the division.
@@ -453,16 +453,45 @@ Returns undef if the csv file is not set.
 sub get_table_html_full_filename {
   my ($self) = @_;
 
+  my $f = $self->get_csv_file;    # The csv file
+  return if !$f;
+
   my $dir = $self->get_path( -table_dir_full => "Y" );
   croak(
     ResultsSystem::Exception->new( 'DIR_DOES_NOT_EXIST', "Table directory $dir does not exist." )
   ) if !-d $dir;
 
-  my $f = $self->get_csv_file;    # The csv file
-  return if !$f;
-
   $f =~ s/\..*$/\.htm/x;          # Change the extension to .htm
   $f = "$dir/$f";                 # Add the path
+
+  return $f;
+}
+
+=head3 get_results_html_full_filename
+
+Reurn the full path and filename of the HTML file which holds
+the results for the division and week.
+
+Returns undef if either the csv file or the matchdate are not set.
+
+=cut
+
+sub get_results_html_full_filename {
+  my ($self) = @_;
+
+  my $f = $self->get_csv_file;      # The csv file
+  my $w = $self->_get_matchdate;    # The match date
+  return if !( $f && $w );
+
+  my $dir = $self->get_path( -results_dir_full => "Y" );
+  croak(
+    ResultsSystem::Exception->new(
+      'DIR_DOES_NOT_EXIST', "Result directory $dir does not exist."
+    )
+  ) if !-d $dir;
+
+  $f =~ s/\..*$//x;                 # Remove extension
+  $f = "$dir/${f}_$w.htm";          # Add the path
 
   return $f;
 }

@@ -50,8 +50,7 @@ sub new {
   my $self = {};
   bless $self, $class;
 
-  $self->set_logger( $args->{-logger} )               if $args->{-logger};
-  $self->set_configuration( $args->{-configuration} ) if $args->{-configuration};
+  $self->set_arguments( [qw/logger configuration results_html_full_filename/], $args );
 
   return $self;
 }
@@ -100,10 +99,28 @@ sub run {
 
   $html = $self->merge_default_stylesheet($html);
 
-  $self->set_division( $d->{division} )->set_week( $d->{week} );
   $self->write_file($html);
 
   return 1;
+}
+
+=head2 get_results_html_full_filename
+
+=cut
+
+sub get_results_html_full_filename {
+  my $self = shift;
+  return $self->{results_html_full_filename};
+}
+
+=head2 set_results_html_full_filename
+
+=cut
+
+sub set_results_html_full_filename {
+  my ( $self, $v ) = @_;
+  $self->{results_html_full_filename} = $v;
+  return $self;
 }
 
 =head1 INTERNAL (PRIVATE) METHODS
@@ -148,7 +165,7 @@ sub write_file {
   #***************************************
   my ( $self, $line ) = validate_pos( @_, 1, { type => SCALAR } );
 
-  my $f = $self->build_full_filename;
+  my $f = $self->get_results_html_full_filename;
 
   open( my $FP, ">", $f )
     || croak(
@@ -157,67 +174,6 @@ sub write_file {
   print $FP $line;
   close $FP;
   return 1;
-}
-
-=head2 build_full_filename
-
-=cut
-
-sub build_full_filename {
-  my ( $self, $data ) = @_;
-
-  my $c = $self->get_configuration;
-  my $dir = $c->get_path( -results_dir_full => "Y" );
-  croak(
-    ResultsSystem::Exception->new(
-      'DIR_DOES_NOT_EXIST', "Result directory $dir does not exist."
-    )
-  ) if !-d $dir;
-
-  my $f = $self->get_division;    # The csv file
-  my $w = $self->get_week;        # The csv file
-  $f =~ s/\..*$//x;               # Remove extension
-  $f = "$dir/${f}_$w.htm";        # Add the path
-
-  return $f;
-}
-
-=head2 get_division
-
-=cut
-
-sub get_division {
-  my $self = shift;
-  return $self->{division};
-}
-
-=head2 set_division
-
-=cut
-
-sub set_division {
-  my ( $self, $v ) = @_;
-  $self->{division} = $v;
-  return $self;
-}
-
-=head2 get_week
-
-=cut
-
-sub get_week {
-  my $self = shift;
-  return $self->{week};
-}
-
-=head2 set_week
-
-=cut
-
-sub set_week {
-  my ( $self, $v ) = @_;
-  $self->{week} = $v;
-  return $self;
 }
 
 =head2 _create_table_rows

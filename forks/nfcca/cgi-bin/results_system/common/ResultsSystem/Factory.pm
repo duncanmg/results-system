@@ -799,11 +799,16 @@ sub get_league_table_view {
 
 sub get_week_results_view {
   my ( $self, $args ) = @_;
-  return ResultsSystem::View::Week::Results->new(
+  my $obj = ResultsSystem::View::Week::Results->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Week::Results' } ),
       -configuration => $self->get_configuration
     }
   );
+  if ( $self->get_configuration->get_results_html_full_filename ) {
+    $obj->set_results_html_full_filename(
+      $self->get_configuration->get_results_html_full_filename );
+  }
+  return $obj;
 }
 
 =head3 get_results_index_view
