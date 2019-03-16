@@ -34,8 +34,8 @@ is( ref( $store->get_all_week_results_for_division('U9.csv') ),
 eq_or_diff(
   $store->_get_all_week_files('U9N.csv'),
   [ $csv_files_with_season . '/U9N_1-May.dat',
+    $csv_files_with_season . '/U9N_15-May.dat',
     $csv_files_with_season . '/U9N_8-May.dat',
-    $csv_files_with_season . '/U9N_15-May.dat'
   ],
   "_get_all_week_files"
 );
@@ -76,12 +76,12 @@ eq_or_diff(
   [ { file      => $csv_files_with_season . '/U9N_1-May.dat',
       matchdate => '1-May'
     },
+    { file      => $csv_files_with_season . '/U9N_15-May.dat',
+      matchdate => '15-May'
+    },
     { file      => $csv_files_with_season . '/U9N_8-May.dat',
       matchdate => '8-May'
     },
-    { file      => $csv_files_with_season . '/U9N_15-May.dat',
-      matchdate => '15-May'
-    }
   ],
   "get_dates_and_result_filenames_for_division"
 );
