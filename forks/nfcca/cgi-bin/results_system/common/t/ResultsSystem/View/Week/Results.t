@@ -17,7 +17,7 @@ isa_ok( $res, 'ResultsSystem::View::Week::Results' );
 
 is(
   $res->get_results_html_full_filename,
-  '/home/duncan/git/results_system/forks/nfcca/public_html/results_system/custom/nfcca/2017/results/U9N_8-May.htm',
+  $factory->get_configuration->get_path( results_dir_full => 'Y' ) . '/U9N_8-May.htm',
   "get_results_html_full_filename"
 );
 

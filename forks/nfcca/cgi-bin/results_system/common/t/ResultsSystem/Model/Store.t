@@ -7,6 +7,11 @@ use Data::Dumper;
 
 use Helper qw/get_factory/;
 
+my $config = get_factory->get_configuration;
+my $csv_files_with_season;
+ok( $csv_files_with_season = $config->get_path( -csv_files_with_season => 'Y' ),
+  'results_dir_full' );
+
 use_ok('ResultsSystem::Model::Store');
 
 my $store;
@@ -28,9 +33,9 @@ is( ref( $store->get_all_week_results_for_division('U9.csv') ),
 
 eq_or_diff(
   $store->_get_all_week_files('U9N.csv'),
-  [ '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_1-May.dat',
-    '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_8-May.dat',
-    '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_15-May.dat'
+  [ $csv_files_with_season . '/U9N_1-May.dat',
+    $csv_files_with_season . '/U9N_8-May.dat',
+    $csv_files_with_season . '/U9N_15-May.dat'
   ],
   "_get_all_week_files"
 );
@@ -68,16 +73,13 @@ throws_ok( sub { $store->_extract_date_from_result_filename('/with/path/County1_
 
 eq_or_diff(
   $store->get_dates_and_result_filenames_for_division('U9N.csv'),
-  [ { file =>
-        '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_1-May.dat',
+  [ { file      => $csv_files_with_season . '/U9N_1-May.dat',
       matchdate => '1-May'
     },
-    { file =>
-        '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_8-May.dat',
+    { file      => $csv_files_with_season . '/U9N_8-May.dat',
       matchdate => '8-May'
     },
-    { file =>
-        '/home/duncan/git/results_system/forks/nfcca/results_system/fixtures/nfcca/2017/U9N_15-May.dat',
+    { file      => $csv_files_with_season . '/U9N_15-May.dat',
       matchdate => '15-May'
     }
   ],
