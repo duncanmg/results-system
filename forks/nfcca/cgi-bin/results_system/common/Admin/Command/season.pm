@@ -150,7 +150,7 @@ sub increment_html_directories {
 sub increment_csv_directory {
   my ( $self, $config, $new_season, $dry_run ) = @_;
   my $csvs = $config->get_path( "-csv_files" => "Y" );
-  my $dir = "$csvs/$new_season";
+  my $dir  = "$csvs/$new_season";
   if ($dry_run) {
     print "About to create $dir\n";
   }

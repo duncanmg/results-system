@@ -34,7 +34,7 @@ sub meets_policies {
   my $critic    = Perl::Critic->new(
 
     -severity => ( $is_t ? 5 : 3 ),
-    -profile => $TESTDIR . '/t/.perlcriticrc',
+    -profile  => $TESTDIR . '/t/.perlcriticrc',
   );
   my @violations = ();
   lives_ok( sub { @violations = $critic->critique($full_file) },

@@ -6,7 +6,7 @@ use Test::More;
 use_ok('ResultsSystem::Locker');
 
 use Helper qw/get_config get_logger/;
-my $config = get_config();
+my $config   = get_config();
 my $lock_dir = $config->get_path( '-log_dir' => 'Y' );
 
 my $locker = ResultsSystem::Locker->new( { -configuration => $config, -logger => get_logger() } );

@@ -41,7 +41,7 @@ None
     my ( $class, $args ) = @_;
     my $self = {};
     bless $self, $class;
-    $self->{logger} = $args->{logger} if $args->{logger};
+    $self->{logger}     = $args->{logger} if $args->{logger};
     $self->{blank_view} = $args->{-blank_view};
     return $self;
   }

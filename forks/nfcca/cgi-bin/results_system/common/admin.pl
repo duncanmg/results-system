@@ -49,7 +49,7 @@ sub main() {
   my $system = $params->{system};
 
   my $config_file = "../custom/$system/$system.ini";
-  my $config = ResultsSystem::Configuration->new( -full_filename => $config_file );
+  my $config      = ResultsSystem::Configuration->new( -full_filename => $config_file );
 
   $config->read_file;
   $placeholders->{system}     = $system;
@@ -103,11 +103,11 @@ sub load_csv_file {
   print STDERR Dumper $data;
 
   my @lines = split( /\n/x, $data );
-  my $err = Check::check( $target->{csv_file}, \@lines );
+  my $err   = Check::check( $target->{csv_file}, \@lines );
 
   if ( !$err ) {
 
-    my $path = $config->get_path( "-csv_files" => "Y" );
+    my $path     = $config->get_path( "-csv_files" => "Y" );
     my $filename = "$path/$target->{csv_file}";
     if ( -f $filename ) {
       copy( $filename, $filename . '.' . time() )

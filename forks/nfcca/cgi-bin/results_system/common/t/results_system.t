@@ -107,7 +107,7 @@ sub test_post {
 
 # ********************************************************************
 sub test_get {
-  my $hr = shift;
+  my $hr       = shift;
   my $response = $lwp->request( GET $hr->{url}, Content_Type => 'text/html' );
 
   validate( $hr->{url}, $response->content );

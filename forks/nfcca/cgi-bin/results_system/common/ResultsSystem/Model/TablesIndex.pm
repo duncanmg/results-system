@@ -67,7 +67,7 @@ Returns
 
     # *********************************************************
     my $self = shift;
-    my $out = { divisions => [] };
+    my $out  = { divisions => [] };
 
     my $c     = $self->get_configuration;
     my @names = $self->_get_store_model->get_menu_names;

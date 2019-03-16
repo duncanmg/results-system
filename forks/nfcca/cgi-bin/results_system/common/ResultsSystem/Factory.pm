@@ -119,7 +119,7 @@ sub get_file_logger {
   my ( $self, $args ) = validate_pos( @_, 1, { type => HASHREF, default => {} } );
   if ( !( $args->{-log_dir} && $args->{-logfile_stem} ) ) {
     my $c = $self->get_configuration;
-    $args->{-log_dir} = $c->get_path( -log_dir => 1 );
+    $args->{-log_dir}      = $c->get_path( -log_dir => 1 );
     $args->{-logfile_stem} = $c->get_log_stem;
   }
   $args->{-category} ||= 'Default';
@@ -167,7 +167,7 @@ sub get_auto_cleaner {
     { -logger        => $self->get_file_logger( { -category => 'ResultsSystem::AutoCleaner' } ),
       -configuration => $self->get_configuration()
     }
-    )->set_logfile_stem(".*")
+  )->set_logfile_stem(".*")
     ->set_log_dir( $self->get_configuration->get_path( -log_dir => 'Y' ) );
 }
 
