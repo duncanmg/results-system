@@ -3,7 +3,7 @@
   use strict;
   use warnings;
 
-  use Slurp;
+  use File::Slurp qw/slurp/;
   use List::MoreUtils qw / any /;
   use Data::Dumper;
 

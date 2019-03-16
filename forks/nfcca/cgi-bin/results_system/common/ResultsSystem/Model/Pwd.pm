@@ -4,7 +4,7 @@
   use warnings;
 
   use Time::localtime;
-  use Slurp;
+  use File::Slurp qw/slurp/;
   use Data::Dumper;
   use Params::Validate qw/:all/;
   use parent qw/ ResultsSystem::Model/;

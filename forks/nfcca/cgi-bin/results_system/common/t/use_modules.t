@@ -10,7 +10,7 @@ use_ok('File::Copy');
 use_ok('Data::Dumper');
 use_ok('parent');
 use_ok('List::MoreUtils');
-use_ok('Slurp');
+use_ok('File::Slurp');
 use_ok('Params::Validate');
 
 use_ok('ResultsSystem::AutoCleaner');

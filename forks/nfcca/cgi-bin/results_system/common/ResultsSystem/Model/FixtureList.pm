@@ -85,7 +85,7 @@ use Carp;
 use Regexp::Common;
 use List::MoreUtils qw/any/;
 
-use Slurp;
+use File::Slurp qw/slurp/;
 use Data::Dumper;
 
 use ResultsSystem::Exception;

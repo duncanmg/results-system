@@ -6,7 +6,7 @@ use Test::More;
 use Test::Pod::Coverage;
 
 use File::Find;
-use Slurp;
+use File::Slurp qw/slurp/;
 
 my @dirs         = qw/ ResultsSystem /;
 my $modules_list = [];

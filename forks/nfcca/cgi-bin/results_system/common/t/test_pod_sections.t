@@ -6,7 +6,7 @@ use List::MoreUtils qw/ first_index /;
 use Test::More;
 
 use File::Find;
-use Slurp;
+use File::Slurp qw/slurp/;
 
 my @dirs         = qw/ ResultsSystem /;
 my $modules_list = [];
