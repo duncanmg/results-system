@@ -10,6 +10,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use HTTP::Status qw(:constants :is status_message);
+use parent 'ResultsSystem::Controller';
 
 =head1 SYNOPSIS
 
@@ -20,6 +21,8 @@ use HTTP::Status qw(:constants :is status_message);
 =cut
 
 =head1 INHERITS FROM
+
+L<ResultsSystem::Controller>
 
 =cut
 
@@ -103,15 +106,6 @@ sub get_message_view {
 sub get_locker {
   my $self = shift;
   return $self->{locker};
-}
-
-=head2 logger
-
-=cut
-
-sub logger {
-  my $self = shift;
-  return $self->{logger};
 }
 
 =head1 UML
