@@ -51,12 +51,16 @@ sub start {
   my ( $self, $system, $division, $matchdate ) = validate_pos( @_, 1, 0, 0, 0 );
 
   $self->set_system($system) if $system;
-  croak( ResultsSystem::Exception->new( 'NO_SYSYEM', 'System is not set.' ) )
+  croak( ResultsSystem::Exception->new( 'NO_SYSTEM', 'System is not set.' ) )
     if !$self->get_system;
 
   my $conf = $self->get_configuration;
   $conf->set_system($system);
-  $conf->read_file;
+
+  # read_file returns false on success.
+  $conf->read_file
+    && croak( ResultsSystem::Exception->new( 'NO_SYSTEM', 'Unable to read system file.' ) );
+
   $conf->set_csv_file($division)   if $division;
   $conf->set_matchdate($matchdate) if $matchdate;
   return $self;

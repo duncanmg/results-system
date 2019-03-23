@@ -110,9 +110,21 @@ sub route {
       'tables_index'  => sub { $self->_get_factory->get_tables_index_controller->run($query) }
     };
 
+    my $not_found = sub {
+      $self->_get_factory->get_message_view->run(
+        { -data        => 'Page Not Found',
+          -status_code => 404
+        }
+      );
+    };
+
     my $page = $query->param('page');
+
     if ( $pages->{$page} ) {
       $pages->{$page}->();
+    }
+    else {
+      $not_found->();
     }
     1;
   } || do {

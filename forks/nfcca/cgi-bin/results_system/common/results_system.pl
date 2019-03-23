@@ -73,12 +73,15 @@ sub main {
     my $err = $@;
     print STDERR $err;
 
+    my $message = "\nUnknown Error\n";
+    $message = "\nMissing or invalid system\n" if $err =~ m/NO_SYSTEM/xms;
+
     my $response = HTTP::Response->new( HTTP_INTERNAL_SERVER_ERROR,
       status_message(HTTP_INTERNAL_SERVER_ERROR),
       [ 'Content-Type' => 'text/html; charset=ISO-8859-1',
         'Status' => HTTP_INTERNAL_SERVER_ERROR . " " . status_message(HTTP_INTERNAL_SERVER_ERROR)
       ],
-      $q->start_html . "\nUnknown Error\n" . $q->end_html
+      $q->start_html . $message . $q->end_html
     );
 
     print $response->headers->as_string . "\n\n";
