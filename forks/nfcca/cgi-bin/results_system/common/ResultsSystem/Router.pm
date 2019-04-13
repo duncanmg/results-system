@@ -94,21 +94,7 @@ sub route {
   my ( $self, $query ) = @_;
 
   eval {
-    my $pages = {
-      'frame'         => sub { $self->_get_factory->get_frame_controller->run($query) },
-      'menu'          => sub { $self->_get_factory->get_menu_controller->run($query) },
-      'blank'         => sub { $self->_get_factory->get_blank_controller->run($query) },
-      'menu_js'       => sub { $self->_get_factory->get_menu_js_controller->run($query) },
-      'week_fixtures' => sub { $self->_get_factory->get_week_fixtures_controller->run($query) },
-      'save_results'  => sub {
-             $self->_get_factory->get_pwd_controller->run($query)
-          && $self->_get_factory->get_save_results_controller->run($query)
-          && $self->_get_factory->get_league_table_controller->run($query)
-          && $self->_get_factory->get_week_results_controller->run($query);
-      },
-      'results_index' => sub { $self->_get_factory->get_results_index_controller->run($query) },
-      'tables_index'  => sub { $self->_get_factory->get_tables_index_controller->run($query) }
-    };
+    my $pages = $self->_get_pages($query);
 
     my $not_found = sub {
       $self->_get_factory->get_message_view->run(
@@ -147,6 +133,18 @@ sub set_factory {
   return $self;
 }
 
+=head2 set_pages
+
+Only used for testing.
+
+=cut
+
+sub set_pages {
+  my ( $self, $hr ) = validate_pos( @_, 1, { type => HASHREF } );
+  $self->{pages} = $hr;
+  return $self;
+}
+
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
@@ -160,6 +158,31 @@ Returns the factory object.
 sub _get_factory {
   my $self = shift;
   return $self->{factory};
+}
+
+=head2 _get_pages
+
+=cut
+
+sub _get_pages {
+  my ( $self, $query ) = validate_pos( @_, 1, 1 );
+  $self->{pages} = {
+    'frame'         => sub { $self->_get_factory->get_frame_controller->run($query) },
+    'menu'          => sub { $self->_get_factory->get_menu_controller->run($query) },
+    'blank'         => sub { $self->_get_factory->get_blank_controller->run($query) },
+    'menu_js'       => sub { $self->_get_factory->get_menu_js_controller->run($query) },
+    'week_fixtures' => sub { $self->_get_factory->get_week_fixtures_controller->run($query) },
+    'save_results'  => sub {
+           $self->_get_factory->get_pwd_controller->run($query)
+        && $self->_get_factory->get_save_results_controller->run($query)
+        && $self->_get_factory->get_league_table_controller->run($query)
+        && $self->_get_factory->get_week_results_controller->run($query);
+    },
+    'results_index' => sub { $self->_get_factory->get_results_index_controller->run($query) },
+    'tables_index'  => sub { $self->_get_factory->get_tables_index_controller->run($query) }
+  } if !$self->{pages};
+  return $self->{pages};
+
 }
 
 1;
