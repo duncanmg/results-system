@@ -12,11 +12,17 @@ ResultsSystem::View::TablesIndex
 
 =head1 DESCRIPTION
 
+Outputs the HTML for the table index. 
+
+The index is an unordered list. If the table exists, then the list item contains
+a link to the table. If it doesn't exist then the list item contains the name of the division
+and the message "No table yet".
+
 =cut
 
 =head1 INHERITS FROM
 
-ResultsSystem::View
+L<ResultsSystem::View>
 
 =cut
 
@@ -30,11 +36,10 @@ ResultsSystem::View
   use ResultsSystem::View;
   use parent qw/ResultsSystem::View/;
 
-=head1 External Methods (Public)
-
-=cut
-
 =head2 new
+
+  my $v = ResultsSystem::View::TablesIndex->new( 
+    {-logger => $l, -configuration => $c} );
 
 =cut
 
@@ -62,7 +67,16 @@ ResultsSystem::View
     my ( $self, $data ) = @_;
 
     $data = $data->{-data};
-    my $html = $self->merge_array( $self->get_item_html, $data->{divisions} );
+    my $html = '';
+
+    for my $d ( @{ $data->{divisions} } ) {
+      if ( $d->{file_exists} ) {
+        $html .= $self->merge_content( $self->get_item_html_file_exists, $d );
+      }
+      else {
+        $html .= $self->merge_content( $self->get_item_html_file_not_exists, $d );
+      }
+    }
 
     $html = $self->merge_content( $self->get_html, { %$data, list_items => $html } );
 
@@ -99,14 +113,25 @@ ResultsSystem::View
 HTML
   }
 
-=head2 get_item_html
+=head2 get_item_html_file_exists
 
 =cut
 
-  sub get_item_html {
+  sub get_item_html_file_exists {
     my $self = shift;
     return <<'HTML';
 <li><a href="[% link %]">[% name %]</a></li>
+HTML
+  }
+
+=head2 get_item_html_file_not_exists
+
+=cut
+
+  sub get_item_html_file_not_exists {
+    my $self = shift;
+    return <<'HTML';
+<li>[% name %] - No table yet</li>
 HTML
   }
 

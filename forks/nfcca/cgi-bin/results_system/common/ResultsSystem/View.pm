@@ -403,6 +403,88 @@ sub merge_default_stylesheet {
   return $self->merge_stylesheets( $html, [$sheet] );
 }
 
+=head2 merge_if_in_list
+
+Specify a list of possible replacements.
+
+For instance this:
+
+  $self->merge_if_in_list( $html, 'msg_colour', 'stop', [ 'stop', 'wait', 'go' ],
+    [ 'red', 'amber', 'green' ] );
+
+could be used to set the colour of a message based on the value of an input.
+
+No default value.
+
+=cut
+
+sub merge_if_in_list {
+  my ( $self, $html, $label, $value, $targets, $replacements ) =
+    validate_pos( @_, 1, 1, 1, 1, { type => ARRAYREF }, { type => ARRAYREF } );
+
+  my $out = "";
+  my $i   = 0;
+  foreach my $t (@$targets) {
+    if ( ( $value || "" ) eq ( $t || "" ) ) {
+      $out = $self->merge_content( $html, { $label => $replacements->[$i] } );
+      last;
+    }
+    $i++;
+  }
+  return $out;
+}
+
+=head2 merge_if
+
+Useful when working with select lists.
+
+The HTML could be:
+
+  <select><option value="Y" [% played_y %]>Y</option></select>
+
+The following could will replace the label with 'selected="selected"' if $r->{played} is 'Y'.
+
+ $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"' );
+
+There is no "else" or "default".
+
+=cut
+
+sub merge_if {
+  my ( $self, $html, $label, $value, $target, $replacement ) =
+    validate_pos( @_, 1, 1, 1, 1, { type => SCALAR }, { type => SCALAR } );
+
+  my $out = $html;
+  if ( ( $value || "" ) eq ( $target || "" ) ) {
+    $out = $self->merge_content( $html, { $label => $replacement } );
+  }
+  return $out;
+}
+
+=head2 merge_if_else
+
+Same functionality as merge_if but accepts a default value which is used if the match fails.
+
+ $row = $self->merge_if( $row, 'played_y', $r->{played}, 'Y', 'selected="selected"', "" );
+
+=cut
+
+sub merge_if_else {
+  my ( $self, $html, $label, $value, $target, $replacement, $default ) =
+    validate_pos( @_, 1, 1, 1, 1, { type => SCALAR }, { type => SCALAR }, { type => SCALAR } );
+
+  my $out = $html;
+
+  if ( ( $value || "" ) eq ( $target || "" ) ) {
+    $out = $self->merge_content( $html, { $label => $replacement } );
+  }
+  else {
+    $out = $self->merge_content( $html, { $label => $default } );
+  }
+
+  return $out;
+}
+
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut

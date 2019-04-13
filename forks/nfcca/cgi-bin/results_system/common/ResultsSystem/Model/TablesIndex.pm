@@ -26,6 +26,8 @@ ResultsSystem::Model
 
   use strict;
   use warnings;
+  use Data::Dumper;
+  use Params::Validate qw/:all/;
   use ResultsSystem::Model;
   use parent qw/ResultsSystem::Model/;
 
@@ -57,7 +59,9 @@ Returns
 
   { 'title' => 'xxxxx',
     'return_to_url' => 'yyyyy',
-    'divisions' => [ { 'name' => 'aaaaa', 'link' => 'bbbbb' } ]
+    'divisions' => [ { 'name' => 'aaaaa', 
+                       'link' => 
+		         '/results_system/custom/nfcca/2017/tables/U9N.htm' } ]
   }
 
 =cut
@@ -83,11 +87,14 @@ Returns
 
       push @{ $out->{divisions} },
         {
-        'link' => "$d/" . $self->get_html_filename( $division->{csv_file} ),
-        'name' => $division->{menu_name}
+        'link'        => "$d/" . $self->get_html_filename( $division->{csv_file} ),
+        'name'        => $division->{menu_name},
+        'file_exists' => $self->_html_file_exists( $division->{csv_file} ),
         };
 
     }
+    $self->logger->debug(
+      "Example output, first division in list.\n" . Dumper( $out->{divisions}->[0] ) );
     return $out;
 
   }
@@ -106,7 +113,30 @@ Returns
 
 =cut
 
+=head2 _html_file_exists
+
+Return true if the HTML file exists. It won't be created until the first
+results for the division are entered.
+
+  $exists = $self->_html_file_exists( 'U9N.csv');
+
+=cut
+
+  sub _html_file_exists {
+    my ( $self, $csv_file ) = validate_pos( @_, 1, 1 );
+    my $c = $self->get_configuration;
+    $c->set_csv_file($csv_file);
+    my $html_file = $c->get_table_html_full_filename();
+    return ( -f $html_file ) ? 1 : undef;
+  }
+
 =head2 get_html_filename
+
+Changes the file extension from .csv to .htm.
+
+  $html_file = get_html_filename('U9N.csv');
+
+Returns 'U9N.htm'.
 
 =cut
 
