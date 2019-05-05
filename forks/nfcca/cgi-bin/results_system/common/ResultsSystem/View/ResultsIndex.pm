@@ -182,7 +182,7 @@ sub get_heading_html {
   return <<'HTML';
         <h1>[% TITLE %] - [% SEASON %]</h1>
         <h1>Index of the Results by Match Date and Division</h1>
-        <p><a href="[% RETURN_TO_LINK %]"/>[% RETURN_TO_TITLE %]</a></p>
+        <!-- <p><a href="[% RETURN_TO_LINK %]"/>[% RETURN_TO_TITLE %]</a></p> -->
 	<!-- The dates for each division are in a table with a maximum of [% NUM_COLS %] columns -->
         <!-- Each cell will contain a link with a label of the form DD-Mon. -->
 	[% CONTENT %]

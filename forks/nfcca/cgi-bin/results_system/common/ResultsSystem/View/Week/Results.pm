@@ -82,15 +82,21 @@ sub run {
 
   my $c = $self->get_configuration;
 
+  my $p =
+      $c->get_path( "-cgi_dir" => "Y", -allow_not_exists => 1 )
+    . "/common/results_system.pl?page=results_index&system="
+    . $c->get_system;
+
   my $html = $self->merge_content(
     $self->_get_html,
-    { ROWS      => $table_rows,
-      SYSTEM    => $d->{SYSTEM},
-      SEASON    => $c->get_descriptors( -season => "Y" ),
-      WEEK      => $d->{week},
-      MENU_NAME => $d->{MENU_NAME},
-      TITLE     => $c->get_descriptors( -title => "Y" ),
-      TIMESTAMP => localtime() . "",
+    { ROWS               => $table_rows,
+      SYSTEM             => $d->{SYSTEM},
+      SEASON             => $c->get_descriptors( -season => "Y" ),
+      WEEK               => $d->{week},
+      MENU_NAME          => $d->{MENU_NAME},
+      TITLE              => $c->get_descriptors( -title => "Y" ),
+      TIMESTAMP          => localtime() . "",
+      RESULTS_INDEX_HREF => $p,
     }
   );
 
@@ -209,10 +215,9 @@ sub _get_html {
   my $self = shift;
 
   my $html = <<'HTML';
-      <script type="text/javascript" src="menu_js.pl?system=[% SYSTEM %]&page=week_fixtures"></script>
       <h1>[% TITLE %] [% SEASON %]</h1>
       <h1>Results For Division [% MENU_NAME %] Week [% WEEK %]</h1>
-      <p><a href="results_system.pl?system=[% SYSTEM %]&page=results_index">Return To Results Index</a></p>
+      <p><a href="[% RESULTS_INDEX_HREF %]">Return To Results Index</a></p>
 
       <table class='week_fixtures'>
       <tr>

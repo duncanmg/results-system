@@ -105,7 +105,7 @@ L<ResultsSystem::View>
     return <<'HTML';
 <h1>[% title %]</h1>
 <h2>Index of League Tables</h2>
-<p><a href="[% return_to_url %]">[% return_to_title %]</a></p>
+<!-- <p><a href="[% return_to_url %]">[% return_to_title %]</a></p> -->
 <ul>
 [% list_items %]
 </ul>
