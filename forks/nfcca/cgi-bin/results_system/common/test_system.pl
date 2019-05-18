@@ -17,16 +17,18 @@ sub test_module_availability {
   # *******************************************************
   my $err         = 0;
   my @module_list = qw!
-    ResultsSystem::Model ResultsSystem::Locker ResultsSystem::Factory ResultsSystem::Router ResultsSystem::Exception ResultsSystem::Logger
-    ResultsSystem::Starter ResultsSystem::View ResultsSystem::View::Menu ResultsSystem::View::MenuJs ResultsSystem::View::SaveResults
-    ResultsSystem::View::Frame ResultsSystem::View::Week ResultsSystem::View::TablesIndex ResultsSystem::View::Blank ResultsSystem::View::LeagueTable
-    ResultsSystem::View::Pwd ResultsSystem::View::Week::Results ResultsSystem::View::Week::FixturesForm ResultsSystem::View::ResultsIndex
-    ResultsSystem::View::Message ResultsSystem::Model::Menu ResultsSystem::Model::Fixtures ResultsSystem::Model::MenuJs ResultsSystem::Model::WeekResults::Writer
-    ResultsSystem::Model::WeekResults::Reader ResultsSystem::Model::SaveResults ResultsSystem::Model::Frame ResultsSystem::Model::WeekResults
-    ResultsSystem::Model::TablesIndex ResultsSystem::Model::LeagueTable ResultsSystem::Model::Pwd ResultsSystem::Model::ResultsIndex
-    ResultsSystem::Model::SaveWeekResults ResultsSystem::Model::WeekFixtures ResultsSystem::AutoCleaner ResultsSystem::Configuration
-    ResultsSystem::Controller::Menu ResultsSystem::Controller::MenuJs ResultsSystem::Controller::SaveResults ResultsSystem::Controller::Frame
-    ResultsSystem::Controller::TablesIndex ResultsSystem::Controller::Blank ResultsSystem::Controller::ResultsIndex ResultsSystem::Controller::WeekFixtures
+    ResultsSystem::AutoCleaner ResultsSystem::Configuration ResultsSystem::Controller::Blank ResultsSystem::Controller::Frame
+    ResultsSystem::Controller::LeagueTable ResultsSystem::Controller::Menu ResultsSystem::Controller::MenuJs ResultsSystem::Controller::Pwd
+    ResultsSystem::Controller::ResultsIndex ResultsSystem::Controller::SaveResults ResultsSystem::Controller::TablesIndex ResultsSystem::Controller::WeekFixtures
+    ResultsSystem::Controller::WeekResults ResultsSystem::Exception ResultsSystem::Locker ResultsSystem::Logger
+    ResultsSystem::Model ResultsSystem::Model::FixtureList ResultsSystem::Model::Frame ResultsSystem::Model::LeagueTable
+    ResultsSystem::Model::Menu ResultsSystem::Model::MenuJs ResultsSystem::Model::Pwd ResultsSystem::Model::ResultsIndex
+    ResultsSystem::Model::SaveResults ResultsSystem::Model::Store ResultsSystem::Model::Store::Divisions ResultsSystem::Model::TablesIndex
+    ResultsSystem::Model::WeekFixtures::Adapter ResultsSystem::Model::WeekFixtures::Selector ResultsSystem::Model::WeekResults::Reader ResultsSystem::Model::WeekResults::Writer
+    ResultsSystem::Router ResultsSystem::Starter ResultsSystem::View ResultsSystem::View::Blank
+    ResultsSystem::View::Frame ResultsSystem::View::LeagueTable ResultsSystem::View::Menu ResultsSystem::View::MenuJs
+    ResultsSystem::View::Message ResultsSystem::View::Pwd ResultsSystem::View::ResultsIndex ResultsSystem::View::TablesIndex
+    ResultsSystem::View::Week ResultsSystem::View::Week::FixturesForm ResultsSystem::View::Week::Results
     !;
 
   foreach my $m (@module_list) {
