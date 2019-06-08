@@ -41,7 +41,7 @@ use ResultsSystem::Exception;
 =head2 new
 
 Constructor for the ResultsSystem::Model::Store::Divisions object. Optionally accepts the full filename
-of the configuration file as an argument. Does not read the file at this point.
+of the divisions configuration file as an argument. Does not read the file at this point.
 
 If -full_filename is not provided, then it must be set explicitly before the file 
 can be read.
@@ -297,7 +297,6 @@ sub _load_file {
 
   #***************************************
   my ( $self, $full_filename ) = @_;
-  my $err = 0;
   my ($tags);
 
   my $xml = XML::Simple->new();
@@ -312,10 +311,19 @@ sub _load_file {
     );
     1;
   } || do {
-    $self->logger->error($@);
-    croak( ResultsSystem::Exception->new( 'XML_ERROR', "Error reading XML $@" ) );
+    my $err = $@;
+    $self->logger->error($err);
+    croak( ResultsSystem::Exception->new( 'XML_ERROR', "Error reading XML $err" ) );
   };
 
+  if ( ref($tags) ne 'HASH' ) {
+    $self->logger(1)->error( 'XML ERROR ' . Dumper $tags);
+    croak(
+      ResultsSystem::Exception->new(
+        'XML_ERROR', "Error reading XML. Variable returned is not a hash ref"
+      )
+    );
+  }
   $self->logger(1)->debug("File read");
 
   return ( 0, $tags );

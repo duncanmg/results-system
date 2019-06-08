@@ -43,4 +43,33 @@ cmp_deeply(
   "get_name return the correct hash ref"
 );
 
+# ************************************************************************
+
+# Not sure why it took so many of these to switch off error loging.
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+$d->logger->less_logging;
+
+throws_ok(
+  sub { $d->_load_file( \"Mary had a little lamb" ); },
+  qr/Start tag expected/,
+  "String not XML"
+);
+
+throws_ok( sub { $d->_load_file( \"<test>Mary had a little lamb" ); },
+  qr/XML_ERROR/, "Malformed XML" );
+
+throws_ok( sub { $d->_load_file( \"<test>Mary had a little lamb</test>" ); },
+  qr/XML_ERROR/, "No start or end <xml> tags" );
+
+print Dumper  $d->_load_file( \"<xml><test>Mary had a little lamb</test></xml>" );
+
 done_testing;
