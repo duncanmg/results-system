@@ -115,6 +115,59 @@ sub encode_entities {
   return HTML::HTML5::Entities::encode_entities($unencoded);
 }
 
+=head2 set_capture_output
+
+=cut
+
+sub set_capture_output {
+  my ( $self, $v ) = validate_pos( @_, 1, { type => SCALAR, regex => qr/^[01]$/x } );
+  $self->{capture_output} = $v;
+  return $self;
+}
+
+=head2 get_capture_output
+
+=cut
+
+sub get_capture_output {
+  my ($self) = @_;
+  return $self->{capture_output};
+}
+
+=head2 set_captured_output
+
+=cut
+
+sub set_captured_output {
+  my ( $self, $v ) = @_;
+  $self->{captured_output} = $v;
+  return $self;
+}
+
+=head2 get_captured_output
+
+=cut
+
+sub get_captured_output {
+  my ($self) = @_;
+  return $self->{captured_output};
+}
+
+=head2 output_rendered
+
+=cut
+
+sub output_rendered {
+  my ( $self, $v ) = @_;
+  if ( $self->get_capture_output ) {
+    $self->set_captured_output($v);
+  }
+  else {
+    print $v;
+  }
+  return 1;
+}
+
 =head1 TEMPLATING METHODS (PUBLIC)
 
 =cut
@@ -145,8 +198,7 @@ sub render {
     $data
   );
 
-  print $response->headers->as_string . "\n\n";
-  print $response->content . "\n";
+  $self->output_rendered( $response->headers->as_string . "\n\n" . $response->content . "\n" );
   return 1;
 }
 
@@ -173,8 +225,7 @@ sub render_javascript {
     $data
   );
 
-  print $response->headers->as_string . "\n\n";
-  print $response->content . "\n";
+  $self->output_rendered( $response->headers->as_string . "\n\n" . $response->content . "\n" );
   return 1;
 
 }
@@ -206,8 +257,7 @@ sub render_json {
     encode_json($hash_ref)
   );
 
-  print $response->headers->as_string . "\n\n";
-  print $response->content . "\n";
+  $self->output_rendered( $response->headers->as_string . "\n\n" . $response->content . "\n" );
   return 1;
 
 }
