@@ -115,40 +115,18 @@ sub encode_entities {
   return HTML::HTML5::Entities::encode_entities($unencoded);
 }
 
-=head2 set_renderer
-
-May be useful during testing. It allows the rendered output to
-be diverted or captured.
-
-  $self->set_renderer( $code_ref );
-
-The code_ref must accept an array ref of strings and do something with them.
-
-The default action is to print them to the standard output.
-
-=cut
-
-sub set_renderer {
-  my ( $self, $code_ref ) = validate_pos( @_, 1, { type => CODEREF } );
-  $self->{renderer} = $code_ref;
-  return $self;
-}
-
 =head1 TEMPLATING METHODS (PUBLIC)
 
 =cut
 
 =head2 render
 
-Prints an HTTP response to the standard output. Status defaults to 200.
-Character set defaults to UTF-8. Content type text/html.
+Prints an HTTP response to the standard output. Status 200.
+Character set ISO-8859-1. Content type text/html.
 
 The response content is the HTML provided as the -data key.
 
   $self->render( { -data => $html } );
-
-  $self->render( { -data => $html, -charset => 'ISO-8859-1',
-    -status_code => HTTP_OK } );
 
 =cut
 
@@ -167,8 +145,8 @@ sub render {
     $data
   );
 
-  $self->_get_renderer->( [ $response->headers->as_string . "\n\n", $response->content . "\n" ] );
-
+  print $response->headers->as_string . "\n\n";
+  print $response->content . "\n";
   return 1;
 }
 
@@ -187,14 +165,10 @@ sub render_javascript {
   my ( $self, $args ) = @_;
   my $data = $args->{-data};
 
-  $args->{-charset}     ||= 'UTF-8';
-  $args->{-status_code} ||= HTTP_OK;
-
-  my $response = HTTP::Response->new(
-    $args->{-status_code},
-    status_message( $args->{-status_code} ),
-    [ 'Content-Type' => 'text/javascript; charset=' . $args->{-charset},
-      'Status'       => $args->{-status_code} . " " . status_message( $args->{-status_code} )
+  my $response = HTTP::Response->new( HTTP_OK,
+    status_message(HTTP_OK),
+    [ 'Content-Type' => 'text/javascript; charset=ISO-8859-1',
+      'Status'       => HTTP_OK . " " . status_message(HTTP_OK)
     ],
     $data
   );
@@ -514,27 +488,5 @@ sub merge_if_else {
 =head1 INTERNAL (PRIVATE) METHODS
 
 =cut
-
-=head2 _get_renderer
-
-Return the renderer code_ref which accepts an array ref of strings.
-
-The default code_ref prints the strings to the standard output.
-
-=cut
-
-sub _get_renderer {
-  my ($self) = validate_pos( @_, 1 );
-
-  $self->{renderer} ||= sub {
-    my $lines = shift;
-    foreach my $l (@$lines) {
-      print $l;
-    }
-    return 1;
-  };
-
-  return $self->{renderer};
-}
 
 1;
