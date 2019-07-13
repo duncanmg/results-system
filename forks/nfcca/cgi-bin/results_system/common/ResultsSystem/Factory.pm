@@ -73,6 +73,7 @@ use ResultsSystem::View::Week::FixturesForm;
 use ResultsSystem::View::Week::Results;
 use ResultsSystem::View::Pwd;
 use ResultsSystem::View::Message;
+use ResultsSystem::View::MessageJs;
 use ResultsSystem::View::LeagueTable;
 use ResultsSystem::View::ResultsIndex;
 use ResultsSystem::View::TablesIndex;
@@ -272,8 +273,9 @@ sub get_menu_js_controller {
   my ( $self, $args ) = @_;
   return ResultsSystem::Controller::MenuJs->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::Controller::MenuJs' } ),
-      -menu_js_view  => $self->get_menu_js_view,
-      -menu_js_model => $self->get_menu_js_model
+      -menu_js_view    => $self->get_menu_js_view,
+      -menu_js_model   => $self->get_menu_js_model,
+      -message_js_view => $self->get_message_js_view
     }
   );
 }
@@ -774,6 +776,16 @@ sub get_message_view {
   my ( $self, $args ) = @_;
   return ResultsSystem::View::Message->new(
     { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::Message' } ) } );
+}
+
+=head3 get_message_js_view
+
+=cut
+
+sub get_message_js_view {
+  my ( $self, $args ) = @_;
+  return ResultsSystem::View::MessageJs->new(
+    { -logger => $self->get_file_logger( { -category => 'ResultsSystem::View::MessageJs' } ) } );
 }
 
 =head3 get_league_table_view

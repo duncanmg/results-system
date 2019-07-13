@@ -5,6 +5,8 @@ use warnings;
 use Params::Validate qw/:all/;
 use Carp;
 
+my $content_type = '';
+
 =head1 NAME
 
 ResultsSystem::Router
@@ -93,6 +95,8 @@ Accepts a CGI object as an argument and calls the run() method on the relevant c
 sub route {
   my ( $self, $query ) = @_;
 
+  $content_type = '';
+
   eval {
     my $pages = $self->_get_pages($query);
 
@@ -167,10 +171,12 @@ sub _get_factory {
 sub _get_pages {
   my ( $self, $query ) = validate_pos( @_, 1, 1 );
   $self->{pages} = {
-    'frame'         => sub { $self->_get_factory->get_frame_controller->run($query) },
-    'menu'          => sub { $self->_get_factory->get_menu_controller->run($query) },
-    'blank'         => sub { $self->_get_factory->get_blank_controller->run($query) },
-    'menu_js'       => sub { $self->_get_factory->get_menu_js_controller->run($query) },
+    'frame'   => sub { $self->_get_factory->get_frame_controller->run($query) },
+    'menu'    => sub { $self->_get_factory->get_menu_controller->run($query) },
+    'blank'   => sub { $self->_get_factory->get_blank_controller->run($query) },
+    'menu_js' => sub {
+      $self->_content_type_js( sub { $self->_get_factory->get_menu_js_controller->run($query) } );
+    },
     'week_fixtures' => sub { $self->_get_factory->get_week_fixtures_controller->run($query) },
     'save_results'  => sub {
            $self->_get_factory->get_pwd_controller->run($query)
@@ -183,6 +189,16 @@ sub _get_pages {
   } if !$self->{pages};
   return $self->{pages};
 
+}
+
+sub _content_type_js {
+  my ( $self, $sub ) = @_;
+  eval { $sub->(); 1; } || do {
+    my $err = $@;
+    $self->_get_factory->get_message_js_view->run(
+      { -data => 'message=An error has occurred;', -status_code => 500 } );
+  };
+  return 1;
 }
 
 1;

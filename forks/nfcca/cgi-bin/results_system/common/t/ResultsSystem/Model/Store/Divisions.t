@@ -70,6 +70,6 @@ throws_ok( sub { $d->_load_file( \"<test>Mary had a little lamb" ); },
 throws_ok( sub { $d->_load_file( \"<test>Mary had a little lamb</test>" ); },
   qr/XML_ERROR/, "No start or end <xml> tags" );
 
-print Dumper  $d->_load_file( \"<xml><test>Mary had a little lamb</test></xml>" );
+# print Dumper $d->_load_file( \"<xml><test>Mary had a little lamb</test></xml>" );
 
 done_testing;

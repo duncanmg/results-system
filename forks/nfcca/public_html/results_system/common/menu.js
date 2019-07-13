@@ -21,6 +21,7 @@ function add_dates() {
 function set_up() {
     // **************************************************
 
+    try {
     var sdivision = document.getElementById("division");
     // alert( menu_names.length + " divisions" );
     for (var x = 0; x < menu_names.length; x++) {
@@ -33,6 +34,12 @@ function set_up() {
     // alert( 2 );
     add_dates();
     // alert( 3 );
+    }
+    catch(e) {
+	    //alert('Error');
+            var o = new Option('An error has occurred', '');
+            sdivision.options[sdivision.options.length] = o;
+    }
 
 }
 
